@@ -47,7 +47,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public String getUserWithEmailAndPassword(SigninUserRequestDto signinUserRequestDto) {
+    public String signin(SigninUserRequestDto signinUserRequestDto) {
         User user = userRepository.findByEmailOrElseThrow(signinUserRequestDto.getEmail());
 
         if (!passwordEncoder.matches(signinUserRequestDto.getPassword(), user.getPassword())) {
