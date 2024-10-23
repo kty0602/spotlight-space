@@ -1,6 +1,7 @@
 package com.spotlightspace.core.event.domain;
 
 import com.spotlightspace.common.entity.Timestamped;
+import com.spotlightspace.core.event.dto.AddEventRequestDto;
 import com.spotlightspace.core.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,14 +54,13 @@ public class Event extends Timestamped {
     @Column(length = 200)
     private int price;
 
-    @Column(length = 20)
-    private String category;
+    private EventCategory category;
 
     @Column
-    private LocalDate recruitmentStartAt;
+    private LocalDateTime recruitmentStartAt;
 
     @Column
-    private LocalDate recruitmentFinishAt;
+    private LocalDateTime recruitmentFinishAt;
 
     @Column
     private Boolean isDeleted = false;
@@ -68,6 +68,24 @@ public class Event extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    private Event(AddEventRequestDto addEventRequestDto, User user) {
+        this.title = addEventRequestDto.getTitle();
+        this.content = addEventRequestDto.getContent();
+        this.location = addEventRequestDto.getLocation();
+        this.startAt = addEventRequestDto.getStartAt();
+        this.endAt = addEventRequestDto.getEndAt();
+        this.maxPeople = addEventRequestDto.getMaxPeople();
+        this.price = addEventRequestDto.getPrice();
+        this.category = addEventRequestDto.getCategory();
+        this.recruitmentStartAt = addEventRequestDto.getRecruitmentStartAt();
+        this.recruitmentFinishAt = addEventRequestDto.getRecruitmentFinishAt();
+        this.user = user;
+    }
+
+    public static Event of(AddEventRequestDto addEventRequestDto, User user) {
+        return new Event(addEventRequestDto, user);
+    }
 
     public void changeTitle(String title) {
         this.title = title;
@@ -93,18 +111,17 @@ public class Event extends Timestamped {
         this.price = price;
     }
 
-    public void changeCategory(String category) {
+    public void changeCategory(EventCategory category) {
         this.category = category;
     }
 
-    public void changeRecruitmentStartAt(LocalDate recruitmentStartAt) {
+    public void changeRecruitmentStartAt(LocalDateTime recruitmentStartAt) {
         this.recruitmentStartAt = recruitmentStartAt;
     }
 
-    public void changeRecruitmentFinishAt(LocalDate recruitmentFinishAt) {
+    public void changeRecruitmentFinishAt(LocalDateTime recruitmentFinishAt) {
         this.recruitmentFinishAt = recruitmentFinishAt;
     }
-
     public void deleteEvent() {
         this.isDeleted = true;
     }

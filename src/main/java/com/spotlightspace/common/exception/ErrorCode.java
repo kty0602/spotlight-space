@@ -24,7 +24,9 @@ public enum ErrorCode {
 
     COUPON_NOT_FOUND(NOT_FOUND, "존재하지 않는 쿠폰입니다."),
 
-    REVIEW_NOT_FOUND(NOT_FOUND, "존재하지 않는 리뷰입니다.");
+    REVIEW_NOT_FOUND(NOT_FOUND, "존재하지 않는 리뷰입니다."),
+
+    WRONG_CATEGORY_NAME(NOT_FOUND, "유효하지 않는 카테고리 입니다.");
 
 
     private final HttpStatus httpStatus;
