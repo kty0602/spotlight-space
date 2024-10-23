@@ -1,6 +1,5 @@
 package com.spotlightspace.core.user.domain;
 
-import com.spotlightspace.core.auth.dto.SigninUserRequestDto;
 import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,12 +36,12 @@ public class User {
     @NotNull
     private String nickname;
 
-//    @NotNull
-//    private LocalDate birth;
+    @NotNull
+    private LocalDate birth;
 
-//    @Column(unique = true)
-//    @NotNull
-//    private String phoneNumber;
+    @Column(unique = true)
+    @NotNull
+    private String phoneNumber;
 
     @Column
     @NotNull
@@ -53,23 +53,23 @@ public class User {
 
     private boolean isDeleted = false;
 
-    private User(String email, String nickname, String password, UserRole role) {
+    private User(String email, String nickname, String password, UserRole role, LocalDate birth, String phoneNumber) {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
         this.role = role;
+        this.birth = birth;
+        this.phoneNumber = phoneNumber;
     }
 
-    public static User of(String encryptPassword, SigninUserRequestDto signinUserRequestDto) {
-        return new User();
-    }
-
-    public static User from(String encryptPassword, SignupUserRequestDto signupUserRequestDto) {
+    public static User of(String encryptPassword, SignupUserRequestDto signupUserRequestDto) {
         return new User(
+                encryptPassword,
                 signupUserRequestDto.getEmail(),
                 signupUserRequestDto.getNickname(),
-                encryptPassword,
-                UserRole.of(signupUserRequestDto.getRole())
+                UserRole.from(signupUserRequestDto.getRole()),
+                LocalDate.parse(signupUserRequestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                signupUserRequestDto.getPhoneNumber()
         );
     }
 }

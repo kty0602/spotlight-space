@@ -27,5 +27,15 @@ public class SignupUserRequestDto {
 
     @NotBlank(message = "권한 설정은 필수입니다.")
     private String role;
+
+    @NotBlank(message = "생년월일을 입력해주세요")
+    private String birth;
+
+    @Pattern(
+            regexp = "^\\d{3}-\\d{4}-\\d{4}$",
+            message = "휴대폰 번호는 000-0000-0000 형식이어야 합니다."
+    )
+
+    private String phoneNumber;
 }
 
