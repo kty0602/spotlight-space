@@ -1,11 +1,7 @@
 package com.spotlightspace.core.attachment.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.spotlightspace.common.entity.TableRole;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,9 +22,21 @@ public class Attachment {
     @Column(nullable = false, length = 100)
     private String url;
 
-    @Column(nullable = false, length = 100)
-    private String target;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TableRole tableRole;
 
     @Column(nullable = false)
     private Long targetId;
+
+    private Attachment(String url, TableRole tableRole, Long id) {
+        this.url = url;
+        this.tableRole = tableRole;
+        this.targetId = id;
+    }
+
+    public static Attachment of(String url, TableRole tableRole, Long id) {
+        return new Attachment(url, tableRole, id);
+    }
+
 }

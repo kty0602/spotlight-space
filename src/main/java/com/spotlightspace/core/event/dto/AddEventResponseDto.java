@@ -2,7 +2,6 @@ package com.spotlightspace.core.event.dto;
 
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
-import com.spotlightspace.core.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class EventResponseDto {
+public class AddEventResponseDto {
     private Long id;
     private String title;
     private String content;
@@ -23,7 +22,7 @@ public class EventResponseDto {
     private LocalDateTime recruitmentStartAt;
     private LocalDateTime recruitmentFinishAt;
 
-    private EventResponseDto(Event event) {
+    private AddEventResponseDto(Event event) {
         this.id = event.getId();
         this.title = event.getTitle();
         this.content = event.getContent();
@@ -37,7 +36,7 @@ public class EventResponseDto {
         this.recruitmentFinishAt = event.getRecruitmentFinishAt();
     }
 
-    public static EventResponseDto from(Event event) {
-        return new EventResponseDto(event);
+    public static AddEventResponseDto from(Event event) {
+        return new AddEventResponseDto(event);
     }
 }
