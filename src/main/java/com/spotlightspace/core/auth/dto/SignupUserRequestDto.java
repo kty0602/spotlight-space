@@ -23,9 +23,9 @@ public class SignupUserRequestDto {
     private String password;
 
     @NotBlank(message = "이름은 필수입니다.")
-    private String name;
+    private String nickname;
 
     @NotBlank(message = "권한 설정은 필수입니다.")
-    private String authority;
+    private String role;
 }
 
