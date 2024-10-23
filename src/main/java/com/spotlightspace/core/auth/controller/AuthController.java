@@ -35,7 +35,7 @@ public class AuthController {
 
     @PostMapping("/auth/signin")
     public ResponseEntity<String> signIn(@Valid @RequestBody SigninUserRequestDto signInUserRequestDto) {
-        String accessToken = authService.getUserWithEmailAndPassword(signInUserRequestDto);
+        String accessToken = authService.signin(signInUserRequestDto);
         return ResponseEntity.ok()
                 .header(AUTHORIZATION, accessToken)
                 .build();
