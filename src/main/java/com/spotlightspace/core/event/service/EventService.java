@@ -20,17 +20,22 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    @Transactional
-    public EventResponseDto addEvent(AddEventRequestDto requestDto, AuthUser authUser) {
-        // 유저 확인
-        User user = checkUserExist(authUser.getUserId());
-        // 유저 권한 확인
-
-
-    }
+//    @Transactional
+//    public EventResponseDto addEvent(AddEventRequestDto requestDto, AuthUser authUser) {
+//        // 유저 확인
+//        User user = checkUserExist(authUser.getUserId());
+//        // 유저 권한 확인
+//
+//
+//    }
 
     // 유저 존재 확인
     private User checkUserExist(Long id) {
         return userRepository.findByIdOrElseThrow(id);
+    }
+
+    // 유저 권한 확인
+    private void validateUserRole() {
+
     }
 }
