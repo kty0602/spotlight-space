@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    include: private
+    active: dev
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}

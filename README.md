@@ -1,1 +1,1 @@
-# spolight-space
+# spotlight-space
