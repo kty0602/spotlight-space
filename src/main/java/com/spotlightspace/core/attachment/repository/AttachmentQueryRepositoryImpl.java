@@ -1,5 +1,5 @@
 package com.spotlightspace.core.attachment.repository;
 
-public class AttachmentQueryRepositoryImpl {
+public class AttachmentQueryRepositoryImpl implements AttachmentQueryRepository {
 
 }

@@ -1,5 +1,5 @@
 package com.spotlightspace.core.review.repository;
 
-public class ReviewQueryRepositoryImpl {
+public class ReviewQueryRepositoryImpl implements ReviewQueryRepository {
 
 }

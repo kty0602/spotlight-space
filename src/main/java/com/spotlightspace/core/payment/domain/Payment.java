@@ -29,13 +29,11 @@ public class Payment extends Timestamped {
     @Column(name = "payment_id")
     private Long id;
 
-    @Column(nullable = false)
-    @JoinColumn(name = "event_Id")
+    @JoinColumn(name = "event_Id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Event event;
 
-    @Column(nullable = false)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 

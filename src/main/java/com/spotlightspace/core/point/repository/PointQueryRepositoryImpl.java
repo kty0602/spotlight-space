@@ -1,5 +1,5 @@
 package com.spotlightspace.core.point.repository;
 
-public class PointQueryRepositoryImpl {
+public class PointQueryRepositoryImpl implements PointQueryRepository{
 
 }

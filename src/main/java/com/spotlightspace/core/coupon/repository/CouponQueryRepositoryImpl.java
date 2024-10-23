@@ -1,5 +1,5 @@
 package com.spotlightspace.core.coupon.repository;
 
-public class CouponQueryRepositoryImpl {
+public class CouponQueryRepositoryImpl implements CouponQueryRepository{
 
 }

@@ -1,5 +1,5 @@
 package com.spotlightspace.core.event.repository;
 
-public class EventQueryRepositoryImpl {
+public class EventQueryRepositoryImpl implements EventQueryRepository{
 
 }

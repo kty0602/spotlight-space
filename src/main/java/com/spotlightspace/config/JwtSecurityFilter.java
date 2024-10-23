@@ -1,6 +1,10 @@
 package com.spotlightspace.config;
 
+import static com.spotlightspace.common.constant.JwtConstant.USER_EMAIL;
+import static com.spotlightspace.common.constant.JwtConstant.USER_ROLE;
+
 import com.spotlightspace.common.annotation.AuthUser;
+import com.spotlightspace.core.user.domain.UserRole;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -78,7 +82,6 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
     }
 
     public boolean checkUrlPattern(String url) {
-        // 패턴과 하나도 일치하는게 없다면 jwt token 필요
         return whiteList.stream()
                 .noneMatch(whiteUrl -> Pattern.matches(whiteUrl, url));
     }
