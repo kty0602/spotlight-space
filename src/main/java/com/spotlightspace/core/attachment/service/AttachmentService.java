@@ -1,17 +1,17 @@
 package com.spotlightspace.core.attachment.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
+import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.domain.Attachment;
 import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.repository.AttachmentRepository;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.review.repository.ReviewRepository;
+import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ACCESS_EVENT;
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,31 +34,37 @@ public class AttachmentService {
     private final AttachmentRepository attachmentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-    private final ReviewRepository repository;
+    private final ReviewRepository reviewRepository;
     private final AmazonS3Client amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    // 이미 생성 후 나중에 추가 첨부파일 생성할 때 접근
+    // 이미(이벤트, 유저, 리뷰) 생성 후 나중에 추가 첨부파일 생성할 때 접근
     @Transactional
     public List<GetAttachmentResponseDto> addNewAttachmentList(
             List<MultipartFile> files, Long tableId, TableRole tableRole, AuthUser authUser)
             throws IOException {
         // 해당 사용자가 맞는지 확인
         if (tableRole.getTableRole().equals(TableRole.USER)) {
-
+            User user = userRepository.findByIdOrElseThrow(tableId);
+            if (!user.getId().equals(authUser.getUserId())) {
+                throw new ApplicationException(USER_NOT_FOUND);
+            }
         }
         if (tableRole.getTableRole().equals(TableRole.EVENT)) {
-
+            Event event = eventRepository.findByIdOrElseThrow(tableId);
+            if (!event.getUser().getId().equals(authUser.getUserId())) {
+                throw new ApplicationException(USER_NOT_ACCESS_EVENT);
+            }
         }
         if (tableRole.getTableRole().equals(TableRole.REVIEW)) {
-
+            // Review 내용 보고 추가 예정
         }
 
         List<GetAttachmentResponseDto> responseDtos = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String randomName = UUID.randomUUID().toString().substring(0, 8);;
+            String randomName = UUID.randomUUID().toString().substring(0, 8);
             String fileName = randomName + file.getOriginalFilename();
             String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
@@ -74,6 +83,33 @@ public class AttachmentService {
         }
         return responseDtos;
     }
+
+    // 첨부파일 하나 수정
+    // 첨부파일 번호 확인 -> 올바른 신청자인지 확인 -> 삭제 -> 새로운거 생성 -> url 해당에 수정 완
+    @Transactional
+    public GetAttachmentResponseDto updateAttachment(
+            Long attachementId, MultipartFile file, Long tableId, TableRole tableRole, AuthUser authUser
+    ) throws IOException {
+        // 기존 파일 존재 확인
+        attachmentRepository.findByIdOrElseThrow(attachementId);
+        // 기존 파일 삭제 작업 처리
+        deleteAttachment(attachementId, tableId, tableRole, authUser);
+        // 새로운 파일 S3에 저장 후 Attachment 객체 생성
+        String randomName = UUID.randomUUID().toString().substring(0, 8);
+        String fileName = randomName + file.getOriginalFilename();
+        String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
+
+        // 업로드할 파일의 메타데이터를 저장하는 객체 생성
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(file.getContentType());
+        metadata.setContentLength(file.getSize());
+        metadata.setContentDisposition("inline");
+
+        amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+        Attachment newAttachment = attachmentRepository.save(Attachment.of(fileUrl, tableRole, tableId));
+        return GetAttachmentResponseDto.from(newAttachment);
+    }
+
 
     // 이벤트 생성 시 첨부파일도 같이 생성할 때 접근
     @Transactional
@@ -101,10 +137,10 @@ public class AttachmentService {
 
     // 첨부파일만 접근해서 삭제할 때
     @Transactional
-    public void deleteAttachment(Long attachementId, Long tableId, AuthUser authUser, TableRole tableRole) {
+    public void deleteAttachment(Long attachementId, Long tableId, TableRole tableRole, AuthUser authUser) {
         // 해당 첨부파일 id값으로 존재하는지 검사
         Attachment attachment = attachmentRepository.findByIdOrElseThrow(attachementId);
-        // 어떤 table(유저, 이벤트, 리뷰)에 대한 건지 검사, 관련된 table repository에 접근해서 해당 객체 가져오기 (tableRole 사용)
+        // 어떤 table(유저, 이벤트, 리뷰)에 대한 건지 검사 (tableRole 사용)
         if (tableRole.equals(TableRole.EVENT)) {
             // 해당 접근자가 작성한 table의 id값과 authUser값과 일치하는 해당 table의 객체가 존재하는지 검사
             Event event = eventRepository.findByIdAndUserIdOrElseThrow(tableId, authUser.getUserId());
@@ -113,16 +149,24 @@ public class AttachmentService {
                 amazonS3Client.deleteObject(bucket, fileName);
                 attachmentRepository.delete(attachment);
             }
+            
         }
         if (tableRole.equals(TableRole.USER)) {
             // 해당 접근자가 작성한 table의 id값과 authUser값과 일치하는 해당 table의 객체가 존재하는지 검사
+            User user = userRepository.findByIdOrElseThrow(tableId);
+            if(attachment.getTargetId().equals(user.getId())) {
+                String fileName = attachment.getUrl().substring(attachment.getUrl().lastIndexOf("/") + 1);
+                amazonS3Client.deleteObject(bucket, fileName);
+                attachmentRepository.delete(attachment);
+            }
         }
         if (tableRole.equals(TableRole.REVIEW)) {
             // 해당 접근자가 작성한 table의 id값과 authUser값과 일치하는 해당 table의 객체가 존재하는지 검사
+            // Review 나중에 합친거 보고 추후 추가 예정
         }
     }
 
-    private void saveAttachment(MultipartFile file, Long id, TableRole tableRole) throws IOException {
+    private void saveAttachment(MultipartFile file, Long tableId, TableRole tableRole) throws IOException {
         String randomName = UUID.randomUUID().toString().substring(0, 8);;
         String fileName = randomName + file.getOriginalFilename();
         String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
@@ -136,7 +180,7 @@ public class AttachmentService {
         metadata.setContentDisposition("inline");
 
         amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-        attachmentRepository.save(Attachment.of(fileUrl, tableRole, id));
+        attachmentRepository.save(Attachment.of(fileUrl, tableRole, tableId));
     }
 
     public String getImageUrl(Long userId, TableRole tableRole) {

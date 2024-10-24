@@ -6,6 +6,6 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class AddAttachmentRequestDto {
+public class AttachmentRequestDto {
     private TableRole tableRole;
 }
