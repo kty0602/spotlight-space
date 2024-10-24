@@ -2,15 +2,10 @@ package com.spotlightspace.core.review.domain;
 
 import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.event.domain.Event;
+import com.spotlightspace.core.review.dto.ReviewRequestDto;
+import com.spotlightspace.core.review.dto.ReviewResponseDto;
 import com.spotlightspace.core.user.domain.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,17 +29,36 @@ public class Review extends Timestamped {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
-    private User nickname;
+    private User user;
 
     private String contents;
 
     private Integer rating;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
 
-    public Review(Event event, User nickname, Integer rating, String contents) {
+
+    private Review(ReviewRequestDto reviewRequestDto, Event event, User user) {
         this.event = event;
-        this.nickname = nickname;
+        this.user = user;
+        this.rating = reviewRequestDto.getRating();
+        this.contents = reviewRequestDto.getContents();
+    }
+
+    public static Review of(ReviewRequestDto reviewRequestDto, Event event, User user) {
+        return new Review(reviewRequestDto, event, user);
+    }
+
+    public void changeRating(Integer rating) {
         this.rating = rating;
+    }
+
+    public void changeContents(String contents) {
         this.contents = contents;
+    }
+
+    public void changeIsDeleted() {
+        this.isDeleted = true;
     }
 }

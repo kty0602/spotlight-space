@@ -8,15 +8,19 @@ import lombok.Getter;
 public class ReviewResponseDto {
 
     private Long id;
-    private User nickname;
+    private String nickname;
     private String contents;
     private Integer rating;
 
-    public ReviewResponseDto(Review review) {
+    private ReviewResponseDto(Review review) {
         this.id = review.getId();
-        this.nickname = review.getNickname();
+        this.nickname = review.getUser().getNickname();
         this.rating = review.getRating();
         this.contents = review.getContents();
+    }
 
+
+    public static ReviewResponseDto from(Review review) {
+        return new ReviewResponseDto(review);
     }
 }
