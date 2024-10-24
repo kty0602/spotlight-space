@@ -9,6 +9,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,5 +58,20 @@ public class UserController {
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity.ok().body(userService.getUser(userId, authUser.getUserId()));
+    }
+
+    /**
+     * 유저를 삭제합니다
+     * @param userId 유저아이디를 입력받습니다
+     * @param authUser 현재 로그인중인 유저 정보를 받아옵니다
+     * @return 회원이 삭제됩니다
+     */
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        userService.deleteUser(userId, authUser.getUserId());
+        return ResponseEntity.ok().build();
     }
 }

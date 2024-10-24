@@ -62,7 +62,22 @@ public class UserService {
             throw new ApplicationException(FORBIDDEN_USER);
         }
 
-        String url = attachmentService.getImageUrl(userId, TableRole.USER);
-        return GetUserResponseDto.from(user, url);
+//        String url = attachmentService.getImageUrl(userId, TableRole.USER);
+//        return GetUserResponseDto.from(user, url);
+        return null;
+    }
+
+    public void deleteUser(Long userId, Long currentUserId) {
+        User user = userRepository.findByIdOrElseThrow(userId);
+
+        if (user.isDeleted()) {
+            throw new ApplicationException(USER_NOT_FOUND);
+        }
+
+        if (!userId.equals(currentUserId)) {
+            throw new ApplicationException(FORBIDDEN_USER);
+        }
+
+        user.delete();
     }
 }

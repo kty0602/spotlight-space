@@ -79,4 +79,8 @@ public class User {
         this.birth = LocalDate.parse(updateUserRequestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         this.phoneNumber = updateUserRequestDto.getPhoneNumber();
         this.password = encryptPassword;}
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }
