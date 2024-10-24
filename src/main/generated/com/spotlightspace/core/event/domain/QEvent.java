@@ -43,15 +43,9 @@ public class QEvent extends EntityPathBase<Event> {
 
     public final NumberPath<Integer> price = createNumber("price", Integer.class);
 
-<<<<<<< HEAD
-    public final DatePath<java.time.LocalDate> recruitmentFinishAt = createDate("recruitmentFinishAt", java.time.LocalDate.class);
-
-    public final DatePath<java.time.LocalDate> recruitmentStartAt = createDate("recruitmentStartAt", java.time.LocalDate.class);
-=======
     public final DateTimePath<java.time.LocalDateTime> recruitmentFinishAt = createDateTime("recruitmentFinishAt", java.time.LocalDateTime.class);
 
     public final DateTimePath<java.time.LocalDateTime> recruitmentStartAt = createDateTime("recruitmentStartAt", java.time.LocalDateTime.class);
->>>>>>> c9c4bf5 (feat : 임시 커밋)
 
     public final DateTimePath<java.time.LocalDateTime> startAt = createDateTime("startAt", java.time.LocalDateTime.class);
 
