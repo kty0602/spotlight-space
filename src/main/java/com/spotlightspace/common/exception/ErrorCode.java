@@ -27,6 +27,8 @@ public enum ErrorCode {
 
     REVIEW_NOT_FOUND(NOT_FOUND, "존재하지 않는 리뷰입니다."),
 
+    UNAUTHORIZED (NOT_FOUND, "티켓을 결제한 사용자만 리뷰를 작성 할 수 있습니다."),
+
     WRONG_CATEGORY_NAME(BAD_REQUEST, "유효하지 않는 카테고리 입니다."),
 
     USER_NOT_ARTIST(FORBIDDEN,"일반 유저는 해당 작업을 수행할 수 없습니다."),

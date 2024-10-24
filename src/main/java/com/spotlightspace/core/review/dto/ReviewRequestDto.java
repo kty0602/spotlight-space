@@ -1,5 +1,6 @@
 package com.spotlightspace.core.review.dto;
 
+import com.spotlightspace.core.user.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -12,9 +13,10 @@ import org.hibernate.validator.constraints.Range;
 @Setter
 public class ReviewRequestDto {
 
-    @Positive
     @NotNull
-    private Long eventId;   // 주문 ID >> long
+    private Long eventId;
+
+    private User nickname;
 
     @NotNull
     @Range(min = 1, max = 5)

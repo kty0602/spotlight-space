@@ -14,12 +14,15 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "reviews")
 public class Review extends Timestamped {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,10 +34,17 @@ public class Review extends Timestamped {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
-    private User user;
+    private User nickname;
 
     private String contents;
 
-    private int star;
+    private Integer rating;
 
+
+    public Review(Event event, User nickname, Integer rating, String contents) {
+        this.event = event;
+        this.nickname = nickname;
+        this.rating = rating;
+        this.contents = contents;
+    }
 }
