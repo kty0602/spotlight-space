@@ -5,6 +5,8 @@ import static com.spotlightspace.core.data.UserTestData.testUpdateUserRequestDto
 import static com.spotlightspace.core.data.UserTestData.testUser;
 import static com.spotlightspace.core.data.UserTestData.testUser_deleted;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -16,8 +18,10 @@ import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
+import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.repository.UserRepository;
 import java.io.IOException;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,6 +32,7 @@ import org.mockito.Mock;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(SpringExtension.class)
@@ -119,6 +124,50 @@ class UserServiceTest {
             //when-then
             assertThrows(ApplicationException.class,
                     () -> userService.updateUser(anotherUserId, authUser, updateRequestDto, null));
+        }
+
+        @Nested
+        @DisplayName("회원 조회 테스트")
+        class GetUserTest {
+            @Test
+            @DisplayName("회원 조회 성공 테스트")
+            public void findUser_success() {
+                // given
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "id", 1L);
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+                given(attachmentService.getImageUrl(anyLong(), any(TableRole.class))).willReturn("http://image-url");
+
+                // when - then
+                assertDoesNotThrow(()-> userService.getUser(user.getId(), testAuthUser().getUserId()));
+            }
+
+            @Test
+            @DisplayName("회원 조회 실패 - 회원이 삭제된 경우")
+            public void getUser_notFoundUser_failure() {
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "id", 1L);
+                ReflectionTestUtils.setField(user,"isDeleted", true);
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+
+                //when - then
+                assertThrows(ApplicationException.class, () -> userService.getUser(user.getId(), testAuthUser().getUserId()));
+            }
+
+            @Test
+            @DisplayName("다른 회원을 조회시 에러")
+            public void getUser_notSameUserId_failure() {
+                // given
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "id", 1L);
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+
+                // when - then
+                assertThrows(ApplicationException.class, () -> userService.getUser(2L, testAuthUser().getUserId()));
+            }
         }
     }
 }
