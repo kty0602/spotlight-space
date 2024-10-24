@@ -54,7 +54,8 @@ public class UserController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<GetUserResponseDto> getUser(
             @PathVariable Long userId,
-            @AuthenticationPrincipal AuthUser authUser) {
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
         return ResponseEntity.ok().body(userService.getUser(userId, authUser.getUserId()));
     }
 }
