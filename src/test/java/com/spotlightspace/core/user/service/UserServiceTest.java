@@ -137,7 +137,6 @@ class UserServiceTest {
                 ReflectionTestUtils.setField(user, "id", 1L);
 
                 given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
-                given(attachmentService.getImageUrl(anyLong(), any(TableRole.class))).willReturn("http://image-url");
 
                 // when - then
                 assertDoesNotThrow(()-> userService.getUser(user.getId(), testAuthUser().getUserId()));
@@ -167,6 +166,57 @@ class UserServiceTest {
 
                 // when - then
                 assertThrows(ApplicationException.class, () -> userService.getUser(2L, testAuthUser().getUserId()));
+            }
+        }
+
+        @Nested
+        @DisplayName("유저 삭제 테스트")
+        class DeleteUserTest {
+            @Test
+            @DisplayName("유저 삭제 성공")
+            public void deleteUser_success() {
+                // given
+                long userId = 1L;
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "id", userId);
+
+                AuthUser authUser = testAuthUser();
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+
+                // when
+                assertDoesNotThrow(() -> userService.deleteUser(userId, authUser.getUserId()));
+            }
+
+            @Test
+            @DisplayName("유저 삭제 실패 - 회원이 이미 삭제된 경우")
+            public void deleteUser_notFoundUser_failure() {
+                long userId = 1L;
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "isDeleted", true);
+
+                AuthUser authUser = testAuthUser();
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+
+                // when
+                assertThrows(ApplicationException.class, () -> userService.deleteUser(userId, authUser.getUserId()));
+            }
+
+            @Test
+            @DisplayName("다른 회원을 삭제시 에러")
+            public void deleteUser_notSameUserId_failure() {
+                // given
+                long userId = 1L;
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "id", userId);
+
+                AuthUser authUser = testAuthUser();
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+
+                // when
+                assertThrows(ApplicationException.class, () -> userService.deleteUser(2L, authUser.getUserId()));
             }
         }
     }
