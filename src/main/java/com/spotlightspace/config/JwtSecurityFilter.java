@@ -22,6 +22,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import static com.spotlightspace.common.constant.JwtConstant.USER_EMAIL;
+import static com.spotlightspace.common.constant.JwtConstant.USER_ROLE;
+
 @Slf4j(topic = "JwtTokenFilter")
 @RequiredArgsConstructor
 @Component

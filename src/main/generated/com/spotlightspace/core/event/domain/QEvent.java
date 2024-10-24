@@ -24,7 +24,7 @@ public class QEvent extends EntityPathBase<Event> {
 
     public final com.spotlightspace.common.entity.QTimestamped _super = new com.spotlightspace.common.entity.QTimestamped(this);
 
-    public final StringPath category = createString("category");
+    public final EnumPath<EventCategory> category = createEnum("category", EventCategory.class);
 
     public final StringPath content = createString("content");
 
@@ -43,9 +43,9 @@ public class QEvent extends EntityPathBase<Event> {
 
     public final NumberPath<Integer> price = createNumber("price", Integer.class);
 
-    public final DatePath<java.time.LocalDate> recruitmentFinishAt = createDate("recruitmentFinishAt", java.time.LocalDate.class);
+    public final DateTimePath<java.time.LocalDateTime> recruitmentFinishAt = createDateTime("recruitmentFinishAt", java.time.LocalDateTime.class);
 
-    public final DatePath<java.time.LocalDate> recruitmentStartAt = createDate("recruitmentStartAt", java.time.LocalDate.class);
+    public final DateTimePath<java.time.LocalDateTime> recruitmentStartAt = createDateTime("recruitmentStartAt", java.time.LocalDateTime.class);
 
     public final DateTimePath<java.time.LocalDateTime> startAt = createDateTime("startAt", java.time.LocalDateTime.class);
 
