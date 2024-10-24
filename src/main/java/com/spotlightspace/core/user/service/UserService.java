@@ -62,8 +62,8 @@ public class UserService {
             throw new ApplicationException(FORBIDDEN_USER);
         }
 
-//        String url = attachmentService.getImageUrl(userId, TableRole.USER);
-//        return GetUserResponseDto.from(user, url);
+        String url = attachmentService.getImageUrl(userId, TableRole.USER);
+        return GetUserResponseDto.from(user, url);
         return null;
     }
 

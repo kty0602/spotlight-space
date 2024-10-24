@@ -105,7 +105,7 @@ class UserServiceTest {
             AuthUser authUser = testAuthUser();
 
             given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
-            //when-then
+            //when - then
             assertThrows(ApplicationException.class,
                     () -> userService.updateUser(userId, authUser, updateRequestDto, null));
         }
@@ -121,7 +121,7 @@ class UserServiceTest {
 
             given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(testUser());
 
-            //when-then
+            //when - then
             assertThrows(ApplicationException.class,
                     () -> userService.updateUser(anotherUserId, authUser, updateRequestDto, null));
         }
@@ -184,7 +184,7 @@ class UserServiceTest {
 
                 given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
 
-                // when
+                // when - then
                 assertDoesNotThrow(() -> userService.deleteUser(userId, authUser.getUserId()));
             }
 
@@ -199,7 +199,7 @@ class UserServiceTest {
 
                 given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
 
-                // when
+                // when - then
                 assertThrows(ApplicationException.class, () -> userService.deleteUser(userId, authUser.getUserId()));
             }
 
@@ -215,7 +215,7 @@ class UserServiceTest {
 
                 given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
 
-                // when
+                // when - then
                 assertThrows(ApplicationException.class, () -> userService.deleteUser(2L, authUser.getUserId()));
             }
         }
