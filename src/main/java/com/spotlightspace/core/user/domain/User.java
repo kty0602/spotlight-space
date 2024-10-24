@@ -1,6 +1,7 @@
 package com.spotlightspace.core.user.domain;
 
 import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
+import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -64,12 +65,18 @@ public class User {
 
     public static User of(String encryptPassword, SignupUserRequestDto signupUserRequestDto) {
         return new User(
-                encryptPassword,
                 signupUserRequestDto.getEmail(),
                 signupUserRequestDto.getNickname(),
+                encryptPassword,
                 UserRole.from(signupUserRequestDto.getRole()),
                 LocalDate.parse(signupUserRequestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 signupUserRequestDto.getPhoneNumber()
         );
     }
+
+    public void update(String encryptPassword, UpdateUserRequestDto updateUserRequestDto) {
+        this.nickname = updateUserRequestDto.getNickname();
+        this.birth = LocalDate.parse(updateUserRequestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        this.phoneNumber = updateUserRequestDto.getPhoneNumber();
+        this.password = encryptPassword;}
 }

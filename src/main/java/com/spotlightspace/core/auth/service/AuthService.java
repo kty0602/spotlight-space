@@ -54,6 +54,11 @@ public class AuthService {
             throw new ApplicationException(ErrorCode.INVALID_PASSWORD_OR_EMAIL);
         }
 
+        if(user.isDeleted())
+        {
+            throw new ApplicationException(USER_NOT_FOUND);
+        }
+
         return jwtUtil.createToken(user.getId(), user.getEmail(), user.getRole());
     }
 }
