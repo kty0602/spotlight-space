@@ -31,7 +31,9 @@ public enum ErrorCode {
 
     USER_NOT_ARTIST(FORBIDDEN,"일반 유저는 해당 작업을 수행할 수 없습니다."),
 
-    TABLE_NOT_FOUND(NOT_FOUND, "테이블이 존재하지 않습니다.");
+    TABLE_NOT_FOUND(NOT_FOUND, "테이블이 존재하지 않습니다."),
+
+    USER_NOT_ACCESS_EVENT(FORBIDDEN, "해당 사용자가 등록한 이벤트가 아닙니다.");
 
 
     private final HttpStatus httpStatus;
