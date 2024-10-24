@@ -23,7 +23,6 @@ public class AttachmentService {
 
     private final AmazonS3Client amazonS3Client;
 
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
@@ -40,7 +39,8 @@ public class AttachmentService {
     }
 
     private void saveAttachment(MultipartFile file, Long id, TableRole tableRole) throws IOException {
-        String fileName = file.getOriginalFilename();
+        String randomName = UUID.randomUUID().toString().substring(0, 8);;
+        String fileName = randomName + file.getOriginalFilename();
         String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
         ObjectMetadata metadata = new ObjectMetadata();

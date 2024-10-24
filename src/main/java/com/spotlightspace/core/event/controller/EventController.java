@@ -1,6 +1,7 @@
 package com.spotlightspace.core.event.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
+import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
 import com.spotlightspace.core.event.dto.AddEventRequestDto;
 import com.spotlightspace.core.event.dto.AddEventResponseDto;
 import com.spotlightspace.core.event.service.EventService;
@@ -9,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -34,4 +32,11 @@ public class EventController {
         AddEventResponseDto addEventResponseDto = eventService.addEvent(requestDto, authUser, files);
         return new ResponseEntity<>(addEventResponseDto, HttpStatus.OK);
     }
+
+//    @GetMapping("/attachments")
+//    public ResponseEntity<GetAttachmentResponseDto> getAttachment(
+//            @AuthenticationPrincipal AuthUser authUser
+//    ) {
+//
+//    }
 }

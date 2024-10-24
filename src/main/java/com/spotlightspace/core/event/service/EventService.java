@@ -3,7 +3,6 @@ package com.spotlightspace.core.event.service;
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.dto.AddEventRequestDto;
@@ -19,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+
+import static com.spotlightspace.common.exception.ErrorCode.*;
 
 
 @Service
@@ -52,7 +53,7 @@ public class EventService {
     // 유저 권한 확인
     private void validateUserRole(UserRole role) {
         if (role != UserRole.ROLE_ARTIST) {
-            throw new ApplicationException(ErrorCode.USER_NOT_ARTIST);
+            throw new ApplicationException(USER_NOT_ARTIST);
         }
     }
 }
