@@ -43,8 +43,11 @@ public class AttachmentService {
         String fileName = randomName + file.getOriginalFilename();
         String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
+        // 업로드할 파일의 메타데이터를 저장하는 객체 생성
         ObjectMetadata metadata = new ObjectMetadata();
+        // 파일 콘텐츠 타입을 설정
         metadata.setContentType(file.getContentType());
+        // 파일 크기 설정 -> S3에 전달할 때 파일 크기를 알 수 있게 함
         metadata.setContentLength(file.getSize());
 
         amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
