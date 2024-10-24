@@ -28,6 +28,9 @@ import java.util.stream.Collectors;
 
 import static com.spotlightspace.common.exception.ErrorCode.*;
 
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ACCESS_EVENT;
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
