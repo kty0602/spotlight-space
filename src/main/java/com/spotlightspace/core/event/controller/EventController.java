@@ -1,6 +1,9 @@
 package com.spotlightspace.core.event.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
+import com.spotlightspace.common.entity.TableRole;
+import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
+import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.dto.AddEventRequestDto;
 import com.spotlightspace.core.event.dto.AddEventResponseDto;
 import com.spotlightspace.core.event.dto.UpdateEventRequestDto;
@@ -15,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/event")
@@ -23,6 +28,7 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
+    private final AttachmentService attachmentService;
 
     /**
      * @param authUser
@@ -37,6 +43,7 @@ public class EventController {
             @Valid @RequestPart AddEventRequestDto requestDto,
             @RequestPart(required = false) List<MultipartFile> files
             ) throws IOException {
+
         AddEventResponseDto addEventResponseDto = eventService.addEvent(requestDto, authUser, files);
         return new ResponseEntity<>(addEventResponseDto, HttpStatus.CREATED);
     }
@@ -53,6 +60,7 @@ public class EventController {
             @RequestBody UpdateEventRequestDto requestDto,
             @PathVariable("eventId") Long eventId
             ) {
+
         UpdateEventResponseDto updateEventResponseDto = eventService.updateEvent(requestDto, authUser, eventId);
         return new ResponseEntity<>(updateEventResponseDto, HttpStatus.OK);
     }
@@ -63,18 +71,28 @@ public class EventController {
      * @return
      */
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<String> deleteEvent(
+    public ResponseEntity<Map<String, String>> deleteEvent(
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable("eventId") Long eventId
     ) {
+
         eventService.deleteEvent(eventId, authUser);
-        return new ResponseEntity<>("성공적으로 삭제가 되었습니다.", HttpStatus.OK);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "성공적으로 삭제되었습니다!");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-//    @GetMapping("/{eventId}/attachments")
-//    public ResponseEntity<GetAttachmentResponseDto> getAttachment(
-//            @AuthenticationPrincipal AuthUser authUser
-//    ) {
-//
-//    }
+    /**
+     * 해당 이벤트가 가지고 있는 첨부파일 리스트
+     * @param eventId
+     * @return
+     */
+    @GetMapping("/{eventId}/attachments")
+    public ResponseEntity<List<GetAttachmentResponseDto>> getAttachment(
+            @PathVariable("eventId") Long eventId
+    ) {
+
+        List<GetAttachmentResponseDto> attachmentList = attachmentService.getAttachmentList(eventId, TableRole.EVENT);
+        return new ResponseEntity<>(attachmentList, HttpStatus.OK);
+    }
 }
