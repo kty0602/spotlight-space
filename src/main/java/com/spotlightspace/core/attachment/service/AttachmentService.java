@@ -43,7 +43,7 @@ public class AttachmentService {
             throws IOException {
         // 해당 사용자가 맞는지 확인
         if (tableRole.getTableRole().equals(TableRole.USER)) {
-            
+
         }
         if (tableRole.getTableRole().equals(TableRole.EVENT)) {
 
