@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
+import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.attachment.domain.Attachment;
 import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.repository.AttachmentRepository;
@@ -23,6 +24,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.spotlightspace.common.exception.ErrorCode.*;
 
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ACCESS_EVENT;
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
@@ -142,28 +146,39 @@ public class AttachmentService {
         Attachment attachment = attachmentRepository.findByIdOrElseThrow(attachementId);
         // 어떤 table(유저, 이벤트, 리뷰)에 대한 건지 검사 (tableRole 사용)
         if (tableRole.equals(TableRole.EVENT)) {
-            // 해당 접근자가 작성한 table의 id값과 authUser값과 일치하는 해당 table의 객체가 존재하는지 검사
+            // 해당 요청을 보낸 role과 현재 접근한 attachment의 table_role이 같은지 검사
             Event event = eventRepository.findByIdAndUserIdOrElseThrow(tableId, authUser.getUserId());
-            if(attachment.getTargetId().equals(event.getId())) {
+            if(attachment.getTableRole().equals(tableRole) && attachment.getTargetId().equals(event.getId())) {
                 String fileName = attachment.getUrl().substring(attachment.getUrl().lastIndexOf("/") + 1);
                 amazonS3Client.deleteObject(bucket, fileName);
                 attachmentRepository.delete(attachment);
+            } else {
+                throw new ApplicationException(EVENT_NOT_FOUND);
             }
-            
         }
         if (tableRole.equals(TableRole.USER)) {
-            // 해당 접근자가 작성한 table의 id값과 authUser값과 일치하는 해당 table의 객체가 존재하는지 검사
+            // 해당 요청을 보낸 role과 현재 접근한 attachment의 table_role이 같은지 검사
             User user = userRepository.findByIdOrElseThrow(tableId);
-            if(attachment.getTargetId().equals(user.getId())) {
+            if(attachment.getTableRole().equals(tableRole) && attachment.getTargetId().equals(user.getId())) {
                 String fileName = attachment.getUrl().substring(attachment.getUrl().lastIndexOf("/") + 1);
                 amazonS3Client.deleteObject(bucket, fileName);
                 attachmentRepository.delete(attachment);
+            } else {
+                throw new ApplicationException(USER_NOT_FOUND);
             }
         }
         if (tableRole.equals(TableRole.REVIEW)) {
             // 해당 접근자가 작성한 table의 id값과 authUser값과 일치하는 해당 table의 객체가 존재하는지 검사
             // Review 나중에 합친거 보고 추후 추가 예정
         }
+    }
+
+    public List<GetAttachmentResponseDto> getAttachmentList(Long tableId, TableRole tableRole) {
+        List<Attachment> attachments = attachmentRepository.findAllByTargetIdAndTableRole(tableId, tableRole);
+
+        return attachments.stream()
+                .map(GetAttachmentResponseDto::from)
+                .collect(Collectors.toList());
     }
 
     private void saveAttachment(MultipartFile file, Long tableId, TableRole tableRole) throws IOException {

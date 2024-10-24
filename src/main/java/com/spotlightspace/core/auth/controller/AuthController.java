@@ -26,7 +26,7 @@ public class AuthController {
     @PostMapping("/auth/signup")
     public ResponseEntity<String> signUp(
             @Valid @RequestPart SignupUserRequestDto signupUserRequestDto,
-            @RequestPart MultipartFile file) throws IOException {
+            @RequestPart(required = false) MultipartFile file) throws IOException {
         String accessToken = authService.saveUser(signupUserRequestDto, file);
         return ResponseEntity.ok()
                 .header(AUTHORIZATION, accessToken)

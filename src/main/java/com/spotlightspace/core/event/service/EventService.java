@@ -3,6 +3,7 @@ package com.spotlightspace.core.event.service;
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
+import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.dto.AddEventRequestDto;
@@ -41,7 +42,7 @@ public class EventService {
         validateUserRole(user.getRole());
         // 프로필 이미지가 있다면 저장 로직
         Event event = eventRepository.save(Event.of(requestDto, user));
-        if (!files.isEmpty()) {
+        if (files != null && !files.isEmpty()) {
             attachmentService.addAttachmentList(files, event.getId(), TableRole.EVENT);
         }
         return AddEventResponseDto.from(event);
