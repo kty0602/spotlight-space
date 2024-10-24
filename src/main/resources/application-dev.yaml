@@ -21,6 +21,23 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
       enabled: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${spring_mail_username}
+    password: ${spring_mail_password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 
 cloud:
   aws:
