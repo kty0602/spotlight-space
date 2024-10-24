@@ -64,7 +64,6 @@ public class UserService {
 
         String url = attachmentService.getImageUrl(userId, TableRole.USER);
         return GetUserResponseDto.from(user, url);
-        return null;
     }
 
     public void deleteUser(Long userId, Long currentUserId) {
