@@ -9,6 +9,7 @@ import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
+import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.repository.UserRepository;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,21 @@ public class UserService {
         String encryptPassword = passwordEncoder.encode(updateUserRequestDto.getPassword());
 
         user.update(encryptPassword, updateUserRequestDto);
+    }
+
+    @Transactional(readOnly = true)
+    public GetUserResponseDto getUser(Long userId, Long currentUserId) {
+        User user = userRepository.findByIdOrElseThrow(userId);
+
+        if (user.isDeleted()) {
+            throw new ApplicationException(USER_NOT_FOUND);
+        }
+
+        if (!userId.equals(currentUserId)) {
+            throw new ApplicationException(FORBIDDEN_USER);
+        }
+
+        String url = attachmentService.getImageUrl(userId, TableRole.USER);
+        return GetUserResponseDto.from(user, url);
     }
 }
