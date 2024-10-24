@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/" + "${api.version}")
+@RequestMapping("/api/v1")
 public class UserController {
 
     private final UserService userService;
