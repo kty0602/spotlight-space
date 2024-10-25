@@ -108,7 +108,7 @@ public class AuthService {
         //redis에서 키에 대한 값을 가져오기위해 id값을 가져옵니다
         Long userId = Long.valueOf(claims.getSubject());
         //redis 키는 user:id:1 같은 형식이반다
-        String redisKey = "user:id:" + userId;
+        String redisKey = "user:refresh:id:" + userId;
 
         //redis에서 키에 해당하는 값을 가져옵니다
         String redisToken = redisTemplate.opsForValue().get(redisKey);

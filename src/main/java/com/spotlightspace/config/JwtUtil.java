@@ -75,7 +75,7 @@ public class JwtUtil {
                         .signWith(accessKey)
                         .compact();
 
-        String key = "user:id:" + userId;
+        String key = "user:refresh:id:" + userId;
         redisTemplate.opsForValue()
                 .set(key, refreshToken, TOKEN_REFRESH_TIME, TimeUnit.MILLISECONDS);
 

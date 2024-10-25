@@ -5,6 +5,8 @@ import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,7 +85,7 @@ public class UserController {
     /**
      * 유저의 쿠폰을 조회합니다
      *
-     * @param userId 유저 id를 받습니다.
+     * @param userId   유저 id를 받습니다.
      * @param authUser 현재 로그인한 유저의 id를 받습니다
      * @return
      */
@@ -93,5 +96,15 @@ public class UserController {
     ) {
         List<GetCouponResponseDto> couponList = userService.getCoupons(userId, authUser.getUserId());
         return new ResponseEntity<>(couponList, HttpStatus.OK);
+    }
+
+    @PostMapping("/user/logout")
+    public ResponseEntity<Void> logout(
+            @AuthenticationPrincipal AuthUser authUser,
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse
+    ) {
+        userService.logout(authUser.getUserId(), httpServletRequest, httpServletResponse);
+        return ResponseEntity.ok().build();
     }
 }

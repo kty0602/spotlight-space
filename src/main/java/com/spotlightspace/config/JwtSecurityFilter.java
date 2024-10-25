@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtSecurityFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private final List<String> whiteList = List.of(
             "^/api/v(?:[1-9])/auth/[a-zA-Z\\-]+$",
@@ -69,10 +71,17 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증에 실패했습니다.");
                     return;
                 } else {
-                    log.info("토큰 검증 성공");
                     Claims claims = jwtUtil.getUserInfoFromToken(token);
 
                     Long userId = Long.parseLong(claims.getSubject());
+                    //블랙리스트에 포함되어있는지 여부도 확인
+                    if (isBlackListed(userId, token)) {
+                        log.error("세션이 만료되었습니다.");
+                        response.setContentType("application/json");
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "블랙리스트에 포함된 유저입니다.");
+                        return;
+                    }
+                    log.info("토큰 검증 성공");
                     String email = claims.get(USER_EMAIL, String.class);
                     UserRole userRole = UserRole.from(claims.get(USER_ROLE, String.class));
 
@@ -94,6 +103,13 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isBlackListed(Long userId, String token) {
+        String blackList = "user:blacklist:id:" + userId;
+        String blackListToken = redisTemplate.opsForValue().get(blackList);
+        blackListToken = jwtUtil.substringToken(blackListToken);
+        return token.equals(blackListToken);
     }
 
     public boolean checkUrlPattern(String url) {
