@@ -54,6 +54,14 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             // 나머지 API 요청은 인증 처리 진행
             // 토큰 확인
             String tokenValue = request.getHeader(HttpHeaders.AUTHORIZATION);
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals(HttpHeaders.AUTHORIZATION)) {
+                        tokenValue = URLDecoder.decode(cookie.getValue(), "UTF-8");
+                    }
+                }
+            }
 
             if (Strings.isNotBlank(tokenValue)) { // 토큰이 존재하면 검증 시작
                 // 토큰 검증
