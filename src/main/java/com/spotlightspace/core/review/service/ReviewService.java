@@ -39,7 +39,8 @@ public class ReviewService {
         // 이벤트 eventId와 티켓의 eventId값이 동일한지 비교, authUser의 getUserId값과 티켓의 userId값이 동일한지 비교
 
         // 리뷰 달려고 하는 이벤트가 존재하는가?
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new ApplicationException(ErrorCode.EVENT_NOT_FOUND));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.EVENT_NOT_FOUND));
 
         Review review = reviewRepository.save(Review.of(reviewRequestDto, event, user));
 
@@ -48,15 +49,16 @@ public class ReviewService {
 
     //리뷰 조회
     public List<ReviewResponseDto> getReviews(Long eventId) {
-        List<Review> reviews = reviewRepository.findEventReviewsAndIsDeletedFalse(eventId);
+        List<Review> reviews = reviewRepository.findByEventIdAndIsDeletedFalse(eventId);
 
         return reviews.stream()
                 .map(review -> ReviewResponseDto.from(review))
                 .collect(Collectors.toList());
-        }
+    }
 
     //리뷰 수정
-    public ReviewResponseDto updateReview(Long reviewId, UpdateReviewRequestDto updateReviewRequestDto, AuthUser authUser) {
+    public ReviewResponseDto updateReview(Long reviewId, UpdateReviewRequestDto updateReviewRequestDto,
+            AuthUser authUser) {
         // id로 기존 리뷰를 찾음
         Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.REVIEW_NOT_FOUND));
