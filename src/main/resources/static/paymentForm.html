@@ -7,15 +7,11 @@
   <form id="payInfo">
     <div>
       <label for="event_id">이벤트 ID</label>
-      <input id="event_id" type="text" name="event_id" value="1" readonly>
+      <input id="event_id" type="text" name="event_id">
     </div>
     <div>
-      <label for="event_name">이벤트 이름</label>
-      <input id="event_name" type="text" name="event_name" value="이벤트 명" readonly>
-    </div>
-    <div>
-      <label for="price">가격</label>
-      <input id="price" type="text" name="price" value="10000" readonly>
+      <label for="coupon_id">쿠폰 ID</label>
+      <input id="coupon_id" type="text" name="coupon_id">
     </div>
     <div>
       <button id="btn-pay-ready" type="button">결제</button>
@@ -28,9 +24,11 @@
   $(function() {
     $("#btn-pay-ready").click(function(e) {
       let eventId = $("#event_id").val();
+      let couponId = $("#coupon_id").val();
 
       let data = {
-        eventId: eventId
+        eventId: eventId,
+        couponId: couponId
       };
 
       $.ajax({
