@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.util.Date;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,8 +28,8 @@ public class Coupon {
     private int discountAmount;
 
     @Column(nullable = false)
-    private Date expiredAt;
+    private LocalDate expiredAt;
 
     @Column(nullable = false)
-    private Boolean isUsed;
+    private Integer count;
 }

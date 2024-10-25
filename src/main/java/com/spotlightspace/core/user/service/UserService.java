@@ -9,9 +9,12 @@ import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
+import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.repository.UserRepository;
+import com.spotlightspace.core.usercoupon.service.UserCouponService;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AttachmentService attachmentService;
     private final PasswordEncoder passwordEncoder;
+    private final UserCouponService userCouponService;
 
     public void updateUser(Long userId, AuthUser authUser, UpdateUserRequestDto updateUserRequestDto,
             MultipartFile file)
@@ -78,5 +82,19 @@ public class UserService {
         }
 
         user.delete();
+    }
+
+    public List<GetCouponResponseDto> getCoupons(Long userId, Long currentUserId) {
+        User user = userRepository.findByIdOrElseThrow(userId);
+
+        if (user.isDeleted()) {
+            throw new ApplicationException(USER_NOT_FOUND);
+        }
+
+        if (!userId.equals(currentUserId)) {
+            throw new ApplicationException(FORBIDDEN_USER);
+        }
+
+        return userCouponService.getUserCouponByUserId(userId);
     }
 }

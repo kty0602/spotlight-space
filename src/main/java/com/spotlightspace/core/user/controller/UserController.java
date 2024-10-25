@@ -2,11 +2,14 @@ package com.spotlightspace.core.user.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
+import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.service.UserService;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -62,7 +65,8 @@ public class UserController {
 
     /**
      * 유저를 삭제합니다
-     * @param userId 유저아이디를 입력받습니다
+     *
+     * @param userId   유저아이디를 입력받습니다
      * @param authUser 현재 로그인중인 유저 정보를 받아옵니다
      * @return 회원이 삭제됩니다
      */
@@ -73,5 +77,21 @@ public class UserController {
     ) {
         userService.deleteUser(userId, authUser.getUserId());
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 유저의 쿠폰을 조회합니다
+     *
+     * @param userId 유저 id를 받습니다.
+     * @param authUser 현재 로그인한 유저의 id를 받습니다
+     * @return
+     */
+    @GetMapping("/user/{userId}/coupons")
+    public ResponseEntity<List<GetCouponResponseDto>> getCoupons(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        List<GetCouponResponseDto> couponList = userService.getCoupons(userId, authUser.getUserId());
+        return new ResponseEntity<>(couponList, HttpStatus.OK);
     }
 }
