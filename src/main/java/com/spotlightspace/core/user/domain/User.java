@@ -78,9 +78,14 @@ public class User {
         this.nickname = updateUserRequestDto.getNickname();
         this.birth = LocalDate.parse(updateUserRequestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         this.phoneNumber = updateUserRequestDto.getPhoneNumber();
-        this.password = encryptPassword;}
+        this.password = encryptPassword;
+    }
 
     public void delete() {
         this.isDeleted = true;
+    }
+
+    public void updatePassword(String encryptPassword) {
+        this.password = encryptPassword;
     }
 }

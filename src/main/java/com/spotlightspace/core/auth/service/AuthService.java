@@ -10,6 +10,7 @@ import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.auth.dto.SigninUserRequestDto;
 import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
 import com.spotlightspace.core.user.domain.User;
+import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
 import com.spotlightspace.core.user.repository.UserRepository;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional
 @RequiredArgsConstructor
 public class AuthService {
+
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -39,8 +41,8 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        if(file != null) {
-            attachmentService.addAttachment(file,savedUser.getId(), TableRole.USER);
+        if (file != null) {
+            attachmentService.addAttachment(file, savedUser.getId(), TableRole.USER);
         }
 
         return jwtUtil.createToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole());
@@ -54,12 +56,20 @@ public class AuthService {
             throw new ApplicationException(ErrorCode.INVALID_PASSWORD_OR_EMAIL);
         }
 
-        if(user.isDeleted())
-        {
+        if (user.isDeleted()) {
             throw new ApplicationException(USER_NOT_FOUND);
         }
 
         return jwtUtil.createToken(user.getId(), user.getEmail(), user.getRole());
+    }
+
+    public void updatePassword(UpdatePasswordUserRequestDto updateUserRequestDto) {
+
+        User user = userRepository.findByEmailOrElseThrow(updateUserRequestDto.getEmail());
+
+        String encryptPassword = passwordEncoder.encode(updateUserRequestDto.getNewPassword());
+
+        user.updatePassword(encryptPassword);
     }
 }
 
