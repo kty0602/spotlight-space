@@ -1,12 +1,11 @@
 package com.spotlightspace.core.user.service;
 
+import static com.spotlightspace.core.data.UserCouponData.getCouponResponse;
 import static com.spotlightspace.core.data.UserTestData.testAuthUser;
 import static com.spotlightspace.core.data.UserTestData.testUpdateUserRequestDto;
 import static com.spotlightspace.core.data.UserTestData.testUser;
 import static com.spotlightspace.core.data.UserTestData.testUser_deleted;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -18,10 +17,10 @@ import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
-import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.repository.UserRepository;
+import com.spotlightspace.core.usercoupon.service.UserCouponService;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,6 +46,9 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private UserCouponService userCouponService;
+
     @InjectMocks
     private UserService userService;
 
@@ -71,7 +73,7 @@ class UserServiceTest {
             BDDMockito.doNothing().when(attachmentService).addAttachment(any(MultipartFile.class), anyLong(), any(
                     TableRole.class));
 
-            //when-then
+            //when - then
             assertDoesNotThrow(() -> userService.updateUser(userId, authUser, updateRequestDto, testFile));
         }
 
@@ -89,7 +91,7 @@ class UserServiceTest {
 
             MultipartFile testFile = null;
 
-            //when-then
+            //when - then
             assertDoesNotThrow(() -> userService.updateUser(userId, authUser, updateRequestDto, testFile));
         }
 
@@ -217,6 +219,58 @@ class UserServiceTest {
 
                 // when - then
                 assertThrows(ApplicationException.class, () -> userService.deleteUser(2L, authUser.getUserId()));
+            }
+        }
+
+        @Nested
+        @DisplayName("쿠폰조회테스트")
+        class getCoupons {
+            @Test
+            @DisplayName("쿠폰 조회 성공")
+            public void getCoupons_success() {
+                // given
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "id", 1L);
+                AuthUser authUser = testAuthUser();
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+                given(userCouponService.getUserCouponByUserId(user.getId()))
+                        .willReturn(List.of(getCouponResponse()));
+
+                // when - then
+                assertDoesNotThrow(() -> userService.getCoupons(user.getId(), authUser.getUserId()));
+            }
+
+
+            @Test
+            @DisplayName("쿠폰 조회 실패 - 회원이 삭제된 경우")
+            public void getCoupons_notFoundUser_failure() {
+                //given
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "id", 1L);
+                ReflectionTestUtils.setField(user,"isDeleted", true);
+
+                AuthUser authUser = testAuthUser();
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+
+                // when - then
+                assertThrows(ApplicationException.class, () -> userService.getCoupons(user.getId(), authUser.getUserId()));
+            }
+
+            @Test
+            @DisplayName("다른 회원을 조회시 에러")
+            public void getCoupons_notSameUserId_failure() {
+                // given
+                User user = testUser();
+                ReflectionTestUtils.setField(user, "id", 1L);
+
+                AuthUser authUser = testAuthUser();
+
+                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+
+                // when - then
+                assertThrows(ApplicationException.class, () -> userService.getCoupons(2L, authUser.getUserId()));
             }
         }
     }
