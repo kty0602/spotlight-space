@@ -38,13 +38,13 @@ public class EventController {
      * @throws IOException
      */
     @PostMapping()
-    public ResponseEntity<AddEventResponseDto> addEvent(
+    public ResponseEntity<AddEventResponseDto> createEvent(
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestPart AddEventRequestDto requestDto,
             @RequestPart(required = false) List<MultipartFile> files
             ) throws IOException {
 
-        AddEventResponseDto addEventResponseDto = eventService.addEvent(requestDto, authUser, files);
+        AddEventResponseDto addEventResponseDto = eventService.createEvent(requestDto, authUser, files);
         return new ResponseEntity<>(addEventResponseDto, HttpStatus.CREATED);
     }
 

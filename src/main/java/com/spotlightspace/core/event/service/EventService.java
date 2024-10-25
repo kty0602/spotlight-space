@@ -35,7 +35,7 @@ public class EventService {
     private final AttachmentService attachmentService;
 
     @Transactional
-    public AddEventResponseDto addEvent(AddEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException {
+    public AddEventResponseDto createEvent(AddEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException {
         // 유저 확인
         User user = checkUserExist(authUser.getUserId());
         // 유저 권한 확인
@@ -111,7 +111,7 @@ public class EventService {
         }
     }
 
-    // 이벤트 존재 확인
+    // 이벤트 존재 확인 (소프트 딜리트 검증 추가 완료)
     private Event checkEventExist(Long id) {
         return eventRepository.findByIdOrElseThrow(id);
     }

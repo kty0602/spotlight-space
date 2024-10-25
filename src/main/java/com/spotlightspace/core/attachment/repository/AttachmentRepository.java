@@ -16,11 +16,6 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long>, A
     Optional<Attachment> findByTargetIdAndTableRole(Long targetId, TableRole tableRole);
     List<Attachment> findAllByTargetIdAndTableRole(Long targetId, TableRole tableRole);
 
-    default Attachment findByTargetIdAndTableRoleOrElseThrow(Long targetId, TableRole tableRole) {
-        return findByTargetIdAndTableRole(targetId, tableRole)
-                .orElseThrow(() -> new ApplicationException(ATTACHMENT_NOT_FOUND));
-    }
-
     default Attachment findByIdOrElseThrow(long id) {
         return findById(id)
                 .orElseThrow(() -> new ApplicationException(ATTACHMENT_NOT_FOUND));

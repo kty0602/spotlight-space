@@ -10,15 +10,16 @@ import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
 
 public interface EventRepository extends JpaRepository<Event, Long>, EventQueryRepository {
 
-    Optional<Event> findByIdAndUserId(Long id, Long userId);
+    Optional<Event> findByIdAndUserIdAndIsDeletedFalse(Long id, Long userId);
+    Optional<Event> findByIdAndIsDeletedFalse(Long id);
 
     default Event findByIdOrElseThrow(long id) {
-        return findById(id)
+        return findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ApplicationException(EVENT_NOT_FOUND));
     }
 
     default Event findByIdAndUserIdOrElseThrow(Long id, Long userId) {
-        return findByIdAndUserId(id, userId)
+        return findByIdAndUserIdAndIsDeletedFalse(id, userId)
                 .orElseThrow(() -> new ApplicationException(EVENT_NOT_FOUND));
     }
 }
