@@ -26,6 +26,8 @@ public class QPayment extends EntityPathBase<Payment> {
 
     public final NumberPath<Integer> amount = createNumber("amount", Integer.class);
 
+    public final StringPath cid = createString("cid");
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
 
@@ -34,6 +36,8 @@ public class QPayment extends EntityPathBase<Payment> {
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final EnumPath<PaymentStatus> status = createEnum("status", PaymentStatus.class);
+
+    public final StringPath tid = createString("tid");
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updateAt = _super.updateAt;
