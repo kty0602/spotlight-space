@@ -78,7 +78,7 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
                     if (isBlackListed(userId, token)) {
                         log.error("세션이 만료되었습니다.");
                         response.setContentType("application/json");
-                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "블랙리스트에 포함된 유저입니다.");
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "세션이 만료되었습니다.");
                         return;
                     }
                     log.info("토큰 검증 성공");
