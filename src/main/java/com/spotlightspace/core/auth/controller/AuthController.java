@@ -45,6 +45,7 @@ public class AuthController {
     public ResponseEntity<String> signUp(
             @Valid @RequestPart SignupUserRequestDto signupUserRequestDto,
             @RequestPart(required = false) MultipartFile file) throws IOException {
+        authService.saveUser(signupUserRequestDto, file);
         return ResponseEntity.ok()
                 .build();
     }
