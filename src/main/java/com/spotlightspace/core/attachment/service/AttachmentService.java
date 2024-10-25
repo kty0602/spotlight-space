@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
+import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.attachment.domain.Attachment;
 import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.repository.AttachmentRepository;
@@ -151,7 +152,7 @@ public class AttachmentService {
         Attachment attachment = attachmentRepository.findByIdOrElseThrow(attachementId);
         // 어떤 table(유저, 이벤트, 리뷰)에 대한 건지 검사 (tableRole 사용)
         if (tableRole.equals(TableRole.EVENT)) {
-            // 해당 요청을 보낸 role과 현재 접근한 attachment의 table_role이 같은지 검사
+            // 해당 요청을 보낸 role과 현재 접근한 attachment의 table_role이 같은지 검사 (소프트 딜리트가 )
             Event event = eventRepository.findByIdAndUserIdOrElseThrow(tableId, authUser.getUserId());
             if (attachment.getTableRole().equals(tableRole) && attachment.getTargetId().equals(event.getId())) {
                 String fileName = attachment.getUrl().substring(attachment.getUrl().lastIndexOf("/") + 1);
