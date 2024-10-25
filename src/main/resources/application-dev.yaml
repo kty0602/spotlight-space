@@ -15,7 +15,6 @@ spring:
         format_sql: true
   config:
     import: optional:file:.env[.properties]
-
   servlet:
     multipart:
       max-file-size: 5MB
@@ -38,7 +37,6 @@ spring:
       host: localhost
       port: 6379
 
-
 cloud:
   aws:
     s3:
@@ -54,3 +52,7 @@ cloud:
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace
+
+payment:
+  secret:
+    key: ${PAYMENT_SECRET_KEY}
