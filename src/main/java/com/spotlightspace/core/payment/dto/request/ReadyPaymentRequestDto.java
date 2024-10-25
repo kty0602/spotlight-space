@@ -13,4 +13,6 @@ public class ReadyPaymentRequestDto {
 
     @NotNull(message = "이벤트 ID는 필수 값입니다.")
     private Long eventId;
+
+    private Long couponId;
 }

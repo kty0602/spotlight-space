@@ -6,6 +6,7 @@ import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.user.domain.User;
+import com.spotlightspace.core.usercoupon.domain.UserCoupon;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -29,6 +31,7 @@ import lombok.Setter;
 public class Payment extends Timestamped {
 
     @Id
+    @Column(name = "payment_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -48,20 +51,36 @@ public class Payment extends Timestamped {
 
     private int amount;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    private UserCoupon userCoupon;
+
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    private Payment(String tid, String cid, Event event, User user, int amount, PaymentStatus status) {
+    private Payment(
+            String tid,
+            String cid,
+            Event event,
+            User user,
+            int amount,
+            UserCoupon userCoupon,
+            PaymentStatus status
+    ) {
         this.tid = tid;
         this.cid = cid;
         this.event = event;
         this.user = user;
         this.amount = amount;
+        this.userCoupon = userCoupon;
         this.status = status;
     }
 
-    public static Payment createWithoutTid(String cid, Event event, User user, int amount) {
-        return new Payment(null, cid, event, user, amount, READY);
+    public static Payment create(String cid, Event event, User user, int amount) {
+        return new Payment(null, cid, event, user, amount, null, READY);
+    }
+
+    public static Payment createWithCoupon(String cid, Event event, User user, int amount, UserCoupon userCoupon) {
+        return new Payment(null, cid, event, user, amount, userCoupon, READY);
     }
 
     public Long getPartnerOrderId() {
@@ -74,5 +93,8 @@ public class Payment extends Timestamped {
 
     public void approve() {
         this.status = APPROVED;
+        if (this.userCoupon != null) {
+            this.userCoupon.use();
+        }
     }
 }

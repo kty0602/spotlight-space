@@ -25,6 +25,7 @@ public enum ErrorCode {
 
     POINT_NOT_FOUND(NOT_FOUND, "존재하지 않는 포인트입니다."),
 
+    COUPON_ALREADY_USED(BAD_REQUEST, "이미 사용된 쿠폰입니다."),
     COUPON_NOT_FOUND(NOT_FOUND, "존재하지 않는 쿠폰입니다."),
 
     EVENT_PARTICIPANT_LIMIT_EXCEED(BAD_REQUEST, "이벤트 참석자 수를 초과하였습니다."),

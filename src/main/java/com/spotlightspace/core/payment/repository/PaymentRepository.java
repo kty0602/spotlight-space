@@ -7,10 +7,13 @@ import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.payment.domain.Payment;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long>, PaymentQueryRepository {
 
-    Optional<Payment> findByTid(String tid);
+    @Query("select p from Payment p join fetch p.userCoupon where p.tid = :tid")
+    Optional<Payment> findByTid(@Param("tid") String tid);
 
     long countByEvent(Event event);
 
