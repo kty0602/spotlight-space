@@ -18,14 +18,10 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static com.spotlightspace.common.constant.JwtConstant.USER_EMAIL;
-import static com.spotlightspace.common.constant.JwtConstant.USER_ROLE;
 
 @Slf4j(topic = "JwtTokenFilter")
 @RequiredArgsConstructor
@@ -53,11 +49,11 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
         if (Strings.isNotBlank(url) && checkUrlPattern(url)) {
             // 나머지 API 요청은 인증 처리 진행
             // 토큰 확인
-            String tokenValue = request.getHeader(HttpHeaders.AUTHORIZATION);
+            String tokenValue = request.getHeader("AccessToken");
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals(HttpHeaders.AUTHORIZATION)) {
+                    if (cookie.getName().equals("AccessToken")) {
                         tokenValue = URLDecoder.decode(cookie.getValue(), "UTF-8");
                     }
                 }

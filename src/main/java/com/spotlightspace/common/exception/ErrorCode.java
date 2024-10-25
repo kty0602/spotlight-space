@@ -12,6 +12,7 @@ public enum ErrorCode {
     INVALID_PASSWORD_OR_EMAIL(NOT_FOUND, "이메일 또는 패스워드가 일치하지 않습니다"),
     EMAIL_DUPLICATED(CONFLICT, "이미 존재하는 이메일입니다."),
     FORBIDDEN_USER(FORBIDDEN, "권한이 없습니다."),
+    INVALID_REFRESH_TOKEN(FORBIDDEN,"리프레시토큰이 없습니다"),
 
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
 
