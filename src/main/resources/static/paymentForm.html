@@ -1,0 +1,55 @@
+<html>
+<meta charset="UTF-8" />
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<div>
+  <h2>카카오페이</h2>
+  <form id="payInfo">
+    <div>
+      <label for="event_id">이벤트 ID</label>
+      <input id="event_id" type="text" name="event_id" value="1" readonly>
+    </div>
+    <div>
+      <label for="event_name">이벤트 이름</label>
+      <input id="event_name" type="text" name="event_name" value="이벤트 명" readonly>
+    </div>
+    <div>
+      <label for="price">가격</label>
+      <input id="price" type="text" name="price" value="10000" readonly>
+    </div>
+    <div>
+      <button id="btn-pay-ready" type="button">결제</button>
+    </div>
+  </form>
+</div>
+</body>
+
+<script type="text/javascript">
+  $(function() {
+    $("#btn-pay-ready").click(function(e) {
+      let eventId = $("#event_id").val();
+
+      let data = {
+        eventId: eventId
+      };
+
+      $.ajax({
+        type: "POST",
+        url: "/api/v1/payments/ready",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        success: function(result) {
+          console.log("결제 성공")
+          window.open(result.data.next_redirect_pc_url, "kakaopay_pop", "width = 500, height = 500, top = 100, left = 200, location = no");
+        },
+        error: function (error) {
+          console.log("결제 실패");
+          console.log(error);
+        },
+        complete: function (xhr, status) {
+          console.log("Request completed with status: " + status);
+        }
+      });
+    });
+  });
+</script>

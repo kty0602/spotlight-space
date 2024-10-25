@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In</title>
+  <script>
+    async function signIn(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const signInData = {
+        email: email,
+        password: password
+      };
+
+      const response = await fetch('http://localhost:8080/api/v1/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(signInData)
+      });
+
+      if (response.ok) {
+        const token = response.headers.get('Authorization');
+        alert('Sign in successful! Token: ' + token);
+
+        window.location.href = 'http://localhost:8080/paymentForm.html';
+      } else {
+        alert('Sign in failed');
+      }
+    }
+  </script>
+</head>
+<body>
+<h2>Sign In</h2>
+<form onsubmit="signIn(event)">
+  <label for="email">Email:</label><br>
+  <input type="email" id="email" name="email" required><br><br>
+
+  <label for="password">Password:</label><br>
+  <input type="password" id="password" name="password" required><br><br>
+
+  <input type="submit" value="Sign In">
+</form>
+</body>
+</html>
