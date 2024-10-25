@@ -38,7 +38,7 @@ public class PaymentService {
             throw new ApplicationException(NOT_IN_EVENT_RECRUITMENT_PERIOD);
         }
 
-        Payment payment = Payment.createWithoutTid(CID, event, user, 1);
+        Payment payment = Payment.createWithoutTid(CID, event, user, event.getPrice());
         paymentRepository.save(payment);
 
         Long buyerCount = paymentRepository.countByEvent(event);
