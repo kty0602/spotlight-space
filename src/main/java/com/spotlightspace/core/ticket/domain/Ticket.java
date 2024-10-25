@@ -34,7 +34,7 @@ public class Ticket {
 
     private int price;
 
-    boolean isCanceled;
+    private boolean isCanceled;
 
     private Ticket(User user, Event event, int price, boolean isCanceled) {
         this.user = user;
