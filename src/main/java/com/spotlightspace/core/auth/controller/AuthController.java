@@ -5,6 +5,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import com.spotlightspace.core.auth.dto.SigninUserRequestDto;
 import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
 import com.spotlightspace.core.auth.service.AuthService;
+import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +51,20 @@ public class AuthController {
                 .build();
     }
 
+    /**
+     * 패스워드 변경을 구현했습니다.
+     *
+     * @param updateUserRequestDto 비밀번호와 이메일을 입력받습니다
+     * @return
+     */
+    @PatchMapping("/auth/password")
+    public ResponseEntity<Void> updatePassword(
+            @Valid @RequestBody UpdatePasswordUserRequestDto updateUserRequestDto
+    ) {
+        authService.updatePassword(updateUserRequestDto);
+        return ResponseEntity.ok().build();
+     }
+  
     private void setAuthorizationCookie(
             HttpServletResponse response,
             String accessToken) throws UnsupportedEncodingException {
