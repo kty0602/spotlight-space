@@ -3,23 +3,23 @@ package com.spotlightspace.core.event.service;
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
-import com.spotlightspace.core.event.dto.AddEventRequestDto;
-import com.spotlightspace.core.event.dto.AddEventResponseDto;
-import com.spotlightspace.core.event.dto.UpdateEventRequestDto;
-import com.spotlightspace.core.event.dto.UpdateEventResponseDto;
+import com.spotlightspace.core.event.dto.*;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.spotlightspace.common.exception.ErrorCode.*;
@@ -35,7 +35,7 @@ public class EventService {
     private final AttachmentService attachmentService;
 
     @Transactional
-    public AddEventResponseDto createEvent(AddEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException {
+    public CreateEventResponseDto createEvent(CreateEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException {
         // 유저 확인
         User user = checkUserExist(authUser.getUserId());
         // 유저 권한 확인
@@ -45,7 +45,7 @@ public class EventService {
         if (files != null && !files.isEmpty()) {
             attachmentService.addAttachmentList(files, event.getId(), TableRole.EVENT);
         }
-        return AddEventResponseDto.from(event);
+        return CreateEventResponseDto.from(event);
     }
 
     @Transactional
@@ -97,6 +97,18 @@ public class EventService {
         // 삭제 진행 시 결제한 사람 (포인트, 쿠폰)환불처리 + 관련 이미지 삭제
         attachmentService.deleteAttachmentWithOtherTable(event.getId(), TableRole.EVENT);
         event.deleteEvent();
+    }
+
+    public GetEventResponseDto getEvent(Long eventId) {
+        Event event = eventRepository.findByIdOrElseThrow(eventId);
+        return GetEventResponseDto.from(event);
+    }
+
+    public Page<GetEventResponseDto> getEvents(int page, int size, SearchEventRequestDto searchEventRequestDto, String type) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        Page<GetEventResponseDto> events = eventRepository.searchEvents(searchEventRequestDto, type, pageable);
+        return events;
     }
 
     // 유저 존재 확인

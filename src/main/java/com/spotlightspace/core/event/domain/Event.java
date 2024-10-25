@@ -1,7 +1,7 @@
 package com.spotlightspace.core.event.domain;
 
 import com.spotlightspace.common.entity.Timestamped;
-import com.spotlightspace.core.event.dto.AddEventRequestDto;
+import com.spotlightspace.core.event.dto.CreateEventRequestDto;
 import com.spotlightspace.core.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -71,7 +71,7 @@ public class Event extends Timestamped {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private Event(AddEventRequestDto addEventRequestDto, User user) {
+    private Event(CreateEventRequestDto addEventRequestDto, User user) {
         this.title = addEventRequestDto.getTitle();
         this.content = addEventRequestDto.getContent();
         this.location = addEventRequestDto.getLocation();
@@ -85,7 +85,7 @@ public class Event extends Timestamped {
         this.user = user;
     }
 
-    public static Event of(AddEventRequestDto addEventRequestDto, User user) {
+    public static Event of(CreateEventRequestDto addEventRequestDto, User user) {
         return new Event(addEventRequestDto, user);
     }
 

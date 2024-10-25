@@ -10,6 +10,7 @@ import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.repository.AttachmentRepository;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.repository.EventRepository;
+import com.spotlightspace.core.review.domain.Review;
 import com.spotlightspace.core.review.repository.ReviewRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
@@ -56,13 +57,15 @@ public class AttachmentService {
         }
         if (tableRole.equals(TableRole.EVENT)) {
             Event event = eventRepository.findByIdOrElseThrow(tableId);
-            System.out.println("Event found: " + event.getId() + ", isDeleted: " + event.getIsDeleted());
             if (!event.getUser().getId().equals(authUser.getUserId())) {
                 throw new ApplicationException(USER_NOT_ACCESS_EVENT);
             }
         }
         if (tableRole.equals(TableRole.REVIEW)) {
-            // Review 내용 보고 추가 예정
+            Review review = reviewRepository.findByIdOrElseThrow(tableId);
+            if (!review.getUser().getId().equals(authUser.getUserId())) {
+                throw new ApplicationException(USER_NOT_ACCESS_REVIEW);
+            }
         }
 
         List<GetAttachmentResponseDto> responseDtos = new ArrayList<>();
@@ -148,9 +151,9 @@ public class AttachmentService {
         Attachment attachment = attachmentRepository.findByIdOrElseThrow(attachementId);
         // 어떤 table(유저, 이벤트, 리뷰)에 대한 건지 검사 (tableRole 사용)
         if (tableRole.equals(TableRole.EVENT)) {
-            // 해당 요청을 보낸 role과 현재 접근한 attachment의 table_role이 같은지 검사 (소프트 딜리트가 )
+            // 해당 요청을 보낸 role과 현재 접근한 attachment의 table_role이 같은지 검사
             Event event = eventRepository.findByIdAndUserIdOrElseThrow(tableId, authUser.getUserId());
-            if(attachment.getTableRole().equals(tableRole) && attachment.getTargetId().equals(event.getId())) {
+            if (attachment.getTableRole().equals(tableRole) && attachment.getTargetId().equals(event.getId())) {
                 String fileName = attachment.getUrl().substring(attachment.getUrl().lastIndexOf("/") + 1);
                 amazonS3Client.deleteObject(bucket, fileName);
                 attachmentRepository.delete(attachment);
@@ -161,7 +164,7 @@ public class AttachmentService {
         if (tableRole.equals(TableRole.USER)) {
             // 해당 요청을 보낸 role과 현재 접근한 attachment의 table_role이 같은지 검사
             User user = userRepository.findByIdOrElseThrow(tableId);
-            if(attachment.getTableRole().equals(tableRole) && attachment.getTargetId().equals(user.getId())) {
+            if (attachment.getTableRole().equals(tableRole) && attachment.getTargetId().equals(user.getId())) {
                 String fileName = attachment.getUrl().substring(attachment.getUrl().lastIndexOf("/") + 1);
                 amazonS3Client.deleteObject(bucket, fileName);
                 attachmentRepository.delete(attachment);
@@ -170,8 +173,15 @@ public class AttachmentService {
             }
         }
         if (tableRole.equals(TableRole.REVIEW)) {
-            // 해당 접근자가 작성한 table의 id값과 authUser값과 일치하는 해당 table의 객체가 존재하는지 검사
-            // Review 나중에 합친거 보고 추후 추가 예정
+            // 해당 요청을 보낸 role과 현재 접근한 attachment의 table_role이 같은지 검사
+            Review review = reviewRepository.findByIdAndUserIdOrElseThrow(tableId, authUser.getUserId());
+            if (attachment.getTableRole().equals(tableRole) && attachment.getTargetId().equals(review.getId())) {
+                String fileName = attachment.getUrl().substring(attachment.getUrl().lastIndexOf("/") + 1);
+                amazonS3Client.deleteObject(bucket, fileName);
+                attachmentRepository.delete(attachment);
+            } else {
+                throw new ApplicationException(REVIEW_NOT_FOUND);
+            }
         }
     }
 

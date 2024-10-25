@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class AddEventResponseDto {
+public class GetEventResponseDto {
     private Long id;
     private String title;
     private String content;
@@ -22,7 +22,7 @@ public class AddEventResponseDto {
     private LocalDateTime recruitmentStartAt;
     private LocalDateTime recruitmentFinishAt;
 
-    private AddEventResponseDto(Event event) {
+    private GetEventResponseDto(Event event) {
         this.id = event.getId();
         this.title = event.getTitle();
         this.content = event.getContent();
@@ -36,7 +36,7 @@ public class AddEventResponseDto {
         this.recruitmentFinishAt = event.getRecruitmentFinishAt();
     }
 
-    public static AddEventResponseDto from(Event event) {
-        return new AddEventResponseDto(event);
+    public static GetEventResponseDto from(Event event) {
+        return new GetEventResponseDto(event);
     }
 }
