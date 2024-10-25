@@ -33,7 +33,9 @@ public class QReview extends EntityPathBase<Review> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final NumberPath<Integer> star = createNumber("star", Integer.class);
+    public final BooleanPath isDeleted = createBoolean("isDeleted");
+
+    public final NumberPath<Integer> rating = createNumber("rating", Integer.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updateAt = _super.updateAt;

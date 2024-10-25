@@ -19,7 +19,6 @@ public class ReviewResponseDto {
         this.contents = review.getContents();
     }
 
-
     public static ReviewResponseDto from(Review review) {
         return new ReviewResponseDto(review);
     }

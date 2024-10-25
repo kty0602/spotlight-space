@@ -1,15 +1,12 @@
 package com.spotlightspace.core.review.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
-import com.spotlightspace.common.dto.ResponseDto;
-import com.spotlightspace.core.review.domain.Review;
 import com.spotlightspace.core.review.dto.ReviewRequestDto;
 import com.spotlightspace.core.review.dto.ReviewResponseDto;
 import com.spotlightspace.core.review.dto.UpdateReviewRequestDto;
 import com.spotlightspace.core.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,22 +34,19 @@ public class ReviewController {
             @PathVariable("eventId") Long eventId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-
+        //
         ReviewResponseDto reviewResponseDto = reviewService.createReview(reviewRequestDto, eventId, authUser);
         return new ResponseEntity<>(reviewResponseDto, HttpStatus.CREATED);
     }
 
-//    @GetMapping("/reviews/{reviewId}")
-//    public ResponseEntity<ResponseDto<List<ReviewResponseDto>>> getEventReviews(
-//            @PathVariable("eventId") Long eventId,
-//            @PathVariable("reviewId") Long reviewId,
-//            @RequestParam(defaultValue = "1") int minRating,
-//            @RequestParam(defaultValue = "5") int maxRating
-//    ) {
-//        return ResponseEntity.ok(new ResponseDto<>(HttpStatus.OK.value(),
-//                reviewService.getEventReviews(eventId, minRating, maxRating),
-//                "리뷰를 조회했습니다."));
-//    }
+    //리뷰 조회
+    @GetMapping("/reviews")
+    public ResponseEntity<List<ReviewResponseDto>> getReviews(
+            @PathVariable("eventId") Long eventId
+    ) {
+        List<ReviewResponseDto> reviews = reviewService.getReviews(eventId);
+        return new ResponseEntity<>(reviews, HttpStatus.OK);
+    }
 
     /**
      * 리뷰 수정 로직
@@ -67,7 +61,6 @@ public class ReviewController {
             @PathVariable("reviewId") Long reviewId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-
         ReviewResponseDto reviewResponseDto = reviewService.updateReview(reviewId, updateReviewRequestDto, authUser);
         return new ResponseEntity<>(reviewResponseDto, HttpStatus.OK);
     }

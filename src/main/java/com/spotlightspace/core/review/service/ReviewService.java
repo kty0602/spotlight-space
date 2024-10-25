@@ -16,7 +16,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,24 +46,19 @@ public class ReviewService {
         return ReviewResponseDto.from(review);
     }
 
-
     //리뷰 조회
-//    public List<ReviewResponseDto> getEventReviews(Long eventId, int minRating, int maxRating) {
-//        List<Review> reviews = reviewRepository.findEventReviewsWithStarByCreatedAtDesc(
-//                eventId, minRating, maxRating);
-//        log.info("reviews : {}", reviews);
-//
-//        //최신순
-//        return reviews.stream()
-//                .map(ReviewResponseDto::new)
-//                .collect(Collectors.toList());
-//    }
+    public List<ReviewResponseDto> getReviews(Long eventId) {
+        List<Review> reviews = reviewRepository.findEventReviewsAndIsDeletedFalse(eventId);
 
+        return reviews.stream()
+                .map(review -> ReviewResponseDto.from(review))
+                .collect(Collectors.toList());
+        }
 
     //리뷰 수정
     public ReviewResponseDto updateReview(Long reviewId, UpdateReviewRequestDto updateReviewRequestDto, AuthUser authUser) {
         // id로 기존 리뷰를 찾음
-        Review review = reviewRepository.findById(reviewId)
+        Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.REVIEW_NOT_FOUND));
 
         // 권한 체크 코드
@@ -87,9 +81,9 @@ public class ReviewService {
     }
 
     //리뷰 삭제
-    public void deleteReview(Long id, AuthUser authUser) {
+    public void deleteReview(Long reviewId, AuthUser authUser) {
         // id를 기반으로 리뷰 조회
-        Review review = reviewRepository.findById(id)
+        Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.REVIEW_NOT_FOUND));
         // 권한 체크 코드
         checkUserOnReview(review, authUser);
