@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
@@ -19,6 +20,7 @@ import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.auth.dto.SigninUserRequestDto;
 import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
 import com.spotlightspace.core.user.domain.User;
+import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
 import com.spotlightspace.core.user.repository.UserRepository;
 import java.io.IOException;
 import java.util.Optional;
@@ -32,6 +34,7 @@ import org.mockito.Mock;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(SpringExtension.class)
@@ -168,6 +171,27 @@ class AuthServiceTest {
             // when - then
             assertThrows(ApplicationException.class, () -> authService.signin(signinUserRequestDto));
         }
+    }
 
+    @Nested
+    @DisplayName("유저 비밀번호 테스트")
+    class ChangePasswordTest {
+        @Test
+        @DisplayName("비밀번호 변경 성공")
+        void changePassword_success() {
+            // given
+            String newPassword = "newPassword";
+
+            User user = testUser();
+            ReflectionTestUtils.setField(user,"password", newPassword);
+
+            UpdatePasswordUserRequestDto updateRequestDto = new UpdatePasswordUserRequestDto(user.getEmail(), newPassword);
+
+            given(userRepository.findByEmailOrElseThrow(anyString())).willReturn(user);
+            given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
+
+            // when - then
+            assertDoesNotThrow(() -> authService.updatePassword(updateRequestDto));
+        }
     }
 }
