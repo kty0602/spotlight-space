@@ -8,9 +8,11 @@ import com.spotlightspace.core.user.domain.UserRole;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +36,9 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
 
     private final List<String> whiteList = List.of(
             "^/api/v(?:[1-9])/auth/[a-zA-Z\\-]+$",
-            "^/api/v(?:[1-9])/mail/.*$"
+            "^/api/v(?:[1-9])/mail/.*$",
+            "/paymentform.html",
+            "/loginform.html"
     );
 
 
@@ -50,6 +54,14 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             // 나머지 API 요청은 인증 처리 진행
             // 토큰 확인
             String tokenValue = request.getHeader(HttpHeaders.AUTHORIZATION);
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals(HttpHeaders.AUTHORIZATION)) {
+                        tokenValue = URLDecoder.decode(cookie.getValue(), "UTF-8");
+                    }
+                }
+            }
 
             if (Strings.isNotBlank(tokenValue)) { // 토큰이 존재하면 검증 시작
                 // 토큰 검증

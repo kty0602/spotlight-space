@@ -46,6 +46,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/*/auth/**").permitAll()
                         .requestMatchers("/api/*/mail/**").permitAll()
                         .requestMatchers("/api/*/admin").hasAuthority(UserRole.Authority.ADMIN)
+                        .requestMatchers("/paymentform.html").permitAll()
+                        .requestMatchers("/loginform.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();

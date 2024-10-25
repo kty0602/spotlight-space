@@ -1,12 +1,11 @@
 package com.spotlightspace.core.event.repository;
 
+import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
+
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.event.domain.Event;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
-
-import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EventRepository extends JpaRepository<Event, Long>, EventQueryRepository {
 

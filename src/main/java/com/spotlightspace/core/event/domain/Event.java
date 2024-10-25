@@ -3,9 +3,17 @@ package com.spotlightspace.core.event.domain;
 import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.event.dto.AddEventRequestDto;
 import com.spotlightspace.core.user.domain.User;
-import jakarta.persistence.*;
-
-import java.time.LocalDate;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -120,4 +128,12 @@ public class Event extends Timestamped {
         this.isDeleted = true;
     }
 
+    public boolean isParticipantLimitExceed(int participantCount) {
+        return maxPeople < participantCount;
+    }
+
+    public boolean isNotRecruitmentPeriod() {
+        LocalDateTime now = LocalDateTime.now();
+        return !(now.isAfter(recruitmentStartAt) && now.isBefore(recruitmentFinishAt));
+    }
 }
