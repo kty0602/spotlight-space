@@ -2,7 +2,6 @@ package com.spotlightspace.core.user.service;
 
 import static com.spotlightspace.common.constant.JwtConstant.TOKEN_ACCESS_TIME;
 import static com.spotlightspace.common.exception.ErrorCode.FORBIDDEN_USER;
-import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.spotlightspace.common.annotation.AuthUser;
@@ -111,8 +110,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public void findUserEmail(String email)
-    {
+    public void findUserEmail(String email) {
         userRepository.findByEmailOrElseThrow(email);
     }
 }
