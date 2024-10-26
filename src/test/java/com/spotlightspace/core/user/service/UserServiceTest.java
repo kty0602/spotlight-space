@@ -1,10 +1,10 @@
 package com.spotlightspace.core.user.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
 import static com.spotlightspace.core.data.UserCouponData.getCouponResponse;
 import static com.spotlightspace.core.data.UserTestData.testAuthUser;
 import static com.spotlightspace.core.data.UserTestData.testUpdateUserRequestDto;
 import static com.spotlightspace.core.data.UserTestData.testUser;
-import static com.spotlightspace.core.data.UserTestData.testUser_deleted;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -103,14 +103,16 @@ class UserServiceTest {
             long userId = 1;
             UpdateUserRequestDto updateRequestDto = testUpdateUserRequestDto();
 
-            User user = testUser_deleted();
             AuthUser authUser = testAuthUser();
 
-            given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+            given(userRepository.findByIdOrElseThrow(anyLong()))
+                    .willThrow(new ApplicationException(USER_NOT_FOUND));
+
             //when - then
             assertThrows(ApplicationException.class,
                     () -> userService.updateUser(userId, authUser, updateRequestDto, null));
         }
+
 
         @Test
         @DisplayName("수정할 user id와 로그인된 user id가 다를 경우")
@@ -131,6 +133,7 @@ class UserServiceTest {
         @Nested
         @DisplayName("회원 조회 테스트")
         class GetUserTest {
+
             @Test
             @DisplayName("회원 조회 성공 테스트")
             public void findUser_success() {
@@ -141,7 +144,7 @@ class UserServiceTest {
                 given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
 
                 // when - then
-                assertDoesNotThrow(()-> userService.getUser(user.getId(), testAuthUser().getUserId()));
+                assertDoesNotThrow(() -> userService.getUser(user.getId(), testAuthUser().getUserId()));
             }
 
             @Test
@@ -149,12 +152,14 @@ class UserServiceTest {
             public void getUser_notFoundUser_failure() {
                 User user = testUser();
                 ReflectionTestUtils.setField(user, "id", 1L);
-                ReflectionTestUtils.setField(user,"isDeleted", true);
+                ReflectionTestUtils.setField(user, "isDeleted", true);
 
-                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+                given(userRepository.findByIdOrElseThrow(anyLong()))
+                        .willThrow(new ApplicationException(USER_NOT_FOUND));
 
                 //when - then
-                assertThrows(ApplicationException.class, () -> userService.getUser(user.getId(), testAuthUser().getUserId()));
+                assertThrows(ApplicationException.class,
+                        () -> userService.getUser(user.getId(), testAuthUser().getUserId()));
             }
 
             @Test
@@ -174,6 +179,7 @@ class UserServiceTest {
         @Nested
         @DisplayName("유저 삭제 테스트")
         class DeleteUserTest {
+
             @Test
             @DisplayName("유저 삭제 성공")
             public void deleteUser_success() {
@@ -199,7 +205,8 @@ class UserServiceTest {
 
                 AuthUser authUser = testAuthUser();
 
-                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+                given(userRepository.findByIdOrElseThrow(anyLong()))
+                        .willThrow(new ApplicationException(USER_NOT_FOUND));
 
                 // when - then
                 assertThrows(ApplicationException.class, () -> userService.deleteUser(userId, authUser.getUserId()));
@@ -225,6 +232,7 @@ class UserServiceTest {
         @Nested
         @DisplayName("쿠폰조회테스트")
         class getCoupons {
+
             @Test
             @DisplayName("쿠폰 조회 성공")
             public void getCoupons_success() {
@@ -248,14 +256,16 @@ class UserServiceTest {
                 //given
                 User user = testUser();
                 ReflectionTestUtils.setField(user, "id", 1L);
-                ReflectionTestUtils.setField(user,"isDeleted", true);
+                ReflectionTestUtils.setField(user, "isDeleted", true);
 
                 AuthUser authUser = testAuthUser();
 
-                given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+                given(userRepository.findByIdOrElseThrow(anyLong()))
+                        .willThrow(new ApplicationException(USER_NOT_FOUND));
 
                 // when - then
-                assertThrows(ApplicationException.class, () -> userService.getCoupons(user.getId(), authUser.getUserId()));
+                assertThrows(ApplicationException.class,
+                        () -> userService.getCoupons(user.getId(), authUser.getUserId()));
             }
 
             @Test
