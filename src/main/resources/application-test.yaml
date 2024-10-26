@@ -58,5 +58,8 @@ logging:
     org.hibernate.orm.jdbc.bind: trace
 
 payment:
-  secret:
-    key: ${PAYMENT_SECRET_KEY}
+  kakao:
+    secret:
+      key: ${PAYMENT_KAKAO_SECRET_KEY}
+    cid: ${PAYMENT_KAKAO_CID}
+
