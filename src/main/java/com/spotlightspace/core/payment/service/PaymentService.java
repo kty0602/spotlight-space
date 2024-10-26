@@ -5,7 +5,7 @@ import static com.spotlightspace.common.exception.ErrorCode.EVENT_PARTICIPANT_LI
 import static com.spotlightspace.common.exception.ErrorCode.NOT_ENOUGH_POINT_AMOUNT;
 import static com.spotlightspace.common.exception.ErrorCode.NOT_IN_EVENT_RECRUITMENT_PERIOD;
 import static com.spotlightspace.common.exception.ErrorCode.POINT_AMOUNT_CANNOT_BE_NEGATIVE;
-import static com.spotlightspace.core.payment.constant.PaymentConstant.CID;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
 
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.event.domain.Event;
@@ -13,10 +13,12 @@ import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.payment.client.KakaopayApi;
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
+import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import com.spotlightspace.core.point.domain.Point;
 import com.spotlightspace.core.point.repository.PointRepository;
+import com.spotlightspace.core.point.service.PointService;
 import com.spotlightspace.core.pointhistory.service.PointHistoryService;
 import com.spotlightspace.core.ticket.service.TicketService;
 import com.spotlightspace.core.user.domain.User;
@@ -24,6 +26,7 @@ import com.spotlightspace.core.user.repository.UserRepository;
 import com.spotlightspace.core.usercoupon.domain.UserCoupon;
 import com.spotlightspace.core.usercoupon.repository.UserCouponRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +43,10 @@ public class PaymentService {
     private final EventRepository eventRepository;
     private final UserCouponRepository userCouponRepository;
     private final PointRepository pointRepository;
+    private final PointService pointService;
+
+    @Value("${payment.kakao.cid}")
+    private String cid;
 
     public ReadyPaymentResponseDto readyPayment(long userId, long eventId, Long couponId, Integer pointAmount) {
         User user = userRepository.findByIdOrElseThrow(userId);
@@ -63,7 +70,7 @@ public class PaymentService {
             discountedPrice -= pointAmount;
         }
 
-        Payment payment = Payment.create(CID, event, user, event.getPrice(), discountedPrice, userCoupon, point);
+        Payment payment = Payment.create(cid, event, user, event.getPrice(), discountedPrice, userCoupon, point);
         paymentRepository.save(payment);
 
         if (isPointUsed(point)) {
@@ -71,6 +78,7 @@ public class PaymentService {
         }
 
         ReadyPaymentResponseDto responseDto = kakaopayApi.readyPayment(
+                cid,
                 payment.getPartnerOrderId(),
                 user.getId(),
                 event.getTitle(),
@@ -93,6 +101,19 @@ public class PaymentService {
         return responseDto;
     }
 
+    public CancelPaymentResponseDto cancelPayment(String tid, int cancelAmount, int cancelTaxFreeAmount) {
+        CancelPaymentResponseDto responseDto = kakaopayApi.cancelPayment(cid, tid, cancelAmount, cancelTaxFreeAmount);
+
+        Payment payment = paymentRepository.findByTidOrElseThrow(tid);
+        payment.cancel();
+
+        if (payment.isPointUsed()) {
+            pointService.cancelPointUsage(payment.getPoint());
+        }
+
+        return responseDto;
+    }
+
     private boolean doesCouponIdExist(Long couponId) {
         return couponId != null;
     }
@@ -108,7 +129,7 @@ public class PaymentService {
     }
 
     private void validateParticipantLimit(Event event) {
-        Long buyerCount = paymentRepository.countByEvent(event);
+        Long buyerCount = paymentRepository.countByEventAndStatus(event, APPROVED);
         if (event.isParticipantLimitExceed(buyerCount.intValue() + 1)) {
             throw new ApplicationException(EVENT_PARTICIPANT_LIMIT_EXCEED);
         }

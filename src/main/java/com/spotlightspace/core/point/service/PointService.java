@@ -6,6 +6,8 @@ import com.spotlightspace.core.point.dto.CreatePointRequestDto;
 import com.spotlightspace.core.point.dto.CreatePointResponseDto;
 import com.spotlightspace.core.point.dto.GetPointResponseDto;
 import com.spotlightspace.core.point.repository.PointRepository;
+import com.spotlightspace.core.pointhistory.domain.PointHistory;
+import com.spotlightspace.core.pointhistory.repository.PointHistoryRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ public class PointService {
 
     private final PointRepository pointRepository;
     private final UserRepository userRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
     @Transactional
     public CreatePointResponseDto createPoint(CreatePointRequestDto requestDto, AuthUser authUser) {
@@ -55,5 +58,11 @@ public class PointService {
     private User checkUserData(AuthUser authUser) {
 
         return userRepository.findByIdOrElseThrow(authUser.getUserId());
+    }
+
+    public void cancelPointUsage(Point point) {
+        PointHistory pointHistory = pointHistoryRepository.findByPointOrElseThrow(point);
+        point.cancelUsage(pointHistory.getAmount());
+        pointHistory.cancelPointUsage();
     }
 }

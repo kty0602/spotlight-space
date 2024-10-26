@@ -1,8 +1,10 @@
 package com.spotlightspace.core.payment.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
+import com.spotlightspace.core.payment.dto.request.CancelPaymentRequestDto;
 import com.spotlightspace.core.payment.dto.request.ReadyPaymentRequestDto;
 import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
+import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import com.spotlightspace.core.payment.service.PaymentService;
 import jakarta.servlet.http.HttpSession;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -67,6 +70,23 @@ public class PaymentController {
                 pgToken,
                 String.valueOf(session.getAttribute(TID))
         );
+        return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * 결제 취소 처리를 합니다.
+     *
+     * @param requestDto 결제 취소 요청을 위한 Dto입니다.
+     * @return
+     */
+    @PatchMapping("/api/v1/payments/cancel")
+    public ResponseEntity<CancelPaymentResponseDto> cancelPayment(@RequestBody CancelPaymentRequestDto requestDto) {
+        CancelPaymentResponseDto responseDto = paymentService.cancelPayment(
+                requestDto.getTid(),
+                requestDto.getCancelAmount(),
+                requestDto.getCancelTaxFreeAmount()
+        );
+
         return ResponseEntity.ok(responseDto);
     }
 }

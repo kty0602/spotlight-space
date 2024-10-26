@@ -1,6 +1,7 @@
 package com.spotlightspace.core.payment.domain;
 
 import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.CANCELED;
 import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 
 import com.spotlightspace.common.entity.Timestamped;
@@ -111,5 +112,16 @@ public class Payment extends Timestamped {
         if (this.userCoupon != null) {
             this.userCoupon.use();
         }
+    }
+
+    public void cancel() {
+        this.status = CANCELED;
+        if (this.userCoupon != null) {
+            this.userCoupon.cancelUsage();
+        }
+    }
+
+    public boolean isPointUsed() {
+        return this.point != null;
     }
 }

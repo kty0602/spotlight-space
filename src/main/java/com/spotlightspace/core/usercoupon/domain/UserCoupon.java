@@ -45,4 +45,8 @@ public class UserCoupon {
     public int getDiscountAmount() {
         return coupon.getDiscountAmount();
     }
+
+    public void cancelUsage() {
+        this.isUsed = false;
+    }
 }
