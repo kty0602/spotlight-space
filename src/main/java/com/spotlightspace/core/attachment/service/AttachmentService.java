@@ -15,6 +15,7 @@ import com.spotlightspace.core.review.domain.Review;
 import com.spotlightspace.core.review.repository.ReviewRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -212,7 +213,8 @@ public class AttachmentService {
     }
 
     public String getImageUrl(Long userId, TableRole tableRole) {
-        Attachment attachment = attachmentRepository.findByTableRoleAndTargetId(tableRole, userId);
-        return attachment.getUrl();
+        return Optional.ofNullable(attachmentRepository.findByTableRoleAndTargetId(tableRole, userId))
+                .map(Attachment::getUrl)
+                .orElse(null);
     }
 }

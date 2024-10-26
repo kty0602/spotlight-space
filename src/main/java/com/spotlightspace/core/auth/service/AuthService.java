@@ -2,6 +2,7 @@ package com.spotlightspace.core.auth.service;
 
 import static com.spotlightspace.common.constant.JwtConstant.USER_EMAIL;
 import static com.spotlightspace.common.constant.JwtConstant.USER_ROLE;
+import static com.spotlightspace.common.exception.ErrorCode.EMAIL_DUPLICATED;
 import static com.spotlightspace.common.exception.ErrorCode.INVALID_PASSWORD_OR_EMAIL;
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
 
@@ -45,7 +46,7 @@ public class AuthService {
         boolean isExistUser = userRepository.existsByEmail(signupUserRequestDto.getEmail());
 
         if (isExistUser) {
-            throw new ApplicationException(USER_NOT_FOUND);
+            throw new ApplicationException(EMAIL_DUPLICATED);
         }
 
         String encryptPassword = passwordEncoder.encode(signupUserRequestDto.getPassword());

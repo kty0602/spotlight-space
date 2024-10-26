@@ -8,7 +8,6 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.config.JwtUtil;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
@@ -38,17 +37,12 @@ public class UserService {
     private final AttachmentService attachmentService;
     private final PasswordEncoder passwordEncoder;
     private final UserCouponService userCouponService;
-    private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
 
     public void updateUser(Long userId, AuthUser authUser, UpdateUserRequestDto updateUserRequestDto,
             MultipartFile file)
             throws IOException {
         User user = userRepository.findByIdOrElseThrow(userId);
-
-        if (user.isDeleted()) {
-            throw new ApplicationException(USER_NOT_FOUND);
-        }
 
         if (!userId.equals(authUser.getUserId())) {
             throw new ApplicationException(FORBIDDEN_USER);
@@ -68,10 +62,6 @@ public class UserService {
     public GetUserResponseDto getUser(Long userId, Long currentUserId) {
         User user = userRepository.findByIdOrElseThrow(userId);
 
-        if (user.isDeleted()) {
-            throw new ApplicationException(USER_NOT_FOUND);
-        }
-
         if (!userId.equals(currentUserId)) {
             throw new ApplicationException(FORBIDDEN_USER);
         }
@@ -83,10 +73,6 @@ public class UserService {
     public void deleteUser(Long userId, Long currentUserId) {
         User user = userRepository.findByIdOrElseThrow(userId);
 
-        if (user.isDeleted()) {
-            throw new ApplicationException(USER_NOT_FOUND);
-        }
-
         if (!userId.equals(currentUserId)) {
             throw new ApplicationException(FORBIDDEN_USER);
         }
@@ -96,10 +82,6 @@ public class UserService {
 
     public List<GetCouponResponseDto> getCoupons(Long userId, Long currentUserId) {
         User user = userRepository.findByIdOrElseThrow(userId);
-
-        if (user.isDeleted()) {
-            throw new ApplicationException(USER_NOT_FOUND);
-        }
 
         if (!userId.equals(currentUserId)) {
             throw new ApplicationException(FORBIDDEN_USER);
