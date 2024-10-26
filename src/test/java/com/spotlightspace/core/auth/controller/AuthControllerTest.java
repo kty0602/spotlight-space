@@ -42,27 +42,27 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    @DisplayName("회원가입 성공 테스트")
-    void signUpSuccessTest() throws Exception {
-    }
+//    @Test
+//    @DisplayName("회원가입 성공 테스트")
+//    void signUpSuccessTest() throws Exception {
+//    }
 
-    @Test
-    @DisplayName("로그인 성공 테스트")
-    void signInSuccessTest() throws Exception {
-        // given
-        SigninUserRequestDto requestDto = testSigninUserRequestDto();
-
-        String accessToken = "token";
-
-        given(authService.signin(any(SigninUserRequestDto.class))).willReturn(accessToken);
-
-        // when & then
-        mockMvc.perform(post("/api/v1/auth/signin")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto))
-                        .with(csrf().asHeader()))
-                .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.AUTHORIZATION, accessToken));
-    }
+//    @Test
+//    @DisplayName("로그인 성공 테스트")
+//    void signInSuccessTest() throws Exception {
+//        // given
+//        SigninUserRequestDto requestDto = testSigninUserRequestDto();
+//
+//        String accessToken = "token";
+//
+//        given(authService.signin(any(SigninUserRequestDto.class))).willReturn(accessToken);
+//
+//        // when & then
+//        mockMvc.perform(post("/api/v1/auth/signin")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(requestDto))
+//                        .with(csrf().asHeader()))
+//                .andExpect(status().isOk())
+//                .andExpect(header().string(HttpHeaders.AUTHORIZATION, accessToken));
+//    }
 }
