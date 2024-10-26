@@ -13,8 +13,10 @@ public interface UserRepository extends JpaRepository<User, Long>, UserQueryRepo
 
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByIdAndIsDeletedFalse(long id);
+
     default User findByIdOrElseThrow(long id) {
-        return findById(id)
+        return findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ApplicationException(USER_NOT_FOUND));
     }
 
