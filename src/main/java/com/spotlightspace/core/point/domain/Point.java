@@ -1,5 +1,6 @@
 package com.spotlightspace.core.point.domain;
 
+import com.spotlightspace.core.point.dto.CreatePointRequestDto;
 import com.spotlightspace.core.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,4 +41,18 @@ public class Point {
     public void deduct(int amount) {
         this.amount -= amount;
     }
+
+    public void addPoint(int amount) {
+        this.amount += amount;
+    }
+
+    private Point(int amount, User user) {
+        this.amount = amount;
+        this.user = user;
+    }
+
+    public static Point of(int amount, User user) {
+        return new Point(amount, user);
+    }
+
 }
