@@ -1,0 +1,44 @@
+name: ci pipelines
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches: [ dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Clean generated sources
+        run: rm -rf src/main/generated
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build project
+        run: ./gradlew build -x test
+
+      - name: Run tests
+        env:
+          SPRING_PROFILES_ACTIVE: test
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          spring_mail_username: ${{ secrets.SPRING_MAIL_USERNAME }}
+          spring_mail_password: ${{ secrets.SPRING_MAIL_PASSWORD }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_PUBLIC: ${{ secrets.S3_PUBLIC }}
+          S3_SECRET: ${{ secrets.S3_SECRET }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          PAYMENT_SECRET_KEY: ${{ secrets.PAYMENT_SECRET_KEY }}
+        run: ./gradlew test -Dspring.profiles.active=test
+
