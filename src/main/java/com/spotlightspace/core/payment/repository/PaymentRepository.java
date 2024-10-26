@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long>, PaymentQueryRepository {
 
-    @Query("select p from Payment p join fetch p.userCoupon where p.tid = :tid")
+    @Query("select p from Payment p left join fetch p.userCoupon where p.tid = :tid")
     Optional<Payment> findByTid(@Param("tid") String tid);
 
     long countByEvent(Event event);
