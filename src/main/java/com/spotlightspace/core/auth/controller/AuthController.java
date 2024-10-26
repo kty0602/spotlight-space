@@ -37,16 +37,16 @@ public class AuthController {
     /**
      * 회원가입 로직입니다
      *
-     * @param signupUserRequestDto 이메일, 비밀번호, 닉네임, 권한, 생일을 설정합니다
+     * @param signUpUserRequestDto 이메일, 비밀번호, 닉네임, 권한, 생일을 설정합니다
      * @param file                 유저의 프로필 파일을 업로드하며 필수는 아닙니다
      * @return
      * @throws IOException
      */
     @PostMapping("/auth/signup")
     public ResponseEntity<String> signUp(
-            @Valid @RequestPart SignUpUserRequestDto signupUserRequestDto,
+            @Valid @RequestPart SignUpUserRequestDto signUpUserRequestDto,
             @RequestPart(required = false) MultipartFile file) throws IOException {
-        authService.signUp(signupUserRequestDto, file);
+        authService.signUp(signUpUserRequestDto, file);
         return ResponseEntity.ok()
                 .build();
     }
