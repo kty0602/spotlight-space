@@ -4,6 +4,7 @@ import static com.spotlightspace.common.constant.JwtConstant.USER_EMAIL;
 import static com.spotlightspace.common.constant.JwtConstant.USER_ROLE;
 import static com.spotlightspace.common.exception.ErrorCode.EMAIL_DUPLICATED;
 import static com.spotlightspace.common.exception.ErrorCode.INVALID_PASSWORD_OR_EMAIL;
+import static com.spotlightspace.common.exception.ErrorCode.REFRESH_TOKEN_NOT_FOUND;
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
 
 import com.spotlightspace.common.entity.TableRole;
@@ -119,7 +120,7 @@ public class AuthService {
 
         //없거나, 일치하지않다면 에러를 던집니다.
         if (redisToken == null || !redisToken.equals(refreshToken)) {
-            throw new ApplicationException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new ApplicationException(REFRESH_TOKEN_NOT_FOUND);
         }
 
         //토큰에서 새로운 acceesToken을 생성하기위해 email과 role을 가져옵니다.

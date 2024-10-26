@@ -1,10 +1,13 @@
 package com.spotlightspace.core.auth.email;
 
-import com.spotlightspace.core.auth.email.dto.SendMailRequestDto;
+import static com.spotlightspace.common.exception.ErrorCode.INVALID_EMAIL_MATCH;
+
+import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.auth.email.dto.MatchMailRequestDto;
+import com.spotlightspace.core.auth.email.dto.SendMailRequestDto;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/mail")
 @RequiredArgsConstructor
+@Slf4j
 public class MailController {
 
     private final MailService mailService;
@@ -31,28 +35,8 @@ public class MailController {
      */
     @PostMapping("/mailSend")
     public ResponseEntity<HashMap<String, Object>> mailSend(@RequestBody SendMailRequestDto mailRequest) {
-        HashMap<String, Object> map = new HashMap<>();
-        String mail = mailRequest.getMail();
-
-        try {
-            //메일을 보내고 번호를 가져옵니다.
-            int number = mailService.sendMail(mail);
-            String num = String.valueOf(number);
-
-            //redis에 저장합니다. ttl은 5분으로 설정합니다.
-            redisTemplate.opsForValue().set(mail, num, TTL, TimeUnit.SECONDS);
-
-            //결과값을 반환하기 위한 설정값입니다.
-            map.put("success", Boolean.TRUE);
-            map.put("number", num);
-            return ResponseEntity.ok(map);
-        }
-        catch (Exception exception) {
-            //실패됐을시 400 에러를 만들고 반환합니다.
-            map.put("success", Boolean.FALSE);
-            map.put("error", exception.getMessage());
-            return ResponseEntity.status(400).body(map);
-        }
+        HashMap<String, Object> responseMap = mailService.sendMailAndStoreCode(mailRequest.getMail());
+        return ResponseEntity.ok(responseMap);
     }
 
     /**
@@ -63,14 +47,9 @@ public class MailController {
      */
     @GetMapping("/mailCheck")
     public ResponseEntity<Boolean> mailCheck(@RequestBody MatchMailRequestDto machMailRequestDto) {
-        //저장된 값을 redis에서 가져옵니다.
-        String storedNumber = redisTemplate.opsForValue().get(machMailRequestDto.getEmail());
 
-        //값이 있다면 true로 없다면 false로 반환합니다.
-        if (storedNumber != null && storedNumber.equals(machMailRequestDto.getUserNumber())) {
-            return ResponseEntity.ok(true);
-        } else {
-            return ResponseEntity.ok(false);
-        }
+        boolean isMatch = mailService.mailCheck(machMailRequestDto);
+
+        return ResponseEntity.ok(isMatch);
     }
 }

@@ -110,4 +110,9 @@ public class UserService {
                 .set(key, accessToken, TOKEN_ACCESS_TIME, TimeUnit.MILLISECONDS);
     }
 
+    @Transactional(readOnly = true)
+    public void findUserEmail(String email)
+    {
+        userRepository.findByEmailOrElseThrow(email);
+    }
 }
