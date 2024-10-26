@@ -2,6 +2,7 @@ package com.spotlightspace.core.auth.service;
 
 import static com.spotlightspace.common.constant.JwtConstant.USER_EMAIL;
 import static com.spotlightspace.common.constant.JwtConstant.USER_ROLE;
+import static com.spotlightspace.common.exception.ErrorCode.INVALID_PASSWORD_OR_EMAIL;
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
 
 import com.spotlightspace.common.entity.TableRole;
@@ -10,8 +11,8 @@ import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.config.JwtUtil;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.auth.dto.SaveTokenResponseDto;
-import com.spotlightspace.core.auth.dto.SigninUserRequestDto;
-import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
+import com.spotlightspace.core.auth.dto.SignInUserRequestDto;
+import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
@@ -40,7 +41,7 @@ public class AuthService {
     private final AttachmentService attachmentService;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void saveUser(SignupUserRequestDto signupUserRequestDto, MultipartFile file) throws IOException {
+    public void signUp(SignUpUserRequestDto signupUserRequestDto, MultipartFile file) throws IOException {
         boolean isExistUser = userRepository.existsByEmail(signupUserRequestDto.getEmail());
 
         if (isExistUser) {
@@ -58,11 +59,11 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public SaveTokenResponseDto signin(SigninUserRequestDto signinUserRequestDto) {
+    public SaveTokenResponseDto signIn(SignInUserRequestDto signinUserRequestDto) {
         User user = userRepository.findByEmailOrElseThrow(signinUserRequestDto.getEmail());
 
         if (!passwordEncoder.matches(signinUserRequestDto.getPassword(), user.getPassword())) {
-            throw new ApplicationException(ErrorCode.INVALID_PASSWORD_OR_EMAIL);
+            throw new ApplicationException(INVALID_PASSWORD_OR_EMAIL);
         }
 
         if (user.isDeleted()) {

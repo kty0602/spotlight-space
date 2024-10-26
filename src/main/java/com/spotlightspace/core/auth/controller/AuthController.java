@@ -5,8 +5,8 @@ import static com.spotlightspace.common.constant.JwtConstant.TOKEN_REFRESH_TIME;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.spotlightspace.core.auth.dto.SaveTokenResponseDto;
-import com.spotlightspace.core.auth.dto.SigninUserRequestDto;
-import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
+import com.spotlightspace.core.auth.dto.SignInUserRequestDto;
+import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
 import com.spotlightspace.core.auth.service.AuthService;
 import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
 import jakarta.servlet.http.Cookie;
@@ -36,32 +36,34 @@ public class AuthController {
 
     /**
      * 회원가입 로직입니다
+     *
      * @param signupUserRequestDto 이메일, 비밀번호, 닉네임, 권한, 생일을 설정합니다
-     * @param file 유저의 프로필 파일을 업로드하며 필수는 아닙니다
+     * @param file                 유저의 프로필 파일을 업로드하며 필수는 아닙니다
      * @return
      * @throws IOException
      */
     @PostMapping("/auth/signup")
     public ResponseEntity<String> signUp(
-            @Valid @RequestPart SignupUserRequestDto signupUserRequestDto,
+            @Valid @RequestPart SignUpUserRequestDto signupUserRequestDto,
             @RequestPart(required = false) MultipartFile file) throws IOException {
-        authService.saveUser(signupUserRequestDto, file);
+        authService.signUp(signupUserRequestDto, file);
         return ResponseEntity.ok()
                 .build();
     }
 
     /**
      * 로그인 로직입니다.
+     *
      * @param signInUserRequestDto 아이디와 비밀번호를 받습니다
-     * @param httpServletResponse 쿠키 저장용입니다
+     * @param httpServletResponse  쿠키 저장용입니다
      * @return 헤더에 엑세스 토큰을 저장합니다
      * @throws IOException
      */
     @PostMapping("/auth/signin")
     public ResponseEntity<String> signIn(
-            @Valid @RequestBody SigninUserRequestDto signInUserRequestDto,
+            @Valid @RequestBody SignInUserRequestDto signInUserRequestDto,
             HttpServletResponse httpServletResponse) throws IOException {
-        SaveTokenResponseDto tokenDto = authService.signin(signInUserRequestDto);
+        SaveTokenResponseDto tokenDto = authService.signIn(signInUserRequestDto);
         setAccessTokenCookie(httpServletResponse, tokenDto.getAccessToken());
         setRefreshTokenCookie(httpServletResponse, tokenDto.getRefreshToken());
 
@@ -86,6 +88,7 @@ public class AuthController {
 
     /**
      * 리프레시 토큰을 사용하여 토큰을 재발급 받습니다
+     *
      * @param httpServletRequest 쿠키에 있는 리프레시 토큰을 확인합니다
      * @return 헤더에 accessToken을 발급받습니다.
      * @throws UnsupportedEncodingException

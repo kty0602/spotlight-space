@@ -1,6 +1,6 @@
 package com.spotlightspace.core.ticket.service;
 
-import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
+import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
 import com.spotlightspace.core.event.dto.CreateEventRequestDto;
@@ -100,7 +100,7 @@ class TicketServiceTest {
     }
 
     private User createUser() {
-        SignupUserRequestDto requestDto = new SignupUserRequestDto(
+        SignUpUserRequestDto requestDto = new SignUpUserRequestDto(
                 "test142@email.com",
                 "rawPassword",
                 "nickname",
@@ -112,7 +112,7 @@ class TicketServiceTest {
     }
 
     private User createArtist() {
-        SignupUserRequestDto requestDto = new SignupUserRequestDto(
+        SignUpUserRequestDto requestDto = new SignUpUserRequestDto(
                 "test12@email.com",
                 "rawPassword",
                 "nickname",
