@@ -13,7 +13,7 @@ public interface PointRepository extends JpaRepository<Point, Long>, PointQueryR
 
     Optional<Point> findByUser(User user);
 
-    default Point findByUserIdOrElseThrow(User user) {
+    default Point findByUserOrElseThrow(User user) {
         return findByUser(user)
                 .orElseThrow(() -> new ApplicationException(POINT_NOT_FOUND));
     }

@@ -47,7 +47,9 @@ public enum ErrorCode {
 
     USER_NOT_ACCESS_EVENT(FORBIDDEN, "해당 사용자가 등록한 이벤트가 아닙니다."),
 
-    USER_NOT_ACCESS_REVIEW(FORBIDDEN, "해당 사용자가 등록한 리뷰가 아닙니다.");
+    USER_NOT_ACCESS_REVIEW(FORBIDDEN, "해당 사용자가 등록한 리뷰가 아닙니다."),
+
+    CANNOT_MAX_PEOPLE_UPDATE(BAD_REQUEST, "현제 결제된 인원보다 작은 수로 인원 설정이 불가합니다.");
 
 
     private final HttpStatus httpStatus;
