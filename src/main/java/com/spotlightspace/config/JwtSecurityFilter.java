@@ -108,6 +108,9 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
     private boolean isBlackListed(Long userId, String token) {
         String blackList = "user:blacklist:id:" + userId;
         String blackListToken = redisTemplate.opsForValue().get(blackList);
+        if (blackListToken == null) {
+            return false;
+        }
         blackListToken = jwtUtil.substringToken(blackListToken);
         return token.equals(blackListToken);
     }
