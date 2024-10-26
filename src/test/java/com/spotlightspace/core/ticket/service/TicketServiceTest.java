@@ -8,7 +8,7 @@ import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
-import com.spotlightspace.core.event.dto.AddEventRequestDto;
+import com.spotlightspace.core.event.dto.CreateEventRequestDto;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import com.spotlightspace.core.ticket.domain.Ticket;
@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,44 +50,49 @@ class TicketServiceTest {
         userRepository.deleteAllInBatch();
     }
 
-    @Test
-    @DisplayName("티켓 생성 시 티켓이 정상적으로 생성된다. 초기 상태는 canceled가 false이다")
-    void createTicket() {
-        // given
-        User user = createUser();
-        User artist = createArtist();
-        Event event = createEvent(artist);
+    @Nested
+    @DisplayName("티켓 생성 시")
+    class createTicket {
 
-        // when
-        ticketService.createTicket(user, event, 10_000);
+        @Test
+        @DisplayName("티켓 생성 시 티켓이 정상적으로 생성된다. 초기 상태는 canceled가 false이다")
+        void createTicket() {
+            // given
+            User user = createUser();
+            User artist = createArtist();
+            Event event = createEvent(artist);
 
-        // then
-        List<Ticket> tickets = ticketRepository.findAll();
-        assertThat(tickets).hasSize(1);
+            // when
+            ticketService.createTicket(user, event, 10_000);
 
-        Ticket ticket = tickets.get(0);
-        assertThat(ticket.getEvent().getId()).isEqualTo(event.getId());
-        assertThat(ticket.getUser().getId()).isEqualTo(user.getId());
-        assertThat(ticket.isCanceled()).isFalse();
+            // then
+            List<Ticket> tickets = ticketRepository.findAll();
+            assertThat(tickets).hasSize(1);
+
+            Ticket ticket = tickets.get(0);
+            assertThat(ticket.getEvent().getId()).isEqualTo(event.getId());
+            assertThat(ticket.getUser().getId()).isEqualTo(user.getId());
+            assertThat(ticket.isCanceled()).isFalse();
+        }
+
+        @Test
+        @DisplayName("티켓 생성 시 티켓 가격은 음수일 수 없다.")
+        void createTicketWithNegativePrice() {
+            // given
+            User user = createUser();
+            User artist = createArtist();
+            Event event = createEvent(artist);
+
+            // when & then
+            assertThatThrownBy(() -> ticketService.createTicket(user, event, -10_000))
+                    .isInstanceOf(ApplicationException.class)
+                    .hasMessage(TICKET_PRICE_CANNOT_BE_NEGATIVE.getMessage());
+        }
+
     }
-
-    @Test
-    @DisplayName("티켓 생성 시 티켓 가격은 음수일 수 없다.")
-    void createTicketWithNegativePrice() {
-        // given
-        User user = createUser();
-        User artist = createArtist();
-        Event event = createEvent(artist);
-
-        // when & then
-        assertThatThrownBy(() -> ticketService.createTicket(user, event, -10_000))
-                .isInstanceOf(ApplicationException.class)
-                .hasMessage(TICKET_PRICE_CANNOT_BE_NEGATIVE.getMessage());
-    }
-
 
     private Event createEvent(User artist) {
-        AddEventRequestDto addEventRequestDto = new AddEventRequestDto(
+        CreateEventRequestDto createEventRequestDto = new CreateEventRequestDto(
                 "title",
                 "content",
                 "서울",
@@ -98,7 +104,7 @@ class TicketServiceTest {
                 LocalDateTime.of(2024,10,10, 10, 10),
                 LocalDateTime.of(2024, 10, 12, 10, 10)
         );
-        return eventRepository.save(Event.of(addEventRequestDto, artist));
+        return eventRepository.save(Event.of(createEventRequestDto, artist));
     }
 
     private User createUser() {

@@ -1,12 +1,13 @@
 package com.spotlightspace.core.payment.domain;
 
-import static com.spotlightspace.core.payment.domain.PaymentStatus.*;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
-import com.spotlightspace.core.event.dto.AddEventRequestDto;
+import com.spotlightspace.core.event.dto.CreateEventRequestDto;
 import com.spotlightspace.core.user.domain.User;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +21,7 @@ class PaymentTest {
         // given
         User user = createUser();
         Event event = createEvent(user);
-        Payment payment = Payment.create("cid", event, user, 10_000);
+        Payment payment = Payment.create("cid", event, user, 10_000, 10_000, null, null);
 
         // when
         payment.approve();
@@ -35,7 +36,7 @@ class PaymentTest {
         // given
         User user = createUser();
         Event event = createEvent(user);
-        Payment payment = Payment.create("cid", event, user, 10_000);
+        Payment payment = Payment.create("cid", event, user, 10_000, 10_000, null, null);
 
         // when & then
         assertThat(payment.getStatus()).isEqualTo(READY);
@@ -55,7 +56,7 @@ class PaymentTest {
     }
 
     private Event createEvent(User user) {
-        AddEventRequestDto addEventRequestDto = new AddEventRequestDto(
+        CreateEventRequestDto createEventRequestDto = new CreateEventRequestDto(
                 "title",
                 "content",
                 "서울",
@@ -67,6 +68,6 @@ class PaymentTest {
                 LocalDateTime.of(2024,10,10, 10, 10),
                 LocalDateTime.of(2024, 10, 12, 10, 10)
         );
-        return Event.of(addEventRequestDto, user);
+        return Event.of(createEventRequestDto, user);
     }
 }
