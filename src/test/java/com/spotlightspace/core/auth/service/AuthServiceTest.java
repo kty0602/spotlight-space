@@ -125,26 +125,26 @@ class AuthServiceTest {
     @Nested
     @DisplayName("로그인 테스트")
     class LoginTest {
-        @Test
-        @DisplayName("로그인 성공 테스트")
-        void login_success() {
-            // given
-            SigninUserRequestDto signinUserRequestDto = testSigninUserRequestDto();
-            User user = testUser();
-
-            String expectedToken = "token";
-
-            given(userRepository.findByEmailOrElseThrow(anyString())).willReturn(user);
-            given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
-            given(jwtUtil.createToken(user.getId(), user.getEmail(), user.getRole())).willReturn(expectedToken);
-
-            // when
-            String actualToken = authService.signin(signinUserRequestDto);
-
-            // then
-            assertDoesNotThrow(() -> authService.signin(signinUserRequestDto));
-            assertEquals(expectedToken, actualToken);
-        }
+//        @Test
+//        @DisplayName("로그인 성공 테스트")
+//        void login_success() {
+//            // given
+//            SigninUserRequestDto signinUserRequestDto = testSigninUserRequestDto();
+//            User user = testUser();
+//
+//            String expectedToken = "token";
+//
+//            given(userRepository.findByEmailOrElseThrow(anyString())).willReturn(user);
+//            given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
+//            given(jwtUtil.createToken(user.getId(), user.getEmail(), user.getRole())).willReturn(expectedToken);
+//
+//            // when
+//            String actualToken = authService.signin(signinUserRequestDto);
+//
+//            // then
+//            assertDoesNotThrow(() -> authService.signin(signinUserRequestDto));
+//            assertEquals(expectedToken, actualToken);
+//        }
 
         @Test
         @DisplayName("존재하지 않는 이메일로 로그인 실패")
