@@ -46,7 +46,7 @@ public class PointService {
         User user = checkUserData(authUser);
 
         // 해당 회원이 포인트 정보를 가지고 있는지 확인
-        Point point = pointRepository.findByUserIdOrElseThrow(user);
+        Point point = pointRepository.findByUserOrElseThrow(user);
 
         return GetPointResponseDto.from(point);
     }

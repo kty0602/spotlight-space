@@ -7,6 +7,7 @@ import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.dto.*;
 import com.spotlightspace.core.event.repository.EventRepository;
+import com.spotlightspace.core.ticket.repository.TicketRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.repository.UserRepository;
@@ -33,6 +34,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final AttachmentService attachmentService;
+    private final TicketRepository ticketRepository;
 
     @Transactional
     public CreateEventResponseDto createEvent(CreateEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException {
@@ -54,6 +56,8 @@ public class EventService {
         Event event = checkEventExist(id);
         // 이벤트를 작성한 아티스트인가 검사
         checkEventAndUser(event, authUser);
+        // 현재 이벤트에 결제된 티켓 수 조회
+        int ticketCount = ticketRepository.countTicketByEvent(event.getId());
 
         // 수정 로직
         if (requestDto.getTitle() != null) {
@@ -70,6 +74,9 @@ public class EventService {
         }
         if (requestDto.getMaxPeople() != null) {
             // 변경하려는 maxPeople값이 이미 결제한 사람 언더일 때 exception 처리 해야함
+            if (requestDto.getMaxPeople() < ticketCount) {
+                throw new ApplicationException(CANNOT_MAX_PEOPLE_UPDATE);
+            }
             event.changeMaxPeople(requestDto.getMaxPeople());
         }
         if (requestDto.getPrice() != null) {
@@ -94,7 +101,7 @@ public class EventService {
         Event event = checkEventExist(id);
         // 이벤트를 작성한 아티스트인가 검사
         checkEventAndUser(event, authUser);
-        // 삭제 진행 시 결제한 사람 (포인트, 쿠폰)환불처리 + 관련 이미지 삭제
+        // 삭제 진행 시 결제한 사람 (포인트, 쿠폰)환불처리
         attachmentService.deleteAttachmentWithOtherTable(event.getId(), TableRole.EVENT);
         event.deleteEvent();
     }
