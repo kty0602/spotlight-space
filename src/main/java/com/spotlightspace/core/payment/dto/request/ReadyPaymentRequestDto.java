@@ -1,6 +1,7 @@
 package com.spotlightspace.core.payment.dto.request;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,4 +16,7 @@ public class ReadyPaymentRequestDto {
     private Long eventId;
 
     private Long couponId;
+
+    @PositiveOrZero(message = "포인트는 음수일 수 없습니다.")
+    private Integer pointAmount;
 }

@@ -23,6 +23,8 @@ public enum ErrorCode {
 
     TICKET_NOT_FOUND(NOT_FOUND, "존재하지 않는 티켓입니다."),
 
+    NOT_ENOUGH_POINT_AMOUNT(BAD_REQUEST, "포인트가 부족합니다."),
+    POINT_AMOUNT_CANNOT_BE_NEGATIVE(BAD_REQUEST, "사용할 포인트는 음수일 수 없습니다."),
     POINT_NOT_FOUND(NOT_FOUND, "존재하지 않는 포인트입니다."),
 
     COUPON_ALREADY_USED(BAD_REQUEST, "이미 사용된 쿠폰입니다."),

@@ -39,19 +39,12 @@ public class PaymentController {
             @RequestBody ReadyPaymentRequestDto requestDto,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        ReadyPaymentResponseDto readyPaymentResponseDto = null;
-        if (requestDto.getCouponId() == null) {
-            readyPaymentResponseDto = paymentService.readyPayment(
-                    authUser.getUserId(),
-                    requestDto.getEventId()
-            );
-        } else {
-            readyPaymentResponseDto = paymentService.readyPayment(
-                    authUser.getUserId(),
-                    requestDto.getEventId(),
-                    requestDto.getCouponId()
-            );
-        }
+        ReadyPaymentResponseDto readyPaymentResponseDto = paymentService.readyPayment(
+                authUser.getUserId(),
+                requestDto.getEventId(),
+                requestDto.getCouponId(),
+                requestDto.getPointAmount()
+        );
 
         session.setAttribute(TID, readyPaymentResponseDto.getTid());
 

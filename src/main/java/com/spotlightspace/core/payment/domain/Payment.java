@@ -5,6 +5,7 @@ import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 
 import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.event.domain.Event;
+import com.spotlightspace.core.point.domain.Point;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.usercoupon.domain.UserCoupon;
 import jakarta.persistence.Column;
@@ -49,10 +50,17 @@ public class Payment extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    private int amount;
+    private int originalAmount;
+
+    private int discountedAmount;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_coupon_id")
     private UserCoupon userCoupon;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "point_id")
+    private Point point;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
@@ -62,25 +70,33 @@ public class Payment extends Timestamped {
             String cid,
             Event event,
             User user,
-            int amount,
+            int originalAmount,
+            int discountedAmount,
             UserCoupon userCoupon,
+            Point point,
             PaymentStatus status
     ) {
         this.tid = tid;
         this.cid = cid;
         this.event = event;
         this.user = user;
-        this.amount = amount;
+        this.originalAmount = originalAmount;
+        this.discountedAmount = discountedAmount;
         this.userCoupon = userCoupon;
+        this.point = point;
         this.status = status;
     }
 
-    public static Payment create(String cid, Event event, User user, int amount) {
-        return new Payment(null, cid, event, user, amount, null, READY);
-    }
-
-    public static Payment createWithCoupon(String cid, Event event, User user, int amount, UserCoupon userCoupon) {
-        return new Payment(null, cid, event, user, amount, userCoupon, READY);
+    public static Payment create(
+            String cid,
+            Event event,
+            User user,
+            int originalAmount,
+            int discountedAmount,
+            UserCoupon userCoupon,
+            Point point
+    ) {
+        return new Payment(null, cid, event, user, originalAmount, discountedAmount, userCoupon, point, READY);
     }
 
     public Long getPartnerOrderId() {

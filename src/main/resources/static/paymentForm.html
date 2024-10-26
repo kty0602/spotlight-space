@@ -14,6 +14,10 @@
       <input id="coupon_id" type="text" name="coupon_id">
     </div>
     <div>
+      <label for="point_amount">사용할 포인트</label>
+      <input id="point_amount" type="text" name="point_amount">
+    </div>
+    <div>
       <button id="btn-pay-ready" type="button">결제</button>
     </div>
   </form>
@@ -25,10 +29,12 @@
     $("#btn-pay-ready").click(function(e) {
       let eventId = $("#event_id").val();
       let couponId = $("#coupon_id").val();
+      let pointAmount = $("#point_amount").val();
 
       let data = {
         eventId: eventId,
-        couponId: couponId
+        couponId: couponId,
+        pointAmount: pointAmount
       };
 
       $.ajax({
