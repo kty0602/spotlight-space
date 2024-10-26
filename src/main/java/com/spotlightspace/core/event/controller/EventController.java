@@ -45,8 +45,8 @@ public class EventController {
             @RequestPart(required = false) List<MultipartFile> files
     ) throws IOException {
 
-        CreateEventResponseDto addEventResponseDto = eventService.createEvent(requestDto, authUser, files);
-        return new ResponseEntity<>(addEventResponseDto, HttpStatus.CREATED);
+        CreateEventResponseDto createEventResponseDto = eventService.createEvent(requestDto, authUser, files);
+        return new ResponseEntity<>(createEventResponseDto, HttpStatus.CREATED);
     }
 
     /**
@@ -79,6 +79,19 @@ public class EventController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    /**
+     * 이벤트 리스트 조회
+     * @param page
+     * @param size
+     * @param title
+     * @param maxPeople
+     * @param location
+     * @param category
+     * @param recruitmentStartAt
+     * @param recruitmentFinishAt
+     * @param type  type은 테스트 시 체크하고 진행해야 합니다. 체크 상태에서 아무 값 안넣고 보내면 default로 빠지게 되어있음
+     * @return
+     */
     @GetMapping()
     public ResponseEntity<Page<GetEventResponseDto>> searchEvent(
             @RequestParam(defaultValue = "1") int page,

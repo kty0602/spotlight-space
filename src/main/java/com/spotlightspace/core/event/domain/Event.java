@@ -85,8 +85,8 @@ public class Event extends Timestamped {
         this.user = user;
     }
 
-    public static Event of(CreateEventRequestDto addEventRequestDto, User user) {
-        return new Event(addEventRequestDto, user);
+    public static Event of(CreateEventRequestDto createEventRequestDto, User user) {
+        return new Event(createEventRequestDto, user);
     }
 
     public void changeTitle(String title) {
