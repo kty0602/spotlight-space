@@ -11,11 +11,13 @@ public class GetPointResponseDto {
     private Long id;
     private int amount;
     private String nickname;
+    
     private GetPointResponseDto(Point point) {
         this.id = point.getId();
         this.amount = point.getAmount();
         this.nickname = point.getUser().getNickname();
     }
+    
     public static GetPointResponseDto from(Point point) {
         return new GetPointResponseDto(point);
     }
