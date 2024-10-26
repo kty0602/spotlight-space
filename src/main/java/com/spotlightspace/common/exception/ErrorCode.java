@@ -1,9 +1,6 @@
 package com.spotlightspace.common.exception;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -13,6 +10,7 @@ public enum ErrorCode {
 
     EMAIL_DUPLICATED(CONFLICT, "이미 존재하는 이메일입니다."),
     FORBIDDEN_USER(FORBIDDEN, "권한이 없습니다."),
+    INVALID_REFRESH_TOKEN(FORBIDDEN, "리프레시토큰이 없습니다"),
     INVALID_EMAIL_MATCH(FORBIDDEN, "인증번호가 일치하지 않습니다"),
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 유저입니다."),
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "리프레시토큰이 없습니다"),
@@ -30,6 +28,8 @@ public enum ErrorCode {
     NOT_ENOUGH_POINT_AMOUNT(BAD_REQUEST, "포인트가 부족합니다."),
     POINT_AMOUNT_CANNOT_BE_NEGATIVE(BAD_REQUEST, "사용할 포인트는 음수일 수 없습니다."),
     POINT_NOT_FOUND(NOT_FOUND, "존재하지 않는 포인트입니다."),
+
+    POINT_HISTORY_NOT_FOUND(NOT_FOUND, "존재하지 않는 포인트 기록입니다."),
 
     COUPON_ALREADY_USED(BAD_REQUEST, "이미 사용된 쿠폰입니다."),
     COUPON_NOT_FOUND(NOT_FOUND, "존재하지 않는 쿠폰입니다."),

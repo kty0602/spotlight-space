@@ -2,13 +2,14 @@ package com.spotlightspace.core.payment.client;
 
 import static com.spotlightspace.core.payment.constant.PaymentConstant.APPROVAL_URL;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.CANCEL_URL;
-import static com.spotlightspace.core.payment.constant.PaymentConstant.CID;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.FAIL_URL;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_APPROVE_URL;
+import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_CANCEL_URL;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_READY_URL;
 
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
+import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,10 +24,11 @@ public class KakaopayApi {
 
     private static final String SECRET_KEY_PREFIX = "SECRET_KEY ";
 
-    @Value("${payment.secret.key}")
+    @Value("${payment.kakao.secret.key}")
     private String secretKey;
 
     public ReadyPaymentResponseDto readyPayment(
+            String cid,
             long partnerOrderId,
             long userId,
             String eventTitle,
@@ -34,6 +36,7 @@ public class KakaopayApi {
             int totalPrice
     ) {
         Map<String, String> parameters = getParametersForReadyPayment(
+                cid,
                 partnerOrderId,
                 userId,
                 eventTitle,
@@ -64,7 +67,20 @@ public class KakaopayApi {
         return responseDto;
     }
 
+    public CancelPaymentResponseDto cancelPayment(String cid, String tid, int cancelAmount, int cancelTaxFreeAmount) {
+        Map<String, String> parameters = getParametersForCancelPayment(cid, tid, cancelAmount, cancelTaxFreeAmount);
+
+        RestTemplate template = new RestTemplate();
+        CancelPaymentResponseDto responseDto = template.postForObject(
+                PAYMENT_CANCEL_URL,
+                new HttpEntity<>(parameters, getHeaders()),
+                CancelPaymentResponseDto.class);
+
+        return responseDto;
+    }
+
     private Map<String, String> getParametersForReadyPayment(
+            String cid,
             long partnerOrderId,
             long userId,
             String eventTitle,
@@ -72,7 +88,7 @@ public class KakaopayApi {
             int totalPrice
     ) {
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("cid", CID);
+        parameters.put("cid", cid);
         parameters.put("tax_free_amount", "0");
         parameters.put("partner_order_id", String.valueOf(partnerOrderId));
         parameters.put("partner_user_id", String.valueOf(userId));
@@ -93,6 +109,20 @@ public class KakaopayApi {
         parameters.put("partner_order_id", String.valueOf(payment.getPartnerOrderId()));
         parameters.put("partner_user_id", String.valueOf(payment.getPartnerUserId()));
         parameters.put("pg_token", pgToken);
+        return parameters;
+    }
+
+    private Map<String, String> getParametersForCancelPayment(
+            String cid,
+            String tid,
+            int cancelAmount,
+            int cancelTaxFreeAmount
+    ) {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("cid", cid);
+        parameters.put("tid", tid);
+        parameters.put("cancel_amount", String.valueOf(cancelAmount));
+        parameters.put("cancel_tax_free_amount", String.valueOf(cancelTaxFreeAmount));
         return parameters;
     }
 
