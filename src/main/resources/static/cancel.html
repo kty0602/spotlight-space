@@ -1,0 +1,60 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div>
+  <h2>결제 취소</h2>
+  <form id="cancelInfo">
+    <div>
+      <label for="tid">TID</label>
+      <input id="tid" type="text" name="tid" required>
+    </div>
+    <div>
+      <label for="cancel_amount">취소 금액</label>
+      <input id="cancel_amount" type="text" name="cancel_amount" required>
+    </div>
+    <div>
+      <label for="cancel_tax_free_amount">면세 금액</label>
+      <input id="cancel_tax_free_amount" type="text" name="cancel_tax_free_amount" value="0">
+    </div>
+    <div>
+      <button id="btn-cancel-submit" type="button">취소하기</button>
+    </div>
+  </form>
+</div>
+
+<script type="text/javascript">
+  $(function() {
+    $("#btn-cancel-submit").click(function() {
+      let tid = $("#tid").val();
+      let cancelAmount = $("#cancel_amount").val();
+      let cancelTaxFreeAmount = $("#cancel_tax_free_amount").val();
+
+      let cancelData = {
+        tid: tid,
+        cancelAmount: cancelAmount,
+        cancelTaxFreeAmount: cancelTaxFreeAmount
+      };
+
+      $.ajax({
+        type: "PATCH",
+        url: "/api/v1/payments/cancel",
+        data: JSON.stringify(cancelData),
+        contentType: "application/json",
+        success: function (result) {
+          console.log("취소 성공");
+          alert("결제가 취소되었습니다.");
+        },
+        error: function (error) {
+          console.log("취소 실패");
+          console.log(error);
+          alert("결제 취소에 실패했습니다.");
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

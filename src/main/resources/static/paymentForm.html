@@ -19,10 +19,10 @@
     </div>
     <div>
       <button id="btn-pay-ready" type="button">결제</button>
+      <button id="btn-cancel" type="button">취소하기</button>
     </div>
   </form>
 </div>
-</body>
 
 <script type="text/javascript">
   $(function() {
@@ -43,8 +43,8 @@
         data: JSON.stringify(data),
         contentType: "application/json",
         success: function(result) {
-          console.log("결제 성공")
-          window.open(result.data.next_redirect_pc_url, "kakaopay_pop", "width = 500, height = 500, top = 100, left = 200, location = no");
+          console.log("결제 성공");
+          window.open(result.data.next_redirect_pc_url, "kakaopay_pop", "width=500, height=500, top=100, left=200, location=no");
         },
         error: function (error) {
           console.log("결제 실패");
@@ -55,5 +55,12 @@
         }
       });
     });
+
+    // Redirect to cancel page
+    $("#btn-cancel").click(function() {
+      window.location.href = "http://localhost:8080/cancel.html";
+    });
   });
 </script>
+</body>
+</html>
