@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SigninUserRequestDto {
+public class SignInUserRequestDto {
 
     @NotBlank(message = "이메일은 필수입니다.")
     private String email;

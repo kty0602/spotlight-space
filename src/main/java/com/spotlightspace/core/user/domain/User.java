@@ -1,6 +1,6 @@
 package com.spotlightspace.core.user.domain;
 
-import com.spotlightspace.core.auth.dto.SignupUserRequestDto;
+import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -63,7 +63,7 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public static User of(String encryptPassword, SignupUserRequestDto signupUserRequestDto) {
+    public static User of(String encryptPassword, SignUpUserRequestDto signupUserRequestDto) {
         return new User(
                 signupUserRequestDto.getEmail(),
                 signupUserRequestDto.getNickname(),
