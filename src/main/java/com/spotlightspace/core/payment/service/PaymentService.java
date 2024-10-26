@@ -17,6 +17,7 @@ import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import com.spotlightspace.core.point.domain.Point;
 import com.spotlightspace.core.point.repository.PointRepository;
+import com.spotlightspace.core.pointhistory.service.PointHistoryService;
 import com.spotlightspace.core.ticket.service.TicketService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
@@ -32,10 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentService {
 
     private final KakaopayApi kakaopayApi;
+    private final TicketService ticketService;
+    private final PointHistoryService pointHistoryService;
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-    private final TicketService ticketService;
     private final UserCouponRepository userCouponRepository;
     private final PointRepository pointRepository;
 
@@ -49,20 +51,24 @@ public class PaymentService {
         Point point = null;
         UserCoupon userCoupon = null;
         int discountedPrice = event.getPrice();
+        if (doesCouponIdExist(couponId)) {
+            userCoupon = userCouponRepository.findByCouponIdAndUserIdOrElseThrow(couponId, user.getId());
+            validateUserCoupon(userCoupon);
+            discountedPrice -= userCoupon.getDiscountAmount();
+        }
         if (doesPointAmountExist(pointAmount)) {
             point = pointRepository.findByUserOrElseThrow(user);
             validatePoint(point, pointAmount);
             point.deduct(pointAmount);
             discountedPrice -= pointAmount;
         }
-        if (doesCouponIdExist(couponId)) {
-            userCoupon = userCouponRepository.findByCouponIdAndUserIdOrElseThrow(couponId, user.getId());
-            validateUserCoupon(userCoupon);
-            discountedPrice -= userCoupon.getDiscountAmount();
-        }
 
         Payment payment = Payment.create(CID, event, user, event.getPrice(), discountedPrice, userCoupon, point);
         paymentRepository.save(payment);
+
+        if (isPointUsed(point)) {
+            pointHistoryService.createPointHistory(payment, point, pointAmount);
+        }
 
         ReadyPaymentResponseDto responseDto = kakaopayApi.readyPayment(
                 payment.getPartnerOrderId(),
@@ -121,5 +127,9 @@ public class PaymentService {
         if (point.cannotDeduct(pointAmount)) {
             throw new ApplicationException(NOT_ENOUGH_POINT_AMOUNT);
         }
+    }
+
+    private boolean isPointUsed(Point point) {
+        return point != null;
     }
 }
