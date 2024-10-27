@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/loginform.html").permitAll()
                         .requestMatchers("/callback").permitAll()
                         .requestMatchers("/login/page").permitAll()
+                        .requestMatchers("/images/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();

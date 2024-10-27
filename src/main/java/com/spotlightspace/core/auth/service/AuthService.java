@@ -149,5 +149,24 @@ public class AuthService {
             attachmentService.addAttachmentWithUrl(image, savedUser.getId(), TableRole.USER);
         }
     }
+
+    public void signUpNaverUser(long id, String nickname, String email, String mobile) {
+
+        String password = String.valueOf(id);
+        password = passwordEncoder.encode(password);
+
+        String birth = LocalDate.now().toString();
+
+        SignUpUserRequestDto signupUserRequestDto = new SignUpUserRequestDto(email, password, nickname, "ROLE_USER",
+                birth, true, mobile);
+
+        User user = User.of(password, signupUserRequestDto);
+
+        User savedUser = userRepository.save(user);
+
+        if (mobile!= null) {
+            attachmentService.addAttachmentWithUrl(mobile, savedUser.getId(), TableRole.USER);
+        }
+    }
 }
 

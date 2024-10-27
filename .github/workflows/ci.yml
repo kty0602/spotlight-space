@@ -43,5 +43,8 @@ jobs:
           PAYMENT_KAKAO_CID: ${{ secrets.PAYMENT_KAKAO_CID }}
           KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
           KAKAO_REDIRECT_URL: ${{ secrets.KAKAO_REDIRECT_URL }}
+          NAVER_REST_API_KEY: ${{ secrets.NAVER_REST_API_KEY }}
+          NAVER_REDIRECT_URL: ${{ secrets.NAVER_REDIRECT_URL }}
+          NAVER_CLIENT_SECRET_KEY: ${{ secrets.NAVER_CLIENT_SECRET_KEY }}
         run: ./gradlew test -Dspring.profiles.active=test
 

@@ -37,7 +37,8 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             "^/api/v(?:[1-9])/mail/.*$",
             "/paymentform.html",
             "/loginform.html",
-            "/callback"
+            "/callback",
+            "^/images/.*$"
     );
 
 

@@ -67,7 +67,7 @@
       font-weight: bold;
       transition: background 0.3s ease;
     }
-    
+
     input[type="submit"]:hover {
       background-color: #357ab8;
     }
@@ -82,22 +82,26 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Sign In</h2>
-    <form onsubmit="signIn(event)">
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
+<div class="container">
+  <h2>Sign In</h2>
+  <form onsubmit="signIn(event)">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
 
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
 
-      <input type="submit" value="Sign In">
-      
-      <a th:href="${location}">
-        <img src="/kakao_login_medium_narrow.png" alt="카카오 로그인" class="kakao-login-button" onclick="kakaoLogin()">
-      </a>
-    </form>
-  </div>
+    <input type="submit" value="Sign In">
+
+    <a th:href="${location}">
+      <img src="/images/kakao_login_medium_narrow.png" alt="카카오 로그인" class="kakao-login-button" onclick="kakaoLogin()">
+    </a>
+
+    <a href="#" onclick="naverLogin()">
+      <img src="/images/naver_login_btn.png" alt="네이버 로그인" class="kakao-login-button">
+    </a>
+  </form>
+</div>
 
 <script>
   async function signIn(event) {
@@ -136,6 +140,16 @@
       window.location.href = kakaoLoginUrl;
     } else {
       alert('Failed to get Kakao login URL');
+    }
+  }
+
+  async function naverLogin() {
+    const response = await fetch('http://localhost:8080/api/v1/auth/naver/login-url');
+    if (response.ok) {
+      const naverLoginUrl = await response.text();
+      window.location.href = naverLoginUrl;
+    } else {
+      alert('Failed to get Naver login URL');
     }
   }
 </script>

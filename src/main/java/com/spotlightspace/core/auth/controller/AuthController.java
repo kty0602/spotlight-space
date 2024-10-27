@@ -10,6 +10,7 @@ import com.spotlightspace.core.auth.dto.SignInUserRequestDto;
 import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
 import com.spotlightspace.core.auth.service.AuthService;
 import com.spotlightspace.core.auth.service.KakaoService;
+import com.spotlightspace.core.auth.service.NaverService;
 import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -39,12 +41,19 @@ public class AuthController {
 
     private final AuthService authService;
     private final KakaoService kakaoService;
+    private final NaverService naverService;
 
     @Value("${kakao.client_id}")
     private String kakaoClientId;
 
     @Value("${kakao.redirect_uri}")
     private String kakaoRedirectUri;
+
+    @Value("${naver.redirect_uri}")
+    private String naverRedirectUri;
+
+    @Value("${naver.client_id}")
+    private String naverClientId;
 
     /**
      * 회원가입 로직입니다
@@ -147,6 +156,46 @@ public class AuthController {
         String kakaoLoginUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId +
                 "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
         return ResponseEntity.ok(kakaoLoginUrl);
+    }
+
+    /**
+     * naver 로그인의 콜백을 처리합니다, naver로 부터 받은 인가코드를 통해 엑세스 토큰을 요청하고 받은 토큰을 이용하여 리프레시 토큰을생성하여 쿠키에 업로드합니다
+     *
+     * @param code     인가 코드
+     * @param state    상태값
+     * @param response 리프레시 토큰을 쿠키에 추가하기위해 사용
+     * @return 루트 경로로 리디렉션합니다
+     * @throws UnsupportedEncodingException
+     * @throws JsonProcessingException
+     */
+    @GetMapping("/auth/naver/callback")
+    public ResponseEntity<Void> naverLogin(@RequestParam String code, @RequestParam String state,
+            HttpServletResponse response)
+            throws UnsupportedEncodingException, JsonProcessingException {
+
+        String token = naverService.naverLogin(code, state);
+
+        setRefreshTokenCookie(response, token);
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", "/")
+                .header(AUTHORIZATION, token)
+                .build();
+    }
+
+
+    /**
+     * 네이버에 로그인하기 위한 URL을 생성합니다.
+     *
+     * @return 네이버 로그인 URL
+     */
+    @GetMapping("/auth/naver/login-url")
+    public ResponseEntity<String> getNaverLoginUrl() throws UnsupportedEncodingException {
+        String state = URLEncoder.encode(UUID.randomUUID().toString(), "UTF-8");
+
+        String naverLoginUrl = "https://nid.naver.com/oauth2.0/authorize?client_id=" + naverClientId +
+                "&redirect_uri=" + naverRedirectUri + "&response_type=code&state=" + state;
+        return ResponseEntity.ok(naverLoginUrl);
     }
 
 

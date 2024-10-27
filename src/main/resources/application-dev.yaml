@@ -62,3 +62,8 @@ payment:
 kakao:
   client_id: ${KAKAO_REST_API_KEY}
   redirect_uri: ${KAKAO_REDIRECT_URL}
+
+naver:
+  client_id: ${NAVER_REST_API_KEY}
+  redirect_uri : ${NAVER_REDIRECT_URL}
+  client_secret: ${NAVER_CLIENT_SECRET_KEY}
