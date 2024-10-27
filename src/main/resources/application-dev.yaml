@@ -58,3 +58,7 @@ payment:
     secret:
       key: ${PAYMENT_KAKAO_SECRET_KEY}
     cid: ${PAYMENT_KAKAO_CID}
+
+kakao:
+  client_id: ${KAKAO_REST_API_KEY}
+  redirect_uri: ${KAKAO_REDIRECT_URL}

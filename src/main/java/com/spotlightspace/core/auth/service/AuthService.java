@@ -9,7 +9,6 @@ import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
 
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.config.JwtUtil;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.auth.dto.SaveTokenResponseDto;
@@ -25,6 +24,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.time.LocalDate;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -128,6 +129,26 @@ public class AuthService {
         String userRole = claims.get(USER_ROLE, String.class);
 
         return jwtUtil.createAccessToken(userId, email, UserRole.valueOf(userRole));
+    }
+
+    public boolean alreadySignUp(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public void signUpKakaoUser(Long id, String nickname, String email, String image) {
+        String password = UUID.randomUUID().toString();
+        password = passwordEncoder.encode(password);
+        String birth = LocalDate.now().toString();
+        SignUpUserRequestDto signupUserRequestDto = new SignUpUserRequestDto(email, password, nickname, "ROLE_USER",
+                birth, id.toString());
+        User user = User.of(password, signupUserRequestDto);
+
+        User savedUser = userRepository.save(user);
+
+        // TODO: 이미지 저장 로직 고려해보기!
+//        if (image != null) {
+//            attachmentService.addAttachment(image, savedUser.getId(), TableRole.USER);
+//        }
     }
 }
 

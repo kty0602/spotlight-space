@@ -4,10 +4,12 @@ import static com.spotlightspace.common.constant.JwtConstant.TOKEN_ACCESS_TIME;
 import static com.spotlightspace.common.constant.JwtConstant.TOKEN_REFRESH_TIME;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.spotlightspace.core.auth.dto.SaveTokenResponseDto;
 import com.spotlightspace.core.auth.dto.SignInUserRequestDto;
 import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
 import com.spotlightspace.core.auth.service.AuthService;
+import com.spotlightspace.core.auth.service.KakaoService;
 import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +19,15 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +37,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/v1")
 public class AuthController {
 
-    public final AuthService authService;
+    private final AuthService authService;
+    private final KakaoService kakaoService;
+
+    @Value("${kakao.client_id}")
+    private String kakaoClientId;
+
+    @Value("${kakao.redirect_uri}")
+    private String kakaoRedirectUri;
 
     /**
      * 회원가입 로직입니다
@@ -101,6 +113,42 @@ public class AuthController {
                 .header(AUTHORIZATION, accessToken)
                 .build();
     }
+
+    /**
+     * kakao oauth 로그인을 콜백 처리합니다 kakao로 받은 인가코드를 통해 액세스토큰을 요청하고 받은 토큰을 refresh 토큰을 쿠키에 업로드합니다
+     *
+     * @param code     카카오에서 제공한 인가 코드
+     * @param response 쿠키 설정및 리디렉션을 위한 response
+     * @return 홈으로 리다이렉트 합니다.
+     * @throws JsonProcessingException
+     * @throws UnsupportedEncodingException
+     */
+    @GetMapping("/auth/callback")
+    public ResponseEntity<Void> kakaoLogin(@RequestParam String code, HttpServletResponse response)
+            throws JsonProcessingException, UnsupportedEncodingException {
+
+        String token = kakaoService.kakaoLogin(code);
+
+        setRefreshTokenCookie(response, token);
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header("Location", "/")
+                .header(AUTHORIZATION, token)
+                .build();
+    }
+
+    /**
+     * 카카오에 로그인하기위한 url을 생성합니다.
+     *
+     * @return
+     */
+    @GetMapping("/auth/kakao/login-url")
+    public ResponseEntity<String> getKakaoLoginUrl() {
+        String kakaoLoginUrl = "https://kauth.kakao.com/oauth/authorize?client_id=" + kakaoClientId +
+                "&redirect_uri=" + kakaoRedirectUri + "&response_type=code";
+        return ResponseEntity.ok(kakaoLoginUrl);
+    }
+
 
     private void setAccessTokenCookie(
             HttpServletResponse response,

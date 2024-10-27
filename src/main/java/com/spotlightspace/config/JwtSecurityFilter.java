@@ -36,7 +36,9 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             "^/api/v(?:[1-9])/auth/[a-zA-Z\\-]+$",
             "^/api/v(?:[1-9])/mail/.*$",
             "/paymentform.html",
-            "/loginform.html"
+            "/loginform.html",
+            "/callback",
+            "/api/v1/auth/kakao/login-url"
     );
 
 

@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/*/admin").hasAuthority(UserRole.Authority.ADMIN)
                         .requestMatchers("/paymentform.html").permitAll()
                         .requestMatchers("/loginform.html").permitAll()
+                        .requestMatchers("/callback").permitAll()
+                        .requestMatchers("/login/page").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();
