@@ -14,12 +14,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Slf4j(topic = "KAKAO Login")
 public class KakaoService {
@@ -132,11 +134,15 @@ public class KakaoService {
                 .get("nickname").asText();
         String email = jsonNode.get("kakao_account")
                 .get("email").asText();
-        String image = jsonNode.get("kakao_account")
-                .get("profile")
-                .get("profile_image_url").asText();
 
-        log.info("카카오 사용자 정보: {}, {}, {}", id, nickname, email);
+        String image = null;
+
+        JsonNode profileNode = jsonNode.path("kakao_account").path("profile");
+        if (!profileNode.isMissingNode()) {
+            image = profileNode.path("profile_image_url").asText(null);
+        }
+
+        log.info("카카오 사용자 정보: {}, {}, {}, {}", id, nickname, email, image);
         return KakaoUserInfoDto.of(id, nickname, email, image);
     }
 }
