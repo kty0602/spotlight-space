@@ -27,26 +27,30 @@ public class PointService {
     public CreatePointResponseDto createPoint(CreatePointRequestDto requestDto, AuthUser authUser) {
 
         // 맴버 존재하는지 확인
-        User user = checkUserData(authUser);
+        User user = checkUserData(authUser.getUserId());
 
         // 0.5% 포인트 변환
         int rewardPoint = (int) (requestDto.getPrice() * 0.005);
         // 포인트 테이블에 맴버 id값으로 데이터가 존재하는 지 확인
-        Point point = pointRepository.findByUser(user).orElseGet(() -> {
-            // 포인트 데이터가 없다면 새로 생성
-            return pointRepository.save(Point.of(rewardPoint, user));
-        });
-        // 없다면 새로운 포인트 적립
-        if (point != null && point.getId() != null) { // 이미 포인트 데이터가 있는 경우
+        Point point = pointRepository.findByUser(user).orElse(null);
+
+        // 포인트 데이터가 없다면 새로 생성
+        if (point == null) {
+            point = Point.of(rewardPoint, user);
+        }
+        if (point != null) {
+            // 이미 포인트 데이터가 있는 경우
             point.addPoint(rewardPoint);
         }
-        return CreatePointResponseDto.from(point);
+
+        Point savePoint = pointRepository.save(point);
+        return CreatePointResponseDto.from(savePoint);
     }
 
     public GetPointResponseDto getPoint(AuthUser authUser) {
 
         // 맴버 존재하는지 확인
-        User user = checkUserData(authUser);
+        User user = checkUserData(authUser.getUserId());
 
         // 해당 회원이 포인트 정보를 가지고 있는지 확인
         Point point = pointRepository.findByUserOrElseThrow(user);
@@ -55,9 +59,9 @@ public class PointService {
     }
 
 
-    private User checkUserData(AuthUser authUser) {
+    private User checkUserData(Long userId) {
 
-        return userRepository.findByIdOrElseThrow(authUser.getUserId());
+        return userRepository.findByIdOrElseThrow(userId);
     }
 
     public void cancelPointUsage(Point point) {
