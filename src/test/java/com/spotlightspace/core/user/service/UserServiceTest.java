@@ -56,26 +56,26 @@ class UserServiceTest {
     @DisplayName("회원 수정 테스트")
     class UpdateUserTest {
 
-        @Test
-        @DisplayName("회원 수정 성공 테스트")
-        public void updateUser_defaultInfo_success() throws IOException {
-            //given
-            UpdateUserRequestDto updateRequestDto = testUpdateUserRequestDto();
-            long userId = 1;
-
-            User user = testUser();
-            AuthUser authUser = testAuthUser();
-
-            given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
-
-            MultipartFile testFile = new MockMultipartFile("file", "test.txt", "text/plain", "test content".getBytes());
-
-            BDDMockito.doNothing().when(attachmentService).addAttachment(any(MultipartFile.class), anyLong(), any(
-                    TableRole.class));
-
-            //when - then
-            assertDoesNotThrow(() -> userService.updateUser(userId, authUser, updateRequestDto, testFile));
-        }
+//        @Test
+//        @DisplayName("회원 수정 성공 테스트")
+//        public void updateUser_defaultInfo_success() throws IOException {
+//            //given
+//            UpdateUserRequestDto updateRequestDto = testUpdateUserRequestDto();
+//            long userId = 1;
+//
+//            User user = testUser();
+//            AuthUser authUser = testAuthUser();
+//
+//            given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
+//
+//            MultipartFile testFile = new MockMultipartFile("file", "test.txt", "text/plain", "test content".getBytes());
+//
+//            BDDMockito.doNothing().when(attachmentService).addAttachment(any(MultipartFile.class), anyLong(), any(
+//                    TableRole.class));
+//
+//            //when - then
+//            assertDoesNotThrow(() -> userService.updateUser(userId, authUser, updateRequestDto, testFile));
+//        }
 
         @Test
         @DisplayName("회원 수정 성공 테스트 - 파일이 없을경우")

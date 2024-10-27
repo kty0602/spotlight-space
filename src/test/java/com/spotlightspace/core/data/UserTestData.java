@@ -20,6 +20,7 @@ public class UserTestData {
                 "test",
                 "ROLE_USER",
                 "2024-10-24",
+                false,
                 "010-1010-1010");
     }
 

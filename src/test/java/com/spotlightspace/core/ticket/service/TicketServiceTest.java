@@ -106,6 +106,7 @@ class TicketServiceTest {
                 "nickname",
                 "role_user",
                 "1998-12-12",
+                false,
                 "010-1234-1234"
         );
         return userRepository.save(User.of("encryptPassword", requestDto));
@@ -118,6 +119,7 @@ class TicketServiceTest {
                 "nickname",
                 "role_artist",
                 "1998-12-12",
+                false,
                 "010-4321-1234"
         );
         return userRepository.save(User.of("encryptPassword", requestDto));

@@ -50,6 +50,7 @@ class PaymentTest {
                 "nickname",
                 "role_user",
                 "1998-12-12",
+                false,
                 "010-1234-1234"
         );
         return User.of("encryptPassword", requestDto);
