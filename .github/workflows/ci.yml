@@ -41,5 +41,7 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           PAYMENT_KAKAO_SECRET_KEY: ${{ secrets.PAYMENT_KAKAO_SECRET_KEY }}
           PAYMENT_KAKAO_CID: ${{ secrets.PAYMENT_KAKAO_CID }}
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_REDIRECT_URL: ${{ secrets.C }}
         run: ./gradlew test -Dspring.profiles.active=test
 
