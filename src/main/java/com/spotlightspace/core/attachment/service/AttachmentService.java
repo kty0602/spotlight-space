@@ -1,11 +1,16 @@
 package com.spotlightspace.core.attachment.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
+import static com.spotlightspace.common.exception.ErrorCode.REVIEW_NOT_FOUND;
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ACCESS_EVENT;
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ACCESS_REVIEW;
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.attachment.domain.Attachment;
 import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.repository.AttachmentRepository;
@@ -15,28 +20,23 @@ import com.spotlightspace.core.review.domain.Review;
 import com.spotlightspace.core.review.repository.ReviewRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.spotlightspace.common.exception.ErrorCode.*;
-
-import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ACCESS_EVENT;
-import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AttachmentService {
+
     private final AttachmentRepository attachmentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
@@ -134,6 +134,12 @@ public class AttachmentService {
         saveAttachment(file, id, tableRole);
     }
 
+    //sns로그인은 image를 url로 받아옴 그것을 처리하기위한 메서드.
+    @Transactional
+    public void addAttachmentWithUrl(String image, Long id, TableRole tableRole) {
+        attachmentRepository.save(Attachment.of(image, tableRole, id));
+    }
+
     // 해당 (유저, 리뷰, 이벤트) 삭제시 연관 삭제는 여기로
     @Transactional
     public void deleteAttachmentWithOtherTable(Long tableId, TableRole tableRole) {
@@ -196,7 +202,8 @@ public class AttachmentService {
     }
 
     private void saveAttachment(MultipartFile file, Long tableId, TableRole tableRole) throws IOException {
-        String randomName = UUID.randomUUID().toString().substring(0, 8);;
+        String randomName = UUID.randomUUID().toString().substring(0, 8);
+        ;
         String fileName = randomName + file.getOriginalFilename();
         String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 

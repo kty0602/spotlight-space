@@ -140,15 +140,14 @@ public class AuthService {
         password = passwordEncoder.encode(password);
         String birth = LocalDate.now().toString();
         SignUpUserRequestDto signupUserRequestDto = new SignUpUserRequestDto(email, password, nickname, "ROLE_USER",
-                birth, id.toString());
+                birth, true, id.toString());
         User user = User.of(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
 
-        // TODO: 이미지 저장 로직 고려해보기!
-//        if (image != null) {
-//            attachmentService.addAttachment(image, savedUser.getId(), TableRole.USER);
-//        }
+        if (image != null) {
+            attachmentService.addAttachmentWithUrl(image, savedUser.getId(), TableRole.USER);
+        }
     }
 }
 

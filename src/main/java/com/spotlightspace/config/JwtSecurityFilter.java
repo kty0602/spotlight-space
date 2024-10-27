@@ -33,12 +33,11 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
     private final RedisTemplate<String, String> redisTemplate;
 
     private final List<String> whiteList = List.of(
-            "^/api/v(?:[1-9])/auth/[a-zA-Z\\-]+$",
+            "^/api/v(?:[1-9])/auth/.*$",
             "^/api/v(?:[1-9])/mail/.*$",
             "/paymentform.html",
             "/loginform.html",
-            "/callback",
-            "/api/v1/auth/kakao/login-url"
+            "/callback"
     );
 
 
