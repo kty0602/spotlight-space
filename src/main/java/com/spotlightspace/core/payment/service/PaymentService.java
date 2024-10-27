@@ -1,15 +1,16 @@
 package com.spotlightspace.core.payment.service;
 
 import static com.spotlightspace.common.exception.ErrorCode.COUPON_ALREADY_USED;
-import static com.spotlightspace.common.exception.ErrorCode.EVENT_PARTICIPANT_LIMIT_EXCEED;
+import static com.spotlightspace.common.exception.ErrorCode.EVENT_TICKET_OUT_OF_STOCK;
 import static com.spotlightspace.common.exception.ErrorCode.NOT_ENOUGH_POINT_AMOUNT;
 import static com.spotlightspace.common.exception.ErrorCode.NOT_IN_EVENT_RECRUITMENT_PERIOD;
 import static com.spotlightspace.common.exception.ErrorCode.POINT_AMOUNT_CANNOT_BE_NEGATIVE;
-import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
 
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.repository.EventRepository;
+import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
+import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.payment.client.KakaopayApi;
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
@@ -37,13 +38,14 @@ public class PaymentService {
 
     private final KakaopayApi kakaopayApi;
     private final TicketService ticketService;
+    private final PointService pointService;
     private final PointHistoryService pointHistoryService;
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final UserCouponRepository userCouponRepository;
     private final PointRepository pointRepository;
-    private final PointService pointService;
+    private final EventTicketStockRepository eventTicketStockRepository;
 
     @Value("${payment.kakao.cid}")
     private String cid;
@@ -51,9 +53,10 @@ public class PaymentService {
     public ReadyPaymentResponseDto readyPayment(long userId, long eventId, Long couponId, Integer pointAmount) {
         User user = userRepository.findByIdOrElseThrow(userId);
         Event event = eventRepository.findByIdOrElseThrow(eventId);
+        EventTicketStock eventTicketStock = eventTicketStockRepository.findByEventOrElseThrow(event);
 
         validateRecruitmentPeriod(event);
-        validateParticipantLimit(event);
+        validateEventTicketStock(eventTicketStock);
 
         Point point = null;
         UserCoupon userCoupon = null;
@@ -76,6 +79,7 @@ public class PaymentService {
         if (isPointUsed(point)) {
             pointHistoryService.createPointHistory(payment, point, pointAmount);
         }
+        eventTicketStock.decreaseStock();
 
         ReadyPaymentResponseDto responseDto = kakaopayApi.readyPayment(
                 cid,
@@ -111,6 +115,9 @@ public class PaymentService {
             pointService.cancelPointUsage(payment.getPoint());
         }
 
+        EventTicketStock eventTicketStock = eventTicketStockRepository.findByEventOrElseThrow(payment.getEvent());
+        eventTicketStock.increaseStock();
+
         return responseDto;
     }
 
@@ -128,10 +135,9 @@ public class PaymentService {
         }
     }
 
-    private void validateParticipantLimit(Event event) {
-        Long buyerCount = paymentRepository.countByEventAndStatus(event, APPROVED);
-        if (event.isParticipantLimitExceed(buyerCount.intValue() + 1)) {
-            throw new ApplicationException(EVENT_PARTICIPANT_LIMIT_EXCEED);
+    private void validateEventTicketStock(EventTicketStock eventTicketStock) {
+        if (eventTicketStock.isOutOfStock()) {
+            throw new ApplicationException(EVENT_TICKET_OUT_OF_STOCK);
         }
     }
 

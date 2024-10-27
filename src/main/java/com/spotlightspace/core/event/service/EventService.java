@@ -7,7 +7,9 @@ import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.dto.*;
 import com.spotlightspace.core.event.repository.EventRepository;
+import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
 import com.spotlightspace.core.ticket.repository.TicketRepository;
+import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.repository.UserRepository;
@@ -20,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.spotlightspace.common.exception.ErrorCode.*;
@@ -35,6 +36,7 @@ public class EventService {
     private final UserRepository userRepository;
     private final AttachmentService attachmentService;
     private final TicketRepository ticketRepository;
+    private final EventTicketStockRepository eventTicketStockRepository;
 
     @Transactional
     public CreateEventResponseDto createEvent(CreateEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException {
@@ -47,6 +49,9 @@ public class EventService {
         if (files != null && !files.isEmpty()) {
             attachmentService.addAttachmentList(files, event.getId(), TableRole.EVENT);
         }
+
+        eventTicketStockRepository.save(EventTicketStock.create(event));
+
         return CreateEventResponseDto.from(event);
     }
 

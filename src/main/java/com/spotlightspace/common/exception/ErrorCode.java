@@ -35,10 +35,12 @@ public enum ErrorCode {
 
     POINT_HISTORY_NOT_FOUND(NOT_FOUND, "존재하지 않는 포인트 기록입니다."),
 
+    EVENT_TICKET_OUT_OF_STOCK(BAD_REQUEST, "이벤트 티켓 재고가 없습니다"),
+    EVENT_TICKET_STOCK_NOT_FOUND(NOT_FOUND, "존재하지 않는 이벤트 티켓 재고입니다."),
+
     COUPON_ALREADY_USED(BAD_REQUEST, "이미 사용된 쿠폰입니다."),
     COUPON_NOT_FOUND(NOT_FOUND, "존재하지 않는 쿠폰입니다."),
 
-    EVENT_PARTICIPANT_LIMIT_EXCEED(BAD_REQUEST, "이벤트 참석자 수를 초과하였습니다."),
     INVALID_PAYMENT_STATUS(BAD_REQUEST, "유효하지 않은 결제 상태입니다."),
     NOT_IN_EVENT_RECRUITMENT_PERIOD(BAD_REQUEST, "이벤트 모집 기간이 아닙니다."),
     TID_NOT_FOUND(NOT_FOUND, "결제 고유 번호가 존재하지 않습니다."),
