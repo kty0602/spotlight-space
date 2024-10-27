@@ -53,14 +53,17 @@ public class User {
     private UserRole role;
 
     private boolean isDeleted = false;
+    private boolean isSocialLogin;
 
-    private User(String email, String nickname, String password, UserRole role, LocalDate birth, String phoneNumber) {
+    private User(String email, String nickname, String password, UserRole role, LocalDate birth, String phoneNumber,
+            boolean isSocialLogin) {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
         this.role = role;
         this.birth = birth;
         this.phoneNumber = phoneNumber;
+        this.isSocialLogin = isSocialLogin;
     }
 
     public static User of(String encryptPassword, SignUpUserRequestDto signupUserRequestDto) {
@@ -70,7 +73,8 @@ public class User {
                 encryptPassword,
                 UserRole.from(signupUserRequestDto.getRole()),
                 LocalDate.parse(signupUserRequestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                signupUserRequestDto.getPhoneNumber()
+                signupUserRequestDto.getPhoneNumber(),
+                signupUserRequestDto.isSocialLogin()
         );
     }
 

@@ -31,6 +31,8 @@ public class SignUpUserRequestDto {
     @NotBlank(message = "생년월일을 입력해주세요")
     private String birth;
 
+    private boolean isSocialLogin;
+
     @Pattern(
             regexp = "^010-\\d{4}-\\d{4}$",
             message = "휴대폰 번호는 010-0000-0000 형식이어야 합니다."

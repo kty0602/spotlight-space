@@ -1,9 +1,11 @@
 package com.spotlightspace.core.auth.email;
 
 import static com.spotlightspace.common.exception.ErrorCode.INVALID_EMAIL_MATCH;
+import static com.spotlightspace.common.exception.ErrorCode.SOCIAL_LOGIN_UPDATE_NOT_ALLOWED;
 
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.auth.email.dto.MatchMailRequestDto;
+import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
@@ -36,7 +38,12 @@ public class MailService {
         HashMap<String, Object> responseMap = new HashMap<>();
 
         //유저의 이메일 체크 로직.
-        userService.findUserEmail(mail);
+        User user = userService.findUserEmail(mail);
+
+        //소셜로그인일시, 비밀번호 변경을위한 이메일인증 불가.
+        if (user.isSocialLogin()) {
+            throw new ApplicationException(SOCIAL_LOGIN_UPDATE_NOT_ALLOWED);
+        }
 
         try {
             int number = createRandomNumber();

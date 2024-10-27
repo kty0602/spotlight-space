@@ -1,6 +1,9 @@
 package com.spotlightspace.common.exception;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -8,13 +11,14 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
-    EMAIL_DUPLICATED(CONFLICT, "이미 존재하는 이메일입니다."),
     FORBIDDEN_USER(FORBIDDEN, "권한이 없습니다."),
     INVALID_REFRESH_TOKEN(FORBIDDEN, "리프레시토큰이 없습니다"),
     INVALID_EMAIL_MATCH(FORBIDDEN, "인증번호가 일치하지 않습니다"),
+    SOCIAL_LOGIN_UPDATE_NOT_ALLOWED(FORBIDDEN, "소셜 로그인 사용자는 회원 정보를 수정할 수 없습니다."),
     USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 유저입니다."),
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "리프레시토큰이 없습니다"),
     INVALID_PASSWORD_OR_EMAIL(NOT_FOUND, "이메일 또는 패스워드가 일치하지 않습니다"),
+    EMAIL_DUPLICATED(CONFLICT, "이미 존재하는 이메일입니다."),
 
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
 

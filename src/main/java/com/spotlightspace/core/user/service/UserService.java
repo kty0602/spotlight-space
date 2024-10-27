@@ -2,6 +2,7 @@ package com.spotlightspace.core.user.service;
 
 import static com.spotlightspace.common.constant.JwtConstant.TOKEN_ACCESS_TIME;
 import static com.spotlightspace.common.exception.ErrorCode.FORBIDDEN_USER;
+import static com.spotlightspace.common.exception.ErrorCode.SOCIAL_LOGIN_UPDATE_NOT_ALLOWED;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.spotlightspace.common.annotation.AuthUser;
@@ -47,9 +48,14 @@ public class UserService {
             throw new ApplicationException(FORBIDDEN_USER);
         }
 
+        //소셜로그인시, 유저 업데이트 불가능
+        if (user.isSocialLogin()) {
+            throw new ApplicationException(SOCIAL_LOGIN_UPDATE_NOT_ALLOWED);
+        }
+
         if (file != null) {
-            //todo : 이미지 삭제 로직 구현 및 데이터베이스 수정 로직 구현
-            attachmentService.addAttachment(file, userId, TableRole.USER);
+            Long attachmentId = attachmentService.getAttachmentList(user.getId(), TableRole.USER).get(0).getId();
+            attachmentService.updateAttachment(attachmentId, file, userId, TableRole.USER, authUser);
         }
 
         String encryptPassword = passwordEncoder.encode(updateUserRequestDto.getPassword());
@@ -110,7 +116,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public void findUserEmail(String email) {
-        userRepository.findByEmailOrElseThrow(email);
+    public User findUserEmail(String email) {
+        return userRepository.findByEmailOrElseThrow(email);
     }
 }
