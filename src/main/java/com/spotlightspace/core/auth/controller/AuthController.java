@@ -123,7 +123,7 @@ public class AuthController {
      * @throws JsonProcessingException
      * @throws UnsupportedEncodingException
      */
-    @GetMapping("/auth/callback")
+    @GetMapping("/auth/kakao/callback")
     public ResponseEntity<Void> kakaoLogin(@RequestParam String code, HttpServletResponse response)
             throws JsonProcessingException, UnsupportedEncodingException {
 
