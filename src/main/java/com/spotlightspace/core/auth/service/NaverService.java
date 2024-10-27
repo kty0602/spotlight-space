@@ -33,7 +33,6 @@ public class NaverService {
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
 
-
     @Value("${naver.client_id}")
     private String naverClientId;
 
