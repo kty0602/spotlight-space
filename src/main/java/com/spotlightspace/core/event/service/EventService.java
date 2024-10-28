@@ -71,6 +71,9 @@ public class EventService {
         if (requestDto.getContent() != null) {
             event.changeContent(requestDto.getContent());
         }
+        if (requestDto.getLocation() != null) {
+            event.changeLocation(requestDto.getLocation());
+        }
         if (requestDto.getStartAt() != null) {
             event.changeStartAt(requestDto.getStartAt());
         }

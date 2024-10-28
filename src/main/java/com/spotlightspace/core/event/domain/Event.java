@@ -97,6 +97,10 @@ public class Event extends Timestamped {
         this.content = content;
     }
 
+    public void changeLocation(String location) {
+        this.location = location;
+    }
+
     public void changeStartAt(LocalDateTime startAt) {
         this.startAt = startAt;
     }

@@ -1,5 +1,6 @@
 package com.spotlightspace.core.data;
 
+import static com.spotlightspace.core.user.domain.UserRole.ROLE_ARTIST;
 import static com.spotlightspace.core.user.domain.UserRole.ROLE_USER;
 
 import com.spotlightspace.common.annotation.AuthUser;
@@ -24,8 +25,23 @@ public class UserTestData {
                 "010-1010-1010");
     }
 
+    public static SignUpUserRequestDto testSignupArtistRequestDto() {
+        return new SignUpUserRequestDto(
+                "email@test.com",
+                "Password1!",
+                "test",
+                "ROLE_ARTIST",
+                "2024-10-24",
+                "010-1010-1010");
+    }
+
     public static User testUser() {
         SignUpUserRequestDto userRequestDto = testSignupUserRequestDto();
+        return User.of("password", userRequestDto);
+    }
+
+    public static User testArtist() {
+        SignUpUserRequestDto userRequestDto = testSignupArtistRequestDto();
         return User.of("password", userRequestDto);
     }
 
@@ -41,6 +57,10 @@ public class UserTestData {
     public static AuthUser testAuthUser() {
         return new AuthUser(1L, "email@test.com", ROLE_USER);
     }
+
+    public static AuthUser testArtistAuthUser() {return new AuthUser(1L, "email@test.com", ROLE_ARTIST); }
+
+    public static AuthUser testAnotherArtistAuthUser() {return new AuthUser(2L, "email2@test.com", ROLE_ARTIST); }
 
     public static User testUser_deleted() {
         User user = testUser();
