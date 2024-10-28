@@ -32,6 +32,7 @@ public class UserTestData {
                 "test",
                 "ROLE_ARTIST",
                 "2024-10-24",
+                false,
                 "010-1010-1010");
     }
 
