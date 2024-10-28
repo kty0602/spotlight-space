@@ -124,4 +124,8 @@ public class Payment extends Timestamped {
     public boolean isPointUsed() {
         return this.point != null;
     }
+
+    public void fail() {
+        this.status = PaymentStatus.FAILED;
+    }
 }

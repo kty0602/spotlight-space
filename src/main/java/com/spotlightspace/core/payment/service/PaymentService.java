@@ -121,6 +121,11 @@ public class PaymentService {
         return responseDto;
     }
 
+    public void failPayment(String tid) {
+        Payment payment = paymentRepository.findByTidOrElseThrow(tid);
+        payment.fail();
+    }
+
     private boolean doesCouponIdExist(Long couponId) {
         return couponId != null;
     }

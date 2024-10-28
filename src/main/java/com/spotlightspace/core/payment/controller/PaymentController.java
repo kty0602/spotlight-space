@@ -89,4 +89,16 @@ public class PaymentController {
 
         return ResponseEntity.ok(responseDto);
     }
+
+    /**
+     * 결제 실패 처리를 합니다.
+     *
+     * @param session 결제 고유 번호를 얻기 위한 세션입니다.
+     * @return
+     */
+    @GetMapping("/api/v1/payments/fail")
+    public ResponseEntity<Void> failPayment(HttpSession session) {
+        paymentService.failPayment(String.valueOf(session.getAttribute(TID)));
+        return ResponseEntity.ok().build();
+    }
 }
