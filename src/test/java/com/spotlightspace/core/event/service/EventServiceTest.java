@@ -8,6 +8,8 @@ import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
 import com.spotlightspace.core.event.dto.*;
 import com.spotlightspace.core.event.repository.EventRepository;
+import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
+import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.ticket.repository.TicketRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
@@ -50,6 +52,9 @@ public class EventServiceTest {
 
     @Mock
     private TicketRepository ticketRepository;
+
+    @Mock
+    private EventTicketStockRepository eventTicketStockRepository;
 
     @Mock
     private AttachmentService attachmentService;
@@ -137,6 +142,7 @@ public class EventServiceTest {
 
             given(userRepository.findByIdOrElseThrow(authUser.getUserId())).willReturn(user);
             given(eventRepository.save(any(Event.class))).willReturn(event);
+            given(eventTicketStockRepository.save(any(EventTicketStock.class))).willReturn(EventTicketStock.create(event));
 
             MultipartFile file = mock(MultipartFile.class);
             List<MultipartFile> files = List.of(file);
