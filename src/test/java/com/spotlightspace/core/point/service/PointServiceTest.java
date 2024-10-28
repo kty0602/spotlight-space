@@ -2,8 +2,6 @@ package com.spotlightspace.core.point.service;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
-import com.spotlightspace.core.data.UserTestData;
 import com.spotlightspace.core.point.domain.Point;
 import com.spotlightspace.core.point.dto.CreatePointRequestDto;
 import com.spotlightspace.core.point.dto.CreatePointResponseDto;
@@ -16,13 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+import static com.spotlightspace.core.data.UserTestData.testAuthUser;
+import static com.spotlightspace.core.data.UserTestData.testUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -39,10 +38,10 @@ public class PointServiceTest {
 
     @Test
     @DisplayName("포인트가 없을 때 새로운 데이터를 가지고 생성한다.")
-    public void createNewPoint() {
+    void createNewPoint() {
         // given
-        AuthUser authUser = UserTestData.testAuthUser();
-        User user = UserTestData.testUser();
+        AuthUser authUser = testAuthUser();
+        User user = testUser();
         CreatePointRequestDto requestDto = new CreatePointRequestDto(10000);
         int amount = (int) (requestDto.getPrice() * 0.005);
 
@@ -62,10 +61,10 @@ public class PointServiceTest {
 
     @Test
     @DisplayName("포인트가 있을 때 기존 데이터에 포인트를 추가한다.")
-    public void addPointsWhenPointExists() {
+    void addPointsWhenPointExists() {
         // given
-        AuthUser authUser = UserTestData.testAuthUser();
-        User user = UserTestData.testUser();
+        AuthUser authUser = testAuthUser();
+        User user = testUser();
 
         int initPoint = 100;
         int addedPoint = 50; // 추가할 포인트
@@ -89,10 +88,10 @@ public class PointServiceTest {
 
     @Test
     @DisplayName("유저의 포인트 정보를 조회한다.")
-    public void getPointReturnsUserPoints() {
+    void getPointReturnsUserPoints() {
         // given
-        AuthUser authUser = UserTestData.testAuthUser();
-        User user = UserTestData.testUser();
+        AuthUser authUser = testAuthUser();
+        User user = testUser();
         ReflectionTestUtils.setField(user, "id", authUser.getUserId());
 
         int existPoint = 100;
@@ -111,9 +110,9 @@ public class PointServiceTest {
 
     @Test
     @DisplayName("유저가 존재하지 않을 경우 예외를 발생시킨다.")
-    public void getPointThrowsExceptionWhenUserNotFound() {
+    void getPointThrowsExceptionWhenUserNotFound() {
         // given
-        AuthUser authUser = UserTestData.testAuthUser();
+        AuthUser authUser = testAuthUser();
 
         given(userRepository.findByIdOrElseThrow(authUser.getUserId()))
                 .willThrow(new ApplicationException(USER_NOT_FOUND));
