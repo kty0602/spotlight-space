@@ -34,6 +34,7 @@ import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
 import static com.spotlightspace.core.data.EventTestData.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.spotlightspace.core.data.UserTestData.*;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
