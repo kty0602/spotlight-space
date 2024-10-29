@@ -1,6 +1,6 @@
 package com.spotlightspace.core.payment.service;
 
-import static com.spotlightspace.common.exception.ErrorCode.*;
+import static com.spotlightspace.common.exception.ErrorCode.CANCELLATION_PERIOD_EXPIRED;
 import static com.spotlightspace.common.exception.ErrorCode.COUPON_ALREADY_USED;
 import static com.spotlightspace.common.exception.ErrorCode.EVENT_TICKET_OUT_OF_STOCK;
 import static com.spotlightspace.common.exception.ErrorCode.NOT_ENOUGH_POINT_AMOUNT;
