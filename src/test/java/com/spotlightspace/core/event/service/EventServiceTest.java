@@ -5,7 +5,6 @@ import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
-import com.spotlightspace.core.event.domain.EventCategory;
 import com.spotlightspace.core.event.dto.*;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
@@ -24,19 +23,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
 import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+import static com.spotlightspace.core.data.EventTestData.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.spotlightspace.core.data.UserTestData.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -61,70 +59,6 @@ public class EventServiceTest {
 
     @InjectMocks
     private EventService eventService;
-
-    private CreateEventRequestDto createDefaultEventRequestDto() {
-        return new CreateEventRequestDto(
-                "test1",
-                "test1",
-                "서울",
-                LocalDateTime.parse("2024-10-23T15:30:00"),
-                LocalDateTime.parse("2024-10-23T18:30:00"),
-                80,
-                30000,
-                EventCategory.COMMUNITY,
-                LocalDateTime.parse("2024-10-23T12:00:00"),
-                LocalDateTime.parse("2024-10-23T14:00:00")
-        );
-    }
-
-    private CreateEventRequestDto createDefaultEventRequestDto2() {
-        return new CreateEventRequestDto(
-                "test2",
-                "test2",
-                "제주",
-                LocalDateTime.parse("2024-10-23T15:30:00"),
-                LocalDateTime.parse("2024-10-23T18:30:00"),
-                20,
-                15000,
-                EventCategory.ART,
-                LocalDateTime.parse("2024-10-23T12:00:00"),
-                LocalDateTime.parse("2024-10-23T14:00:00")
-        );
-    }
-
-    private UpdateEventRequestDto updateDefaultEventRequestDto() {
-        return new UpdateEventRequestDto(
-                "수정 test1",
-                "수정 test1",
-                "울산",
-                LocalDateTime.parse("2024-10-23T15:30:00"),
-                LocalDateTime.parse("2024-10-23T18:30:00"),
-                40,
-                29000,
-                EventCategory.COMMUNITY,
-                LocalDateTime.parse("2024-10-23T12:00:00"),
-                LocalDateTime.parse("2024-10-23T14:00:00")
-        );
-    }
-
-    private Event testEvent() {
-        CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto();
-        User user = testArtist();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        Event event = Event.of(eventRequestDto, user);
-        ReflectionTestUtils.setField(event, "id", 1L);
-        return event;
-    }
-
-    // 다건 조회 테스트를 위한 데이터
-    private Event testEvent2() {
-        CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto2();
-        User user = testArtist();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        Event event = Event.of(eventRequestDto, user);
-        ReflectionTestUtils.setField(event, "id", 2L);
-        return event;
-    }
 
     @Nested
     @DisplayName("이벤트 등록 시")

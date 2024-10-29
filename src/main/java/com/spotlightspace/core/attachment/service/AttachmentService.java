@@ -119,7 +119,6 @@ public class AttachmentService {
         return GetAttachmentResponseDto.from(newAttachment);
     }
 
-
     // 이벤트 생성 시 첨부파일도 같이 생성할 때 접근
     @Transactional
     public void addAttachmentList(List<MultipartFile> files, Long id, TableRole tableRole) throws IOException {
@@ -203,7 +202,6 @@ public class AttachmentService {
 
     private void saveAttachment(MultipartFile file, Long tableId, TableRole tableRole) throws IOException {
         String randomName = UUID.randomUUID().toString().substring(0, 8);
-        ;
         String fileName = randomName + file.getOriginalFilename();
         String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
