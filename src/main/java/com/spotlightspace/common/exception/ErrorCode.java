@@ -44,6 +44,7 @@ public enum ErrorCode {
     INVALID_PAYMENT_STATUS(BAD_REQUEST, "유효하지 않은 결제 상태입니다."),
     NOT_IN_EVENT_RECRUITMENT_PERIOD(BAD_REQUEST, "이벤트 모집 기간이 아닙니다."),
     TID_NOT_FOUND(NOT_FOUND, "결제 고유 번호가 존재하지 않습니다."),
+    CANCELLATION_PERIOD_EXPIRED(BAD_REQUEST, "결제 취소 가능 기간이 아닙니다."),
 
     REVIEW_NOT_FOUND(NOT_FOUND, "존재하지 않는 리뷰입니다."),
 

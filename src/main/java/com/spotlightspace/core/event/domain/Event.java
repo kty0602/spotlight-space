@@ -140,4 +140,8 @@ public class Event extends Timestamped {
         LocalDateTime now = LocalDateTime.now();
         return !(now.isAfter(recruitmentStartAt) && now.isBefore(recruitmentFinishAt));
     }
+
+    public boolean isFinishedRecruitment(LocalDateTime now) {
+        return now.isAfter(recruitmentFinishAt);
+    }
 }

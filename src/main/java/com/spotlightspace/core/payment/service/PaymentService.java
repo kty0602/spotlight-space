@@ -1,5 +1,6 @@
 package com.spotlightspace.core.payment.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.*;
 import static com.spotlightspace.common.exception.ErrorCode.COUPON_ALREADY_USED;
 import static com.spotlightspace.common.exception.ErrorCode.EVENT_TICKET_OUT_OF_STOCK;
 import static com.spotlightspace.common.exception.ErrorCode.NOT_ENOUGH_POINT_AMOUNT;
@@ -26,6 +27,7 @@ import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
 import com.spotlightspace.core.usercoupon.domain.UserCoupon;
 import com.spotlightspace.core.usercoupon.repository.UserCouponRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -106,11 +108,15 @@ public class PaymentService {
     }
 
     public CancelPaymentResponseDto cancelPayment(String tid, int cancelAmount, int cancelTaxFreeAmount) {
+        Payment payment = paymentRepository.findByTidOrElseThrow(tid);
+        Event event = payment.getEvent();
+        if (event.isFinishedRecruitment(LocalDateTime.now())) {
+            throw new ApplicationException(CANCELLATION_PERIOD_EXPIRED);
+        }
+
         CancelPaymentResponseDto responseDto = kakaopayApi.cancelPayment(cid, tid, cancelAmount, cancelTaxFreeAmount);
 
-        Payment payment = paymentRepository.findByTidOrElseThrow(tid);
         payment.cancel();
-
         if (payment.isPointUsed()) {
             pointService.cancelPointUsage(payment.getPoint());
         }
