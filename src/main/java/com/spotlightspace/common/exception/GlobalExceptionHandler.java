@@ -1,9 +1,12 @@
 package com.spotlightspace.common.exception;
 
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
+import com.spotlightspace.integration.slack.SlackEvent;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,7 +18,19 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final ApplicationEventPublisher eventPublisher;
+
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public ErrorResponseDto handleException(Exception exception) {
+        eventPublisher.publishEvent(SlackEvent.from("예상하지 못한 예외 발생: " + exception.getMessage()));
+        log.error("{} - {}", exception.getClass().getSimpleName(), exception.getMessage());
+
+        return ErrorResponseDto.of(500, exception.getMessage());
+    }
 
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -55,7 +70,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponseDto> handleMaxSizeException(MaxUploadSizeExceededException exception) {
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                .body(ErrorResponseDto.of(HttpStatus.PAYLOAD_TOO_LARGE.value(),"파일 크기가 5MB를 초과할 수 없습니다."));
+        return ResponseEntity.status(PAYLOAD_TOO_LARGE)
+                .body(ErrorResponseDto.of(PAYLOAD_TOO_LARGE.value(),"파일 크기가 5MB를 초과할 수 없습니다."));
     }
 }
