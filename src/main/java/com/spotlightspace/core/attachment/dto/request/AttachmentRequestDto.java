@@ -1,4 +1,4 @@
-package com.spotlightspace.core.attachment.dto;
+package com.spotlightspace.core.attachment.dto.request;
 
 import com.spotlightspace.common.entity.TableRole;
 import lombok.*;

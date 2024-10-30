@@ -1,4 +1,4 @@
-package com.spotlightspace.core.event.dto;
+package com.spotlightspace.core.event.dto.response;
 
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;

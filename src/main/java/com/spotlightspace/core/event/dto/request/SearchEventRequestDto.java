@@ -1,7 +1,6 @@
-package com.spotlightspace.core.event.dto;
+package com.spotlightspace.core.event.dto.request;
 
 import com.spotlightspace.core.event.domain.EventCategory;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

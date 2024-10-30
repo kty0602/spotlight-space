@@ -1,9 +1,9 @@
 package com.spotlightspace.core.point.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
-import com.spotlightspace.core.point.dto.CreatePointRequestDto;
-import com.spotlightspace.core.point.dto.CreatePointResponseDto;
-import com.spotlightspace.core.point.dto.GetPointResponseDto;
+import com.spotlightspace.core.point.dto.request.CreatePointRequestDto;
+import com.spotlightspace.core.point.dto.response.CreatePointResponseDto;
+import com.spotlightspace.core.point.dto.response.GetPointResponseDto;
 import com.spotlightspace.core.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

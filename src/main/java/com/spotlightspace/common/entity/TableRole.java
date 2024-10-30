@@ -11,23 +11,16 @@ import java.util.Arrays;
 @Getter
 @RequiredArgsConstructor
 public enum TableRole {
-
-    USER(TableRole.Authority.USER),
-    EVENT(TableRole.Authority.EVENT),
-    REVIEW(TableRole.Authority.REVIEW);
+    USER("USER"),
+    EVENT("EVENT"),
+    REVIEW("REVIEW");
 
     private final String tableRole;
 
-    public static EventCategory of(String table) {
-        return Arrays.stream(EventCategory.values())
+    public static TableRole of(String table) {
+        return Arrays.stream(TableRole.values())
                 .filter(c -> c.name().equalsIgnoreCase(table))
                 .findFirst()
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TABLE_NOT_FOUND));
-    }
-
-    public static class Authority {
-        public static final String USER = "USER";
-        public static final String EVENT = "EVENT";
-        public static final String REVIEW = "REVIEW";
     }
 }

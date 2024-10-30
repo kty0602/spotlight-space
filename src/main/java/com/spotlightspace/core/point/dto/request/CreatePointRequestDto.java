@@ -1,4 +1,4 @@
-package com.spotlightspace.core.point.dto;
+package com.spotlightspace.core.point.dto.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
