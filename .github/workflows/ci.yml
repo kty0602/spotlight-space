@@ -46,5 +46,6 @@ jobs:
           NAVER_REST_API_KEY: ${{ secrets.NAVER_REST_API_KEY }}
           NAVER_REDIRECT_URL: ${{ secrets.NAVER_REDIRECT_URL }}
           NAVER_CLIENT_SECRET_KEY: ${{ secrets.NAVER_CLIENT_SECRET_KEY }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         run: ./gradlew test -Dspring.profiles.active=test
 
