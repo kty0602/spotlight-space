@@ -1,10 +1,13 @@
 package com.spotlightspace.core.user.controller;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.service.UserService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -46,7 +49,8 @@ public class UserController {
             @PathVariable Long userId,
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestPart UpdateUserRequestDto updateUserRequestDto,
-            @RequestPart(required = false) MultipartFile file) throws IOException {
+            @RequestPart(required = false) MultipartFile file
+    ) throws IOException {
         userService.updateUser(userId, authUser, updateUserRequestDto, file);
         return ResponseEntity.ok().build();
     }
@@ -76,9 +80,13 @@ public class UserController {
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long userId,
-            @AuthenticationPrincipal AuthUser authUser
+            @AuthenticationPrincipal AuthUser authUser,
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse
     ) {
-        userService.deleteUser(userId, authUser.getUserId());
+        String accessToken = invalidateRefreshTokenAndGetAccessToken(httpServletResponse, httpServletRequest);
+
+        userService.deleteUser(userId, authUser.getUserId(), accessToken);
         return ResponseEntity.ok().build();
     }
 
@@ -98,13 +106,35 @@ public class UserController {
         return new ResponseEntity<>(couponList, HttpStatus.OK);
     }
 
+    /**
+     * 회원의 로그아웃을 진행합니다.
+     *
+     * @param authUser            현재 로그인된 유저 정보를 입력합니다
+     * @param httpServletRequest  액세스 토큰을 블랙리스트에 올리기 위해 httpServletRequest를 가져옵니다
+     * @param httpServletResponse 리프레시 토큰을 무효화하기 위해 coockie를 조회할 httpservletResponse를 가져옵니다
+     * @return
+     */
     @PostMapping("/user/logout")
     public ResponseEntity<Void> logout(
             @AuthenticationPrincipal AuthUser authUser,
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
     ) {
-        userService.logout(authUser.getUserId(), httpServletRequest, httpServletResponse);
+        String accessToken = invalidateRefreshTokenAndGetAccessToken(httpServletResponse, httpServletRequest);
+
+        userService.logout(authUser.getUserId(), accessToken);
         return ResponseEntity.ok().build();
+    }
+
+    private String invalidateRefreshTokenAndGetAccessToken(
+            HttpServletResponse httpServletResponse,
+            HttpServletRequest httpServletRequest
+    ) {
+        Cookie refreshTokenCookie = new Cookie("RefreshToken", null);
+        refreshTokenCookie.setMaxAge(0); // 쿠키 만료
+        refreshTokenCookie.setPath("/"); // 쿠키 경로 설정
+        httpServletResponse.addCookie(refreshTokenCookie);
+
+        return httpServletRequest.getHeader(AUTHORIZATION);
     }
 }

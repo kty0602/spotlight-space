@@ -11,16 +11,14 @@ import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.config.JwtUtil;
 import com.spotlightspace.core.attachment.service.AttachmentService;
-import com.spotlightspace.core.auth.dto.SaveTokenResponseDto;
-import com.spotlightspace.core.auth.dto.SignInUserRequestDto;
-import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
+import com.spotlightspace.core.auth.dto.request.SignInUserRequestDto;
+import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
+import com.spotlightspace.core.auth.dto.response.SaveTokenResponseDto;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
 import com.spotlightspace.core.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -88,19 +86,7 @@ public class AuthService {
         user.updatePassword(encryptPassword);
     }
 
-    public String getAccessToken(HttpServletRequest request) throws UnsupportedEncodingException {
-
-        String refreshToken = null;
-
-        //쿠키에서 리프레시 토큰을 가져오는 로직입니다
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("RefreshToken".equals(cookie.getName())) {
-                    refreshToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
+    public String getAccessToken(String refreshToken) throws UnsupportedEncodingException {
 
         //barrer%20에서 %20을 공백으로 제거하는 메서드입니다
         refreshToken = URLDecoder.decode(refreshToken, "UTF-8");
@@ -164,9 +150,8 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        if (mobile!= null) {
+        if (mobile != null) {
             attachmentService.addAttachmentWithUrl(mobile, savedUser.getId(), TableRole.USER);
         }
     }
 }
-

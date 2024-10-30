@@ -3,7 +3,6 @@ package com.spotlightspace.core.user.service;
 import static com.spotlightspace.common.constant.JwtConstant.TOKEN_ACCESS_TIME;
 import static com.spotlightspace.common.exception.ErrorCode.FORBIDDEN_USER;
 import static com.spotlightspace.common.exception.ErrorCode.SOCIAL_LOGIN_UPDATE_NOT_ALLOWED;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
@@ -15,9 +14,6 @@ import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.repository.UserRepository;
 import com.spotlightspace.core.usercoupon.service.UserCouponService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -75,13 +71,14 @@ public class UserService {
         return GetUserResponseDto.from(user, url);
     }
 
-    public void deleteUser(Long userId, Long currentUserId) {
+    public void deleteUser(Long userId, Long currentUserId, String accessToken) {
         User user = userRepository.findByIdOrElseThrow(userId);
 
         if (!userId.equals(currentUserId)) {
             throw new ApplicationException(FORBIDDEN_USER);
         }
 
+        addBlackList(userId, accessToken);
         user.delete();
     }
 
@@ -98,14 +95,16 @@ public class UserService {
     //재발급 방지를 위해 redis의 리프레시 토큰 삭제
     // 액세스 토큰 레디스에올리기
     // 쿠키 무효화
-    public void logout(Long userId, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        //쿠키에 있는 리프레시토큰 무효화
-        Cookie refreshTokenCookie = new Cookie("RefreshToken", null);
-        refreshTokenCookie.setMaxAge(0);
-        refreshTokenCookie.setPath("/");
-        httpServletResponse.addCookie(refreshTokenCookie);
+    public void logout(Long userId, String accessToken) {
+        addBlackList(userId, accessToken);
+    }
 
-        String accessToken = httpServletRequest.getHeader(AUTHORIZATION);
+    @Transactional(readOnly = true)
+    public User findUserEmail(String email) {
+        return userRepository.findByEmailOrElseThrow(email);
+    }
+
+    public void addBlackList(Long userId, String accessToken) {
         String key = "user:blacklist:id:" + userId;
         //redis에 해당하는 리프레시 토큰 삭제
         redisTemplate.delete("user:refresh:id:" + userId);
@@ -113,10 +112,5 @@ public class UserService {
         //액세스 토큰 레디스에 블랙리스트로 올리기
         redisTemplate.opsForValue()
                 .set(key, accessToken, TOKEN_ACCESS_TIME, TimeUnit.MILLISECONDS);
-    }
-
-    @Transactional(readOnly = true)
-    public User findUserEmail(String email) {
-        return userRepository.findByEmailOrElseThrow(email);
     }
 }

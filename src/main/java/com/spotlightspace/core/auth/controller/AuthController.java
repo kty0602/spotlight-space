@@ -5,9 +5,9 @@ import static com.spotlightspace.common.constant.JwtConstant.TOKEN_REFRESH_TIME;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.spotlightspace.core.auth.dto.SaveTokenResponseDto;
-import com.spotlightspace.core.auth.dto.SignInUserRequestDto;
-import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
+import com.spotlightspace.core.auth.dto.request.SignInUserRequestDto;
+import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
+import com.spotlightspace.core.auth.dto.response.SaveTokenResponseDto;
 import com.spotlightspace.core.auth.service.AuthService;
 import com.spotlightspace.core.auth.service.KakaoService;
 import com.spotlightspace.core.auth.service.NaverService;
@@ -117,7 +117,19 @@ public class AuthController {
     @GetMapping("/auth/refresh")
     public ResponseEntity<Void> getAccessToken(
             HttpServletRequest httpServletRequest) throws UnsupportedEncodingException {
-        String accessToken = authService.getAccessToken(httpServletRequest);
+        String refreshToken = null;
+
+        //쿠키에서 리프레시 토큰을 가져오는 로직입니다
+        if (httpServletRequest.getCookies() != null) {
+            for (Cookie cookie : httpServletRequest.getCookies()) {
+                if ("RefreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        String accessToken = authService.getAccessToken(refreshToken);
         return ResponseEntity.ok()
                 .header(AUTHORIZATION, accessToken)
                 .build();
@@ -169,9 +181,11 @@ public class AuthController {
      * @throws JsonProcessingException
      */
     @GetMapping("/auth/naver/callback")
-    public ResponseEntity<Void> naverLogin(@RequestParam String code, @RequestParam String state,
-            HttpServletResponse response)
-            throws UnsupportedEncodingException, JsonProcessingException {
+    public ResponseEntity<Void> naverLogin(
+            @RequestParam String code,
+            @RequestParam String state,
+            HttpServletResponse response
+    ) throws UnsupportedEncodingException, JsonProcessingException {
 
         String token = naverService.naverLogin(code, state);
 
@@ -182,7 +196,6 @@ public class AuthController {
                 .header(AUTHORIZATION, token)
                 .build();
     }
-
 
     /**
      * 네이버에 로그인하기 위한 URL을 생성합니다.
@@ -198,10 +211,10 @@ public class AuthController {
         return ResponseEntity.ok(naverLoginUrl);
     }
 
-
     private void setAccessTokenCookie(
             HttpServletResponse response,
-            String accessToken) throws UnsupportedEncodingException {
+            String accessToken
+    ) throws UnsupportedEncodingException {
         String cookieValue = URLEncoder.encode(accessToken, "utf-8").replaceAll("\\+", "%20");
         Cookie cookie = new Cookie("AccessToken", cookieValue);
         cookie.setPath("/");
@@ -213,7 +226,8 @@ public class AuthController {
 
     private void setRefreshTokenCookie(
             HttpServletResponse response,
-            String accessToken) throws UnsupportedEncodingException {
+            String accessToken
+    ) throws UnsupportedEncodingException {
         String cookieValue = URLEncoder.encode(accessToken, "utf-8").replaceAll("\\+", "%20");
         Cookie cookie = new Cookie("RefreshToken", cookieValue);
         cookie.setPath("/");
