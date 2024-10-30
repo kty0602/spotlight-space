@@ -4,6 +4,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
+import com.spotlightspace.core.user.dto.response.GetCalculateResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.service.UserService;
@@ -124,6 +125,21 @@ public class UserController {
 
         userService.logout(authUser.getUserId(), accessToken);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 회원의 전체 정산금을 조회합니다.
+     *
+     * @param userId   유저 아이디를 파라미터로 입력받습니다
+     * @param authUser 현재 로그인중인 유저의 정보를 받습니다.
+     * @return
+     */
+    @GetMapping("/user/{userId}/all-calculation")
+    public ResponseEntity<GetCalculateResponseDto> getAllCalculate(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        return ResponseEntity.ok().body(userService.getAllCalculate(userId, authUser.getUserId()));
     }
 
     private String invalidateRefreshTokenAndGetAccessToken(

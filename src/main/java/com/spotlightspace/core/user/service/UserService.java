@@ -8,8 +8,10 @@ import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
+import com.spotlightspace.core.ticket.repository.TicketRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
+import com.spotlightspace.core.user.dto.response.GetCalculateResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.repository.UserRepository;
@@ -34,6 +36,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserCouponService userCouponService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final TicketRepository ticketRepository;
 
     public void updateUser(Long userId, AuthUser authUser, UpdateUserRequestDto updateUserRequestDto,
             MultipartFile file)
@@ -112,5 +115,17 @@ public class UserService {
         //액세스 토큰 레디스에 블랙리스트로 올리기
         redisTemplate.opsForValue()
                 .set(key, accessToken, TOKEN_ACCESS_TIME, TimeUnit.MILLISECONDS);
+    }
+
+    @Transactional(readOnly = true)
+    public GetCalculateResponseDto getAllCalculate(Long userId, Long currentUserId) {
+        userRepository.findByIdOrElseThrow(userId);
+
+        if (!userId.equals(currentUserId)) {
+            throw new ApplicationException(FORBIDDEN_USER);
+        }
+
+        int totalAmount = ticketRepository.findTotalAmountByUserId(userId);
+        return GetCalculateResponseDto.from(totalAmount);
     }
 }
