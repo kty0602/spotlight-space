@@ -2,9 +2,9 @@ package com.spotlightspace.core.point.service;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.core.point.domain.Point;
-import com.spotlightspace.core.point.dto.CreatePointRequestDto;
-import com.spotlightspace.core.point.dto.CreatePointResponseDto;
-import com.spotlightspace.core.point.dto.GetPointResponseDto;
+import com.spotlightspace.core.point.dto.request.CreatePointRequestDto;
+import com.spotlightspace.core.point.dto.response.CreatePointResponseDto;
+import com.spotlightspace.core.point.dto.response.GetPointResponseDto;
 import com.spotlightspace.core.point.repository.PointRepository;
 import com.spotlightspace.core.pointhistory.domain.PointHistory;
 import com.spotlightspace.core.pointhistory.repository.PointHistoryRepository;

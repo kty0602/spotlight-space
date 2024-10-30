@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
-import com.spotlightspace.core.event.dto.CreateEventRequestDto;
+import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
 import com.spotlightspace.core.user.domain.User;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;

@@ -12,7 +12,7 @@ import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.domain.Attachment;
-import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
+import com.spotlightspace.core.attachment.dto.response.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.repository.AttachmentRepository;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.repository.EventRepository;

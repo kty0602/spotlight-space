@@ -11,12 +11,12 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum EventCategory {
 
-    MUSIC(EventCategory.Authority.MUSIC),
-    CONCERT(EventCategory.Authority.CONCERT),
-    ART(EventCategory.Authority.ART),
-    MOVIE(EventCategory.Authority.MOVIE),
-    COMMUNITY(EventCategory.Authority.COMMUNITY),
-    WORKSHOP(EventCategory.Authority.WORKSHOP);
+    MUSIC("MUSIC"),
+    CONCERT("CONCERT"),
+    ART("ART"),
+    MOVIE("MOVIE"),
+    COMMUNITY("COMMUNITY"),
+    WORKSHOP("WORKSHOP");
 
 
 
@@ -28,14 +28,4 @@ public enum EventCategory {
                 .findFirst()
                 .orElseThrow(() -> new ApplicationException(ErrorCode.WRONG_CATEGORY_NAME));
     }
-
-    public static class Authority {
-        public static final String MUSIC = "MUSIC";
-        public static final String CONCERT = "CONCERT";
-        public static final String ART = "ART";
-        public static final String MOVIE = "MOVIE";
-        public static final String COMMUNITY = "COMMUNITY";
-        public static final String WORKSHOP = "WORKSHOP";
-    }
-
 }

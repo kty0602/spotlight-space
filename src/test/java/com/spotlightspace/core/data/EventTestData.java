@@ -1,8 +1,8 @@
 package com.spotlightspace.core.data;
 
 import com.spotlightspace.core.event.domain.EventCategory;
-import com.spotlightspace.core.event.dto.CreateEventRequestDto;
-import com.spotlightspace.core.event.dto.UpdateEventRequestDto;
+import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
+import com.spotlightspace.core.event.dto.request.UpdateEventRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.spotlightspace.core.event.domain.Event;

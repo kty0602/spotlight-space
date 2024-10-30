@@ -3,7 +3,7 @@ package com.spotlightspace.core.ticket.service;
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
-import com.spotlightspace.core.event.dto.CreateEventRequestDto;
+import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import com.spotlightspace.core.ticket.repository.TicketRepository;

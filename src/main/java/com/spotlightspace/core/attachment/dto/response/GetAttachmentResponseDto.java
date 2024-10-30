@@ -1,7 +1,6 @@
-package com.spotlightspace.core.attachment.dto;
+package com.spotlightspace.core.attachment.dto.response;
 
 import com.spotlightspace.core.attachment.domain.Attachment;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter

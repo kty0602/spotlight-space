@@ -2,8 +2,8 @@ package com.spotlightspace.core.attachment.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
-import com.spotlightspace.core.attachment.dto.AttachmentRequestDto;
-import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
+import com.spotlightspace.core.attachment.dto.request.AttachmentRequestDto;
+import com.spotlightspace.core.attachment.dto.response.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

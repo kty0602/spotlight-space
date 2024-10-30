@@ -2,10 +2,15 @@ package com.spotlightspace.core.event.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
-import com.spotlightspace.core.attachment.dto.GetAttachmentResponseDto;
+import com.spotlightspace.core.attachment.dto.response.GetAttachmentResponseDto;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.EventCategory;
-import com.spotlightspace.core.event.dto.*;
+import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
+import com.spotlightspace.core.event.dto.request.SearchEventRequestDto;
+import com.spotlightspace.core.event.dto.request.UpdateEventRequestDto;
+import com.spotlightspace.core.event.dto.response.CreateEventResponseDto;
+import com.spotlightspace.core.event.dto.response.GetEventResponseDto;
+import com.spotlightspace.core.event.dto.response.UpdateEventResponseDto;
 import com.spotlightspace.core.event.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
