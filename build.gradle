@@ -78,6 +78,12 @@ dependencies {
 
     //thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // slack
+    implementation("com.slack.api:bolt:1.44.1")
+    implementation("com.slack.api:bolt-servlet:1.44.1")
+    implementation("com.slack.api:bolt-jetty:1.44.1")
+    implementation("org.slf4j:slf4j-simple:1.7.36")
 }
 
 tasks.named('test') {
