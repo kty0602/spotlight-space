@@ -4,8 +4,8 @@ import static com.spotlightspace.core.user.domain.UserRole.ROLE_ARTIST;
 import static com.spotlightspace.core.user.domain.UserRole.ROLE_USER;
 
 import com.spotlightspace.common.annotation.AuthUser;
-import com.spotlightspace.core.auth.dto.SignInUserRequestDto;
-import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
+import com.spotlightspace.core.auth.dto.request.SignInUserRequestDto;
+import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
 import lombok.RequiredArgsConstructor;

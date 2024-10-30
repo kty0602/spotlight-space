@@ -1,4 +1,4 @@
-package com.spotlightspace.core.auth.dto;
+package com.spotlightspace.core.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

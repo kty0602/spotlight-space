@@ -1,4 +1,4 @@
-package com.spotlightspace.core.auth.dto;
+package com.spotlightspace.core.auth.dto.response;
 
 import lombok.Getter;
 

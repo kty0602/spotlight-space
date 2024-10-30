@@ -4,7 +4,7 @@ import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
 import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
+import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
 import com.spotlightspace.core.event.dto.CreateEventRequestDto;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spotlightspace.config.JwtUtil;
-import com.spotlightspace.core.auth.dto.NaverUserInfoDto;
+import com.spotlightspace.core.auth.dto.response.NaverUserInfoDto;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.repository.UserRepository;

@@ -1,6 +1,6 @@
 package com.spotlightspace.core.user.domain;
 
-import com.spotlightspace.core.auth.dto.SignUpUserRequestDto;
+import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
