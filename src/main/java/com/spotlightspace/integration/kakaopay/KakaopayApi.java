@@ -1,4 +1,4 @@
-package com.spotlightspace.core.payment.client;
+package com.spotlightspace.integration.kakaopay;
 
 import static com.spotlightspace.core.payment.constant.PaymentConstant.APPROVAL_URL;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.CANCEL_URL;
