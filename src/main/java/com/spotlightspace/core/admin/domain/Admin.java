@@ -1,14 +1,7 @@
 package com.spotlightspace.core.admin.domain;
 
 import com.spotlightspace.core.user.domain.UserRole;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,6 +26,7 @@ public class Admin {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private UserRole ADMIN;
+    private UserRole role;
 }
+
 

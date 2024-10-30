@@ -19,13 +19,13 @@ public class QAdmin extends EntityPathBase<Admin> {
 
     public static final QAdmin admin = new QAdmin("admin");
 
-    public final EnumPath<com.spotlightspace.core.user.domain.UserRole> ADMIN = createEnum("ADMIN", com.spotlightspace.core.user.domain.UserRole.class);
-
     public final StringPath email = createString("email");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final StringPath password = createString("password");
+
+    public final EnumPath<com.spotlightspace.core.user.domain.UserRole> role = createEnum("role", com.spotlightspace.core.user.domain.UserRole.class);
 
     public QAdmin(String variable) {
         super(Admin.class, forVariable(variable));
