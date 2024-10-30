@@ -40,4 +40,5 @@ public class AdminUserServiceTest {
         assertThat(users).isNotNull();
         assertThat(users.getContent().size()).isLessThanOrEqualTo(size);
     }
+
 }

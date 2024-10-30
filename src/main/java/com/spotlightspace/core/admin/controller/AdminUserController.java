@@ -4,6 +4,7 @@ import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import com.spotlightspace.core.admin.service.AdminUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/users")
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
 
-    @Autowired
-    public AdminUserController(AdminUserService adminUserService) {
-        this.adminUserService = adminUserService;
-    }
 
     /**
      *
