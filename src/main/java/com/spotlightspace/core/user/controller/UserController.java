@@ -4,6 +4,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
+import com.spotlightspace.core.user.dto.response.GetCalculateListResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCalculateResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
@@ -140,6 +141,21 @@ public class UserController {
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity.ok().body(userService.getAllCalculate(userId, authUser.getUserId()));
+    }
+
+    /**
+     * 각각의 이벤트에 해당하는 정산금을 조회합니다
+     *
+     * @param userId   유저아이디를 입력받습니다
+     * @param authUser 현재 로그인중인 유저입니다
+     * @return 회원의 정산금 리스트를 반환합니다.
+     */
+    @GetMapping("/user/{userId}/calculation")
+    public ResponseEntity<List<GetCalculateListResponseDto>> getCalculateList(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        return ResponseEntity.ok().body(userService.getCalculateList(userId, authUser.getUserId()));
     }
 
     private String invalidateRefreshTokenAndGetAccessToken(

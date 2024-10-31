@@ -11,6 +11,7 @@ import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.ticket.repository.TicketRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
+import com.spotlightspace.core.user.dto.response.GetCalculateListResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCalculateResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
@@ -85,6 +86,7 @@ public class UserService {
         user.delete();
     }
 
+    @Transactional(readOnly = true)
     public List<GetCouponResponseDto> getCoupons(Long userId, Long currentUserId) {
         User user = userRepository.findByIdOrElseThrow(userId);
 
@@ -94,6 +96,29 @@ public class UserService {
 
         return userCouponService.getUserCouponByUserId(userId);
     }
+
+    @Transactional(readOnly = true)
+    public GetCalculateResponseDto getAllCalculate(Long userId, Long currentUserId) {
+        userRepository.findByIdOrElseThrow(userId);
+
+        if (!userId.equals(currentUserId)) {
+            throw new ApplicationException(FORBIDDEN_USER);
+        }
+
+        int totalAmount = ticketRepository.findTotalAmountByUserId(userId);
+        return GetCalculateResponseDto.from(totalAmount);
+    }
+
+    public List<GetCalculateListResponseDto> getCalculateList(Long userId, Long currentUserId) {
+        userRepository.findByIdOrElseThrow(userId);
+
+        if (!userId.equals(currentUserId)) {
+            throw new ApplicationException(FORBIDDEN_USER);
+        }
+
+        return ticketRepository.findTotalAmountGroupedByEvent(userId);
+    }
+
 
     //재발급 방지를 위해 redis의 리프레시 토큰 삭제
     // 액세스 토큰 레디스에올리기
@@ -117,15 +142,4 @@ public class UserService {
                 .set(key, accessToken, TOKEN_ACCESS_TIME, TimeUnit.MILLISECONDS);
     }
 
-    @Transactional(readOnly = true)
-    public GetCalculateResponseDto getAllCalculate(Long userId, Long currentUserId) {
-        userRepository.findByIdOrElseThrow(userId);
-
-        if (!userId.equals(currentUserId)) {
-            throw new ApplicationException(FORBIDDEN_USER);
-        }
-
-        int totalAmount = ticketRepository.findTotalAmountByUserId(userId);
-        return GetCalculateResponseDto.from(totalAmount);
-    }
 }
