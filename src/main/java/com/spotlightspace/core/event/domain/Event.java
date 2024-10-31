@@ -67,6 +67,9 @@ public class Event extends Timestamped {
     @Column
     private Boolean isDeleted = false;
 
+    @Column
+    private boolean isCalculated = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -128,6 +131,7 @@ public class Event extends Timestamped {
     public void changeRecruitmentFinishAt(LocalDateTime recruitmentFinishAt) {
         this.recruitmentFinishAt = recruitmentFinishAt;
     }
+
     public void deleteEvent() {
         this.isDeleted = true;
     }
