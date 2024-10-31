@@ -1,7 +1,7 @@
 package com.spotlightspace.core.admin.controller;
 
-import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.common.exception.ApplicationException;
+import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import com.spotlightspace.core.admin.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.spotlightspace.common.exception.ErrorCode.NO_RESULTS_FOUND;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/users")
@@ -21,12 +23,11 @@ public class AdminUserController {
 
 
     /**
-     *
-     * @param page       조회할 페이지 번호 (1부터 시작)
-     * @param size       페이지 당 항목 수
-     * @param keyword    검색 키워드 (선택적)
-     * @param sortField  결과를 정렬할 필드명
-     * @param sortOrder  정렬 순서 (오름차순 또는 내림차순)
+     * @param page      조회할 페이지 번호 (1부터 시작)
+     * @param size      페이지 당 항목 수
+     * @param keyword   검색 키워드 (선택적)
+     * @param sortField 결과를 정렬할 필드명
+     * @param sortOrder 정렬 순서 (오름차순 또는 내림차순)
      * @return {@link AdminUserResponseDto}의 페이지 형태로 검색 결과 반환
      */
     @GetMapping("/search")
@@ -39,7 +40,7 @@ public class AdminUserController {
     ) {
         Page<AdminUserResponseDto> users = adminUserService.getAdminUsers(page, size, keyword, sortField, sortOrder);
         if (users.isEmpty()) {
-            throw new ApplicationException(ErrorCode.NO_RESULTS_FOUND);
+            throw new ApplicationException(NO_RESULTS_FOUND);
         }
         return ResponseEntity.ok(users);
     }

@@ -4,7 +4,6 @@ package com.spotlightspace.core.admin.repository;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.Wildcard;
@@ -36,28 +35,33 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
     public Page<AdminUserResponseDto> getAdminUsers(String keyword, Pageable pageable) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
         pageable.getSort().forEach(order -> {
-            PathBuilder<Object> pathBuilder = new PathBuilder<>(user.getType(), user.getMetadata());
-            orderSpecifiers.add(new OrderSpecifier(order.isAscending() ? Order.ASC : Order.DESC, pathBuilder.get(order.getProperty())));
+            PathBuilder<?> entityPath = new PathBuilder<>(user.getType(), user.getMetadata());
+            orderSpecifiers.add(new OrderSpecifier(
+                    order.isAscending() ? Order.ASC : Order.DESC,
+                    entityPath.get(order.getProperty())
+            ));
         });
 
-        List<AdminUserResponseDto> results = queryFactory
-                .select(
-                        Projections.constructor(
-                                AdminUserResponseDto.class,
-                                user.id,
-                                user.email,
-                                user.nickname,
-                                user.phoneNumber,
-                                user.role.stringValue(),
-                                user.isDeleted
-                        )
-                )
+        // 쿼리 실행 및 페이징 적용
+        List<Tuple> tuples = queryFactory
+                .select(user.id, user.email, user.nickname, user.phoneNumber, user.role.stringValue(), user.isDeleted)
                 .from(user)
                 .where(keywordContainsForUser(keyword))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0])) // 정렬 적용
+                .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
                 .fetch();
+
+        // Tuple 데이터를 DTO로 매핑
+        List<AdminUserResponseDto> results = tuples.stream()
+                .map(tuple -> AdminUserResponseDto.of(
+                        tuple.get(user.id),
+                        tuple.get(user.email),
+                        tuple.get(user.nickname),
+                        tuple.get(user.phoneNumber),
+                        tuple.get(user.role.stringValue()),
+                        tuple.get(user.isDeleted)))
+                .collect(Collectors.toList());
 
         long totalCount = queryFactory
                 .select(Wildcard.count)
@@ -112,7 +116,7 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
         long totalCount = queryFactory
                 .select(Wildcard.count)
                 .from(event)
-                .where(keywordContainsForEvent(keyword)) // 검색어 조건 추가
+                .where(keywordContainsForEvent(keyword))
                 .fetchOne();
 
         return new PageImpl<>(results, pageable, totalCount);

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.spotlightspace.common.exception.ErrorCode.NO_RESULTS_FOUND;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -42,7 +44,7 @@ public class AdminEventController {
             @RequestParam(defaultValue = "asc") String sortOrder) {
         Page<AdminEventResponseDto> events = adminEventService.getAdminEvents(page, size, keyword, sortField, sortOrder);
         if (events.isEmpty()) {
-            throw new ApplicationException(ErrorCode.NO_RESULTS_FOUND);
+            throw new ApplicationException(NO_RESULTS_FOUND);
         }
         return ResponseEntity.ok(events);
     }

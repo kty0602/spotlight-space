@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AdminUserResponseDto {
     private Long id;
     private String email;
@@ -28,5 +28,10 @@ public class AdminUserResponseDto {
                 user.getRole().name(),
                 user.isDeleted()
         );
+    }
+
+    // Tuple 데이터를 활용하는 정적 팩토리 메서드
+    public static AdminUserResponseDto of(Long id, String email, String nickname, String phoneNumber, String role, Boolean isDeleted) {
+        return new AdminUserResponseDto(id, email, nickname, phoneNumber, role, isDeleted);
     }
 }
