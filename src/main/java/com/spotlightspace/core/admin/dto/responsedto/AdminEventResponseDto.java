@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AdminEventResponseDto {
     private Long id;
     private String title;
@@ -40,7 +40,14 @@ public class AdminEventResponseDto {
                 event.getCategory().name(),
                 event.getRecruitmentStartAt(),
                 event.getRecruitmentFinishAt(),
-                event.getIsDeleted()
+                event.isDeleted()
         );
+    }
+    public static AdminEventResponseDto from(Long id, String title, String content, String location, LocalDateTime startAt,
+                                             LocalDateTime endAt, int maxPeople, int price, String category,
+                                             LocalDateTime recruitmentStartAt, LocalDateTime recruitmentFinishAt,
+                                             Boolean isDeleted) {
+        return new AdminEventResponseDto(id, title, content, location, startAt, endAt, maxPeople, price, category,
+                recruitmentStartAt, recruitmentFinishAt, isDeleted);
     }
 }

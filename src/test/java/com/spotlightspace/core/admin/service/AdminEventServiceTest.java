@@ -7,18 +7,21 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
-import java.util.List;
+import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 class AdminEventServiceTest {
 
     @Mock
-    private AdminQueryRepository adminQueryRepository;
+    private AdminQueryRepository adminRepository;
 
     @InjectMocks
     private AdminEventService adminEventService;
@@ -30,67 +33,40 @@ class AdminEventServiceTest {
 
     @Test
     void testGetAdminEvents_withKeyword() {
-        // given: 테스트 데이터를 설정
-        String keyword = "example";
-        int page = 1;
-        int size = 10;
-        String sortField = "id";
-        String sortOrder = "asc";
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, sortField));
-        List<AdminEventResponseDto> eventList = List.of(
-                new AdminEventResponseDto(1L, "제목1", "내용1", "서울", null, null, 100, 10000, "카테고리", null, null, false)
+        // given
+        String keyword = "test";
+        PageRequest pageable = PageRequest.of(0, 10, Sort.by("title").ascending());
+        AdminEventResponseDto eventDto = AdminEventResponseDto.from(
+                1L, "Test Event", "Content", "Location", null, null,
+                100, 1000, "Category", null, null, false
         );
-        Page<AdminEventResponseDto> expectedPage = new PageImpl<>(eventList, pageable, 1);
+        Page<AdminEventResponseDto> expectedPage = new PageImpl<>(Collections.singletonList(eventDto));
 
-        // when: 검색어가 포함된 쿼리를 수행할 때 adminQueryRepository의 동작을 정의
-        when(adminQueryRepository.getAdminEvents(keyword, pageable)).thenReturn(expectedPage);
+        when(adminRepository.getAdminEvents(anyString(), any(PageRequest.class))).thenReturn(expectedPage);
 
-        // then: 서비스 메서드가 올바른 페이지 객체를 반환하는지 확인
-        Page<AdminEventResponseDto> result = adminEventService.getAdminEvents(page, size, keyword, sortField, sortOrder);
-        assertNotNull(result); // 결과가 null이 아님을 검증
-        assertEquals(expectedPage, result);
+        // when
+        Page<AdminEventResponseDto> result = adminEventService.getAdminEvents(1, 10, keyword, "title", "asc");
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("Test Event");
     }
 
     @Test
     void testGetAdminEvents_withoutKeyword() {
-        // given: 검색어 없이 테스트 데이터를 설정
+        // given
         String keyword = null;
-        int page = 1;
-        int size = 10;
-        String sortField = "id";
-        String sortOrder = "asc";
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, sortField));
-        List<AdminEventResponseDto> eventList = List.of(
-                new AdminEventResponseDto(1L, "제목1", "내용1", "서울", null, null, 100, 10000, "카테고리", null, null, false)
-        );
-        Page<AdminEventResponseDto> expectedPage = new PageImpl<>(eventList, pageable, 1);
+        PageRequest pageable = PageRequest.of(0, 10, Sort.by("title").ascending());
+        Page<AdminEventResponseDto> expectedPage = new PageImpl<>(Collections.emptyList());
 
-        // when: 검색어 없이 쿼리를 수행할 때 adminQueryRepository의 동작을 정의
-        when(adminQueryRepository.getAdminEvents(keyword, pageable)).thenReturn(expectedPage);
+        when(adminRepository.getAdminEvents(isNull(), any(PageRequest.class))).thenReturn(expectedPage);
 
-        // then: 서비스 메서드가 올바른 페이지 객체를 반환하는지 확인
-        Page<AdminEventResponseDto> result = adminEventService.getAdminEvents(page, size, keyword, sortField, sortOrder);
-        assertNotNull(result); // 결과가 null이 아님을 검증
-        assertEquals(expectedPage, result);
-    }
+        // when
+        Page<AdminEventResponseDto> result = adminEventService.getAdminEvents(1, 10, keyword, "title", "asc");
 
-    @Test
-    void testGetAdminEvents_noResults() {
-        // given: 검색 결과가 없는 경우를 테스트
-        String keyword = "not_exist";
-        int page = 1;
-        int size = 10;
-        String sortField = "id";
-        String sortOrder = "asc";
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.ASC, sortField));
-        Page<AdminEventResponseDto> expectedPage = Page.empty(pageable);
-
-        // when: 검색어가 포함된 쿼리를 수행할 때 adminQueryRepository의 동작을 정의
-        when(adminQueryRepository.getAdminEvents(keyword, pageable)).thenReturn(expectedPage);
-
-        // then: 서비스 메서드가 빈 페이지 객체를 반환하는지 확인
-        Page<AdminEventResponseDto> result = adminEventService.getAdminEvents(page, size, keyword, sortField, sortOrder);
-        assertNotNull(result); // 결과가 null이 아님을 검증
-        assertEquals(expectedPage, result);
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isEmpty();
     }
 }

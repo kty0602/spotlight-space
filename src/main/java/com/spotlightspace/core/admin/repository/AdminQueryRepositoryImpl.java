@@ -1,6 +1,7 @@
 package com.spotlightspace.core.admin.repository;
 
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.spotlightspace.core.event.domain.QEvent.event;
 import static com.spotlightspace.core.user.domain.QUser.user;
@@ -69,35 +71,41 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
         // 정렬을 위한 OrderSpecifier 목록 생성
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
         pageable.getSort().forEach(order -> {
-            PathBuilder<Object> pathBuilder = new PathBuilder<>(event.getType(), event.getMetadata());
-            orderSpecifiers.add(new OrderSpecifier(order.isAscending() ? Order.ASC : Order.DESC, pathBuilder.get(order.getProperty())));
+            PathBuilder<?> entityPath = new PathBuilder<>(event.getType(), event.getMetadata());
+            orderSpecifiers.add(new OrderSpecifier(
+                    order.isAscending() ? Order.ASC : Order.DESC,
+                    entityPath.get(order.getProperty())
+            ));
         });
 
         // 쿼리 실행 및 페이징 적용
-        List<AdminEventResponseDto> results = queryFactory
-                .select(
-                        Projections.constructor(
-                                AdminEventResponseDto.class,
-                                event.id,
-                                event.title,
-                                event.content,
-                                event.location,
-                                event.startAt,
-                                event.endAt,
-                                event.maxPeople,
-                                event.price,
-                                event.category.stringValue(),
-                                event.recruitmentStartAt,
-                                event.recruitmentFinishAt,
-                                event.isDeleted
-                        )
-                )
+        List<Tuple> tuples = queryFactory
+                .select(event.id, event.title, event.content, event.location, event.startAt, event.endAt,
+                        event.maxPeople, event.price, event.category.stringValue(), event.recruitmentStartAt,
+                        event.recruitmentFinishAt, event.isDeleted)
                 .from(event)
                 .where(keywordContainsForEvent(keyword)) // 검색어 조건 추가
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0])) // 정렬 조건 적용
                 .fetch();
+
+        // Tuple 데이터를 DTO로 매핑
+        List<AdminEventResponseDto> results = tuples.stream()
+                .map(tuple -> AdminEventResponseDto.from(
+                        tuple.get(event.id),
+                        tuple.get(event.title),
+                        tuple.get(event.content),
+                        tuple.get(event.location),
+                        tuple.get(event.startAt),
+                        tuple.get(event.endAt),
+                        tuple.get(event.maxPeople),
+                        tuple.get(event.price),
+                        tuple.get(event.category.stringValue()),
+                        tuple.get(event.recruitmentStartAt),
+                        tuple.get(event.recruitmentFinishAt),
+                        tuple.get(event.isDeleted)))
+                .collect(Collectors.toList());
 
         long totalCount = queryFactory
                 .select(Wildcard.count)
@@ -107,7 +115,6 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
 
         return new PageImpl<>(results, pageable, totalCount);
     }
-
 
     // 유저 검색용 키워드 조건 추가 메서드
     private BooleanExpression keywordContainsForUser(String keyword) {
