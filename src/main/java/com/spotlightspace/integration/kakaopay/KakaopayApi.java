@@ -13,6 +13,7 @@ import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,9 +21,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
+@RequiredArgsConstructor
 public class KakaopayApi {
 
     private static final String SECRET_KEY_PREFIX = "SECRET_KEY ";
+
+    private final RestTemplate restTemplate;
 
     @Value("${payment.kakao.secret.key}")
     private String secretKey;
@@ -44,7 +48,6 @@ public class KakaopayApi {
                 totalPrice
         );
 
-        RestTemplate restTemplate = new RestTemplate();
         ReadyPaymentResponseDto responseDto = restTemplate.postForObject(
                 PAYMENT_READY_URL,
                 new HttpEntity<>(parameters, getHeaders()),
@@ -57,8 +60,7 @@ public class KakaopayApi {
     public ApprovePaymentResponseDto approvePayment(String pgToken, Payment payment) {
         Map<String, String> parameters = getParametersForApprovePayment(pgToken, payment);
 
-        RestTemplate template = new RestTemplate();
-        ApprovePaymentResponseDto responseDto = template.postForObject(
+        ApprovePaymentResponseDto responseDto = restTemplate.postForObject(
                 PAYMENT_APPROVE_URL,
                 new HttpEntity<>(parameters, getHeaders()),
                 ApprovePaymentResponseDto.class
@@ -70,8 +72,7 @@ public class KakaopayApi {
     public CancelPaymentResponseDto cancelPayment(String cid, String tid, int cancelAmount, int cancelTaxFreeAmount) {
         Map<String, String> parameters = getParametersForCancelPayment(cid, tid, cancelAmount, cancelTaxFreeAmount);
 
-        RestTemplate template = new RestTemplate();
-        CancelPaymentResponseDto responseDto = template.postForObject(
+        CancelPaymentResponseDto responseDto = restTemplate.postForObject(
                 PAYMENT_CANCEL_URL,
                 new HttpEntity<>(parameters, getHeaders()),
                 CancelPaymentResponseDto.class);
