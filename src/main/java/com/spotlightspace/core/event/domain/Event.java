@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Entity
 @Table(name = "events",
@@ -60,7 +60,7 @@ public class Event extends Timestamped {
     private LocalDateTime recruitmentFinishAt;
 
     @Column
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
     @Column
     private boolean isCalculated = false;

@@ -84,7 +84,7 @@ class TicketServiceTest {
     }
 
     private Event createEvent(User artist) {
-        CreateEventRequestDto createEventRequestDto = new CreateEventRequestDto(
+        CreateEventRequestDto createEventRequestDto = CreateEventRequestDto.of(
                 "title",
                 "content",
                 "서울",

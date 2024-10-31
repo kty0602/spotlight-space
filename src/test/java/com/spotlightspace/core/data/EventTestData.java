@@ -16,7 +16,7 @@ import static com.spotlightspace.core.data.UserTestData.testArtist;
 public class EventTestData {
 
     public static CreateEventRequestDto createDefaultEventRequestDto() {
-        return new CreateEventRequestDto(
+        return CreateEventRequestDto.of(
                 "test1",
                 "test1",
                 "서울",
@@ -31,7 +31,7 @@ public class EventTestData {
     }
 
     public static CreateEventRequestDto createDefaultEventRequestDto2() {
-        return new CreateEventRequestDto(
+        return CreateEventRequestDto.of(
                 "test2",
                 "test2",
                 "제주",
@@ -46,7 +46,7 @@ public class EventTestData {
     }
 
     public static UpdateEventRequestDto updateDefaultEventRequestDto() {
-        return new UpdateEventRequestDto(
+        return UpdateEventRequestDto.of(
                 "수정 test1",
                 "수정 test1",
                 "울산",

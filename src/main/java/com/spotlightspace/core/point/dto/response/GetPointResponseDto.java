@@ -1,11 +1,12 @@
 package com.spotlightspace.core.point.dto.response;
 
 import com.spotlightspace.core.point.domain.Point;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GetPointResponseDto {
 
     private Long id;

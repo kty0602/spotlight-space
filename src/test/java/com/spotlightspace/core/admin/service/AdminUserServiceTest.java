@@ -27,14 +27,13 @@ public class AdminUserServiceTest {
     @Test
     public void testGetAdminUsers() {
         // given
-        String keyword = null;
         int page = 1;
         int size = 10;
         String sortField = "id";
         String sortOrder = "asc";
 
         // when
-        Page<AdminUserResponseDto> users = adminUserService.getAdminUsers(page, size, keyword, sortField, sortOrder);
+        Page<AdminUserResponseDto> users = adminUserService.getAdminUsers(page, size, null, sortField, sortOrder);
 
         // then
         assertThat(users).isNotNull();

@@ -2,7 +2,6 @@ package com.spotlightspace.core.event.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spotlightspace.core.event.domain.QEvent;
 import com.spotlightspace.core.event.dto.response.GetEventResponseDto;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -68,25 +68,15 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
         }
 
         List<GetEventResponseDto> results = jpaQueryFactory
-                .select(Projections.constructor(GetEventResponseDto.class,
-                        event.id,
-                        event.title,
-                        event.content,
-                        event.location,
-                        event.startAt,
-                        event.endAt,
-                        event.maxPeople,
-                        event.price,
-                        event.category,
-                        event.recruitmentStartAt,
-                        event.recruitmentFinishAt
-                        ))
-                .from(event)
+                .selectFrom(event)
                 .where(builder)
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
+                .fetch()
+                .stream()
+                .map(GetEventResponseDto::from)
+                .collect(Collectors.toList());
 
         long total = jpaQueryFactory
                 .select(event.count())

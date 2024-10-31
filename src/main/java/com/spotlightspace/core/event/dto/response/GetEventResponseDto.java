@@ -2,13 +2,14 @@ package com.spotlightspace.core.event.dto.response;
 
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GetEventResponseDto {
     private Long id;
     private String title;
