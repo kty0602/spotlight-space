@@ -1,13 +1,13 @@
 package com.spotlightspace.core.event.dto.request;
 
 import com.spotlightspace.core.event.domain.EventCategory;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor // 테스트 하기 위함
 public class SearchEventRequestDto {
     private String title;
     private Integer maxPeople;

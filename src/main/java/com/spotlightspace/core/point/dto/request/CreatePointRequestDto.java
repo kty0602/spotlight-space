@@ -6,8 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreatePointRequestDto {
     private int price;
+
+    private CreatePointRequestDto(int price) {
+        this.price = price;
+    }
+
+    public static CreatePointRequestDto of(int price) {
+        return new CreatePointRequestDto(price);
+    }
 }

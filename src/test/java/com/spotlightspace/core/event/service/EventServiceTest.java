@@ -255,7 +255,9 @@ public class EventServiceTest {
             Event event2 = testEvent2();
             List<Event> events = List.of(event1, event2);
 
-            SearchEventRequestDto searchRequest = new SearchEventRequestDto();
+            SearchEventRequestDto searchRequest =
+                    SearchEventRequestDto
+                            .of("", null, "", null, null, null);
             String type = "";
             int page = 1;
             int size = 10;
@@ -303,7 +305,7 @@ public class EventServiceTest {
 
             // then
             verify(eventRepository, times(1)).findByIdOrElseThrow(event.getId());
-            assertTrue(event.getIsDeleted());
+            assertTrue(event.isDeleted());
         }
     }
 

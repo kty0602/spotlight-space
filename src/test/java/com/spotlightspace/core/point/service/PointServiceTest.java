@@ -42,7 +42,7 @@ public class PointServiceTest {
         // given
         AuthUser authUser = testAuthUser();
         User user = testUser();
-        CreatePointRequestDto requestDto = new CreatePointRequestDto(10000);
+        CreatePointRequestDto requestDto = CreatePointRequestDto.of(10000);
         int amount = (int) (requestDto.getPrice() * 0.005);
 
         Point point = Point.of(amount, user);
@@ -72,7 +72,7 @@ public class PointServiceTest {
 
         existingPoint.addPoint(addedPoint);
 
-        CreatePointRequestDto requestDto = new CreatePointRequestDto(addedPoint);
+        CreatePointRequestDto requestDto = CreatePointRequestDto.of(addedPoint);
 
         given(userRepository.findByIdOrElseThrow(authUser.getUserId())).willReturn(user);
         given(pointRepository.findByUser(user)).willReturn(Optional.of(existingPoint));

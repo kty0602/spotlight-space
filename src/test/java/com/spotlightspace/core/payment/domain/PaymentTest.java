@@ -57,7 +57,7 @@ class PaymentTest {
     }
 
     private Event createEvent(User user) {
-        CreateEventRequestDto createEventRequestDto = new CreateEventRequestDto(
+        CreateEventRequestDto createEventRequestDto = CreateEventRequestDto.of(
                 "title",
                 "content",
                 "서울",
