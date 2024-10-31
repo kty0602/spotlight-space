@@ -10,6 +10,7 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spotlightspace.core.admin.dto.responsedto.AdminEventResponseDto;
+import com.spotlightspace.core.admin.dto.responsedto.AdminReviewResponseDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.spotlightspace.core.event.domain.QEvent.event;
+import static com.spotlightspace.core.review.domain.QReview.review;
 import static com.spotlightspace.core.user.domain.QUser.user;
 
 @Repository
@@ -116,6 +118,50 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
         return new PageImpl<>(results, pageable, totalCount);
     }
 
+
+    @Override
+    public Page<AdminReviewResponseDto> getAdminReviews(String keyword, Pageable pageable) {
+        // 정렬을 위한 OrderSpecifier 목록 생성
+        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+        pageable.getSort().forEach(order -> {
+            PathBuilder<?> entityPath = new PathBuilder<>(review.getType(), review.getMetadata());
+            orderSpecifiers.add(new OrderSpecifier(
+                    order.isAscending() ? Order.ASC : Order.DESC,
+                    entityPath.get(order.getProperty())
+            ));
+        });
+
+        // 쿼리 실행 및 페이징 적용
+        List<Tuple> tuples = queryFactory
+                .select(review.id, review.event.title, review.user.nickname, review.contents, review.rating, review.isDeleted)
+                .from(review)
+                .where(keywordContainsForReview(keyword)) // 검색어 조건 추가
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0])) // 정렬 조건 적용
+                .fetch();
+
+        // Tuple 데이터를 DTO로 매핑
+        List<AdminReviewResponseDto> results = tuples.stream()
+                .map(tuple -> AdminReviewResponseDto.of(
+                        tuple.get(review.id),
+                        tuple.get(review.event.title),
+                        tuple.get(review.user.nickname),
+                        tuple.get(review.contents),
+                        tuple.get(review.rating),
+                        tuple.get(review.isDeleted)))
+                .collect(Collectors.toList());
+
+        long totalCount = queryFactory
+                .select(Wildcard.count)
+                .from(review)
+                .where(keywordContainsForReview(keyword)) // 검색어 조건 추가
+                .fetchOne();
+
+        return new PageImpl<>(results, pageable, totalCount);
+    }
+
+
     // 유저 검색용 키워드 조건 추가 메서드
     private BooleanExpression keywordContainsForUser(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
@@ -136,4 +182,15 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
                 .or(event.content.startsWith(keyword))
                 .or(event.location.startsWith(keyword));
     }
+
+    // 리뷰 검색용 키워드 조건 추가 메서드
+    private BooleanExpression keywordContainsForReview(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return null;
+        }
+        return review.contents.startsWith(keyword)
+                .or(review.user.nickname.startsWith(keyword));
+    }
+
 }
+
