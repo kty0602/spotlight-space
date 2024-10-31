@@ -2,7 +2,6 @@ package com.spotlightspace.core.admin.controller;
 
 
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.admin.dto.responsedto.AdminEventResponseDto;
 import com.spotlightspace.core.admin.service.AdminEventService;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,8 @@ public class AdminEventController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "id") String sortField,
-            @RequestParam(defaultValue = "asc") String sortOrder) {
+            @RequestParam(defaultValue = "asc") String sortOrder
+    ) {
         Page<AdminEventResponseDto> events = adminEventService.getAdminEvents(page, size, keyword, sortField, sortOrder);
         if (events.isEmpty()) {
             throw new ApplicationException(NO_RESULTS_FOUND);

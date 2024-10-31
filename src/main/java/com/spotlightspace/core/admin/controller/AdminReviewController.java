@@ -38,8 +38,8 @@ public class AdminReviewController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "id") String sortField,
-            @RequestParam(defaultValue = "asc") String sortOrder) {
-
+            @RequestParam(defaultValue = "asc") String sortOrder
+    ) {
         Page<AdminReviewResponseDto> reviews = adminReviewService.getAdminReviews(page, size, keyword, sortField, sortOrder);
         if (reviews.isEmpty()) {
             throw new ApplicationException(NO_RESULTS_FOUND);
