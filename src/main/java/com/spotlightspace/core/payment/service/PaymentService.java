@@ -62,7 +62,8 @@ public class PaymentService {
     public ReadyPaymentResponseDto readyPayment(long userId, long eventId, Long couponId, Integer pointAmount) {
         User user = userRepository.findByIdOrElseThrow(userId);
         Event event = eventRepository.findByIdOrElseThrow(eventId);
-        EventTicketStock eventTicketStock = eventTicketStockRepository.findByEventOrElseThrow(event);
+        EventTicketStock eventTicketStock = eventTicketStockRepository
+                .findByEventIdWithPessimisticLockOrElseThrow(event.getId());
 
         validateRecruitmentPeriod(event);
         validateEventTicketStock(eventTicketStock);
