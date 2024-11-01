@@ -13,6 +13,7 @@ import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
 import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.payment.domain.Payment;
+import com.spotlightspace.core.payment.domain.PaymentStatus;
 import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
@@ -135,6 +136,12 @@ public class PaymentService {
         eventTicketStock.increaseStock();
 
         return kakaopayApi.cancelPayment(cid, tid, cancelAmount, cancelTaxFreeAmount);
+    }
+
+    public void cancelPayments(Event event) {
+        paymentRepository.findPaymentsByEventAndStatus(event, PaymentStatus.APPROVED).forEach(payment ->
+                cancelPayment(payment.getTid(), payment.getDiscountedAmount(), 0)
+        );
     }
 
     private void retryOperation(Runnable operation, String operationDescription, String tid) {
