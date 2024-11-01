@@ -2,16 +2,12 @@ package com.spotlightspace.core.admin.controller;
 
 
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.admin.dto.responsedto.AdminReviewResponseDto;
 import com.spotlightspace.core.admin.service.AdminReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.spotlightspace.common.exception.ErrorCode.NO_RESULTS_FOUND;
 
@@ -46,4 +42,11 @@ public class AdminReviewController {
         }
         return ResponseEntity.ok(reviews);
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
+        adminReviewService.deleteReview(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.spotlightspace.core.admin.service;
 
+import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import com.spotlightspace.core.admin.repository.AdminQueryRepository;
+import com.spotlightspace.core.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,14 +12,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+
 public class AdminUserService {
 
     private final AdminQueryRepository adminRepository;
 
+    @Transactional(readOnly = true)
     public Page<AdminUserResponseDto> getAdminUsers(int page, int size, String keyword, String sortField, String sortOrder) {
         Sort sort = Sort.by(sortField);
         if ("desc".equalsIgnoreCase(sortOrder)) {
@@ -29,4 +34,12 @@ public class AdminUserService {
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, sort);
         return adminRepository.getAdminUsers(keyword, pageable);
     }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = adminRepository.findUserById(id)
+                .orElseThrow(() -> new ApplicationException(USER_NOT_FOUND));
+        user.delete();
+    }
+
 }

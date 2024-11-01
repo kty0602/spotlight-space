@@ -20,4 +20,5 @@ public class AdminReviewResponseDto {
     public static AdminReviewResponseDto of(Long id, String eventTitle, String userNickname, String contents, Integer rating, Boolean isDeleted) {
         return new AdminReviewResponseDto(id, eventTitle, userNickname, contents, rating, isDeleted);
     }
+
 }

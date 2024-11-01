@@ -11,6 +11,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.spotlightspace.core.admin.dto.responsedto.AdminEventResponseDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminReviewResponseDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
+import com.spotlightspace.core.event.domain.Event;
+import com.spotlightspace.core.event.domain.QEvent;
+import com.spotlightspace.core.review.domain.QReview;
+import com.spotlightspace.core.review.domain.Review;
+import com.spotlightspace.core.user.domain.QUser;
+import com.spotlightspace.core.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,6 +25,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.spotlightspace.core.event.domain.QEvent.event;
@@ -194,6 +201,33 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
         }
         return review.contents.startsWith(keyword)
                 .or(review.user.nickname.startsWith(keyword));
+    }
+
+    @Override
+    public Optional<User> findUserById(Long id) {
+        User user = queryFactory
+                .selectFrom(QUser.user)
+                .where(QUser.user.id.eq(id))
+                .fetchOne();
+        return Optional.ofNullable(user);
+    }
+
+    @Override
+    public Optional<Event> findEventById(Long id) {
+        Event event = queryFactory
+                .selectFrom(QEvent.event)
+                .where(QEvent.event.id.eq(id))
+                .fetchOne();
+        return Optional.ofNullable(event);
+    }
+
+    @Override
+    public Optional<Review> findReviewById(Long id) {
+        Review review = queryFactory
+                .selectFrom(QReview.review)
+                .where(QReview.review.id.eq(id))
+                .fetchOne();
+        return Optional.ofNullable(review);
     }
 
 }

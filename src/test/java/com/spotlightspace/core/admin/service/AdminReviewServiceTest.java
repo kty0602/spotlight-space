@@ -1,8 +1,10 @@
 package com.spotlightspace.core.admin.service;
 
 
+import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.responsedto.AdminReviewResponseDto;
 import com.spotlightspace.core.admin.repository.AdminQueryRepository;
+import com.spotlightspace.core.review.domain.Review;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,10 +16,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
+import java.util.Optional;
 
+import static com.spotlightspace.common.exception.ErrorCode.REVIEW_NOT_FOUND;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class AdminReviewServiceTest {
 
@@ -69,4 +74,31 @@ class AdminReviewServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
     }
+
+
+
+    @Test
+    void testDeleteReview_Success() {
+        // given
+        Review review = mock(Review.class);
+        when(adminRepository.findReviewById(anyLong())).thenReturn(Optional.of(review));
+
+        // when
+        adminReviewService.deleteReview(1L);
+
+        // then
+        verify(review, times(1)).changeIsDeleted();
+    }
+
+    @Test
+    void testDeleteReview_ReviewNotFound() {
+        // given
+        when(adminRepository.findReviewById(anyLong())).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> adminReviewService.deleteReview(1L))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(REVIEW_NOT_FOUND.getMessage());
+    }
+
 }

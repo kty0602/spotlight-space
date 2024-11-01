@@ -1,7 +1,9 @@
 package com.spotlightspace.core.admin.service;
 
+import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import com.spotlightspace.core.admin.repository.AdminQueryRepository;
+import com.spotlightspace.core.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,10 +15,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
+import java.util.Optional;
 
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class AdminUserServiceTest {
 
@@ -65,5 +70,30 @@ class AdminUserServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
+    }
+
+    @Test
+    void testDeleteUser_Success() {
+        // given
+        User user = mock(User.class);
+        when(adminRepository.findUserById(anyLong())).thenReturn(Optional.of(user));
+
+        // when
+        adminUserService.deleteUser(1L);
+
+        // then
+        verify(user, times(1)).delete();
+    }
+
+
+    @Test
+    void testDeleteUser_UserNotFound() {
+        // given
+        when(adminRepository.findUserById(anyLong())).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> adminUserService.deleteUser(1L))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(USER_NOT_FOUND.getMessage());
     }
 }

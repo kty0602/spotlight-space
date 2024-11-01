@@ -1,7 +1,9 @@
 package com.spotlightspace.core.admin.service;
 
+import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.responsedto.AdminEventResponseDto;
 import com.spotlightspace.core.admin.repository.AdminQueryRepository;
+import com.spotlightspace.core.event.domain.Event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,10 +15,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
+import java.util.Optional;
 
+import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class AdminEventServiceTest {
 
@@ -69,4 +74,29 @@ class AdminEventServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
     }
+
+    @Test
+    void testDeleteEvent_Success() {
+        // given
+        Event event = mock(Event.class);
+        when(adminRepository.findEventById(anyLong())).thenReturn(Optional.of(event));
+
+        // when
+        adminEventService.deleteEvent(1L);
+
+        // then
+        verify(event, times(1)).deleteEvent();
+    }
+
+    @Test
+    void testDeleteEvent_EventNotFound() {
+        // given
+        when(adminRepository.findEventById(anyLong())).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> adminEventService.deleteEvent(1L))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(EVENT_NOT_FOUND.getMessage());
+    }
+
 }

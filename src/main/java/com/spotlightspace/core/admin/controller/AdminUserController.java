@@ -1,16 +1,12 @@
 package com.spotlightspace.core.admin.controller;
 
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import com.spotlightspace.core.admin.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.spotlightspace.common.exception.ErrorCode.NO_RESULTS_FOUND;
 
@@ -44,4 +40,10 @@ public class AdminUserController {
         }
         return ResponseEntity.ok(users);
     }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        adminUserService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
