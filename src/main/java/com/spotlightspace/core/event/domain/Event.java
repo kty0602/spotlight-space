@@ -143,4 +143,8 @@ public class Event extends Timestamped {
     public boolean isFinishedRecruitment(LocalDateTime now) {
         return now.isAfter(recruitmentFinishAt);
     }
+
+    public void calculate() {
+        this.isCalculated = true;
+    }
 }

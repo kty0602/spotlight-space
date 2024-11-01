@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,6 +54,7 @@ public class User {
     private UserRole role;
 
     private boolean isDeleted = false;
+
     private boolean isSocialLogin;
 
     private User(String email, String nickname, String password, UserRole role, LocalDate birth, String phoneNumber,
@@ -91,5 +93,22 @@ public class User {
 
     public void updatePassword(String encryptPassword) {
         this.password = encryptPassword;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

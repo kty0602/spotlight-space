@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface EventRepository extends JpaRepository<Event, Long>, EventQueryRepository {
 
     Optional<Event> findByIdAndUserIdAndIsDeletedFalse(Long id, Long userId);
+
     Optional<Event> findByIdAndIsDeletedFalse(Long id);
 
     default Event findByIdOrElseThrow(long id) {
