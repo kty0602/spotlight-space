@@ -1,7 +1,6 @@
 package com.spotlightspace.core.payment.repository;
 
 import static com.spotlightspace.common.exception.ErrorCode.PAYMENT_NOT_FOUND;
-import static com.spotlightspace.common.exception.ErrorCode.TID_NOT_FOUND;
 
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.event.domain.Event;
@@ -37,9 +36,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long>, Payment
 
     default Payment findByIdOrElseThrow(long paymentId) {
         return findById(paymentId).orElseThrow(() -> new ApplicationException(PAYMENT_NOT_FOUND));
-    }
-
-    default Payment findByTidOrElseThrow(String tid) {
-        return findByTid(tid).orElseThrow(() -> new ApplicationException(TID_NOT_FOUND));
     }
 }

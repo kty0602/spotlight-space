@@ -14,6 +14,6 @@ public class CancelPaymentRequestDto {
     /**
      * 결제 고유 번호
      */
-    @NotNull(message = "결제 고유 번호는 필수 값입니다.")
-    private String tid;
+    @NotNull(message = "결제 ID 필수 값입니다.")
+    private Long paymentId;
 }

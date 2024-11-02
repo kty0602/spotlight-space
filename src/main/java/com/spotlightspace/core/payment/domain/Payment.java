@@ -21,7 +21,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +36,7 @@ public class Payment extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String tid;
 
     @Column(nullable = false)
@@ -97,14 +97,6 @@ public class Payment extends Timestamped {
             Point point
     ) {
         return new Payment(null, cid, event, user, originalAmount, discountedAmount, userCoupon, point, PENDING);
-    }
-
-    public Long getPartnerOrderId() {
-        return event.getId();
-    }
-
-    public Long getPartnerUserId() {
-        return user.getId();
     }
 
     public void approve() {

@@ -47,11 +47,11 @@ public class PaymentService {
     private final PointRepository pointRepository;
     private final EventTicketStockRepository eventTicketStockRepository;
 
-    public PaymentDto getPayment(String tid) {
-        return PaymentDto.from(paymentRepository.findByTidOrElseThrow(tid));
+    public PaymentDto getPayment(long paymentId) {
+        return PaymentDto.from(paymentRepository.findByIdOrElseThrow(paymentId));
     }
 
-    public PaymentDto createPayment(long userId, long eventId, String cid, Long couponId, Integer pointAmount) {
+    public long createPayment(long userId, long eventId, String cid, Long couponId, Integer pointAmount) {
         User user = userRepository.findByIdOrElseThrow(userId);
         Event event = eventRepository.findByIdOrElseThrow(eventId);
         EventTicketStock eventTicketStock = eventTicketStockRepository
@@ -84,7 +84,7 @@ public class PaymentService {
             pointHistoryService.createPointHistory(payment, point, pointAmount);
         }
 
-        return PaymentDto.from(payment);
+        return payment.getId();
     }
 
     public void readyPayment(long paymentId, String tid) {
@@ -92,8 +92,8 @@ public class PaymentService {
         payment.ready(tid);
     }
 
-    public void approvePayment(String tid) {
-        Payment payment = paymentRepository.findByTidOrElseThrow(tid);
+    public void approvePayment(long paymentId) {
+        Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
         payment.approve();
 
         ticketService.createTicket(payment.getUser(), payment.getEvent(), payment.getOriginalAmount());
@@ -119,11 +119,11 @@ public class PaymentService {
     public void cancelPayments(Event event) {
         paymentRepository.findPaymentsByEventAndStatus(event, PaymentStatus.APPROVED)
                 .forEach(payment -> cancelPayment(payment.getId())
-        );
+                );
     }
 
-    public void failPayment(String tid) {
-        Payment payment = paymentRepository.findByTidOrElseThrow(tid);
+    public void failPayment(long paymentId) {
+        Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
         payment.fail();
     }
 

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PaymentController {
 
-    private static final String TID = "tid";
+    private static final String PAYMENT_ID = "paymentId";
 
     private final PaymentService paymentService;
     private final KakaopayApi kakaopayApi;
@@ -42,9 +42,9 @@ public class PaymentController {
     }
 
     /**
-     * 결제를 시작하기 위해 결제정보를 카카오페이 서버에 전달하고 결제 고유번호(TID)와 URL을 응답받아 반환합니다.
+     * 결제를 시작하기 위해 결제를 생성하고 결제정보를 카카오페이 서버에 전달하고 결제 고유번호(TID)와 URL을 응답받아 반환합니다.
      *
-     * @param session    TID를 저장하기 위한 session입니다.
+     * @param session    payment id를 저장하기 위한 session입니다.
      * @param requestDto 결제 요청을 위한 Dto입니다.
      * @param authUser   로그인한 유저 정보를 받아옵니다.
      * @return
@@ -55,13 +55,17 @@ public class PaymentController {
             @RequestBody ReadyPaymentRequestDto requestDto,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        PaymentDto paymentDto = paymentService.createPayment(
+        long paymentId = paymentService.createPayment(
                 authUser.getUserId(),
                 requestDto.getEventId(),
                 cid,
                 requestDto.getCouponId(),
                 requestDto.getPointAmount()
         );
+
+        PaymentDto paymentDto = paymentService.getPayment(paymentId);
+
+        session.setAttribute(PAYMENT_ID, paymentDto.getPaymentId());
 
         ReadyPaymentResponseDto readyPaymentResponseDto = kakaopayApi.readyPayment(
                 paymentDto.getCid(),
@@ -72,8 +76,6 @@ public class PaymentController {
                 paymentDto.getDiscountedAmount()
         );
 
-        session.setAttribute(TID, readyPaymentResponseDto.getTid());
-
         paymentService.readyPayment(paymentDto.getPaymentId(), readyPaymentResponseDto.getTid());
 
         return ResponseEntity.ok(readyPaymentResponseDto);
@@ -82,7 +84,7 @@ public class PaymentController {
     /**
      * 최종적으로 결제 완료 처리를 합니다.
      *
-     * @param session TID를 저장하기 위한 session입니다.
+     * @param session payment id를 저장하기 위한 session입니다.
      * @param pgToken 결제승인 요청을 인증하는 토큰입니다.
      * @return
      */
@@ -91,9 +93,9 @@ public class PaymentController {
             HttpSession session,
             @RequestParam("pg_token") String pgToken
     ) {
-        paymentService.approvePayment(String.valueOf(session.getAttribute(TID)));
+        PaymentDto paymentDto = paymentService.getPayment((long) session.getAttribute(PAYMENT_ID));
 
-        PaymentDto paymentDto = paymentService.getPayment(String.valueOf(session.getAttribute(TID)));
+        paymentService.approvePayment(paymentDto.getPaymentId());
         ApprovePaymentResponseDto responseDto = kakaopayApi.approvePayment(
                 pgToken,
                 paymentDto.getTid(),
@@ -113,9 +115,9 @@ public class PaymentController {
      */
     @PatchMapping("/api/v1/payments/cancel")
     public ResponseEntity<CancelPaymentResponseDto> cancelPayment(@RequestBody CancelPaymentRequestDto requestDto) {
-        PaymentDto paymentDto = paymentService.getPayment(requestDto.getTid());
-        paymentService.cancelPayment(paymentDto.getPaymentId());
+        PaymentDto paymentDto = paymentService.getPayment(requestDto.getPaymentId());
 
+        paymentService.cancelPayment(paymentDto.getPaymentId());
         CancelPaymentResponseDto responseDto = kakaopayApi.cancelPayment(
                 paymentDto.getCid(),
                 paymentDto.getTid(),
@@ -129,12 +131,12 @@ public class PaymentController {
     /**
      * 결제 실패 처리를 합니다.
      *
-     * @param session 결제 고유 번호를 얻기 위한 세션입니다.
+     * @param session payment id를 얻기 위한 세션입니다.
      * @return
      */
     @GetMapping("/api/v1/payments/fail")
     public ResponseEntity<Void> failPayment(HttpSession session) {
-        paymentService.failPayment(String.valueOf(session.getAttribute(TID)));
+        paymentService.failPayment((long) session.getAttribute(PAYMENT_ID));
         return ResponseEntity.ok().build();
     }
 }
