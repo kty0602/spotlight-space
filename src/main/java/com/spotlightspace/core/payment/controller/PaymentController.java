@@ -113,10 +113,14 @@ public class PaymentController {
      */
     @PatchMapping("/api/v1/payments/cancel")
     public ResponseEntity<CancelPaymentResponseDto> cancelPayment(@RequestBody CancelPaymentRequestDto requestDto) {
-        CancelPaymentResponseDto responseDto = paymentService.cancelPayment(
-                requestDto.getTid(),
-                requestDto.getCancelAmount(),
-                requestDto.getCancelTaxFreeAmount()
+        PaymentDto paymentDto = paymentService.getPayment(requestDto.getTid());
+        paymentService.cancelPayment(paymentDto.getPaymentId());
+
+        CancelPaymentResponseDto responseDto = kakaopayApi.cancelPayment(
+                paymentDto.getCid(),
+                paymentDto.getTid(),
+                paymentDto.getDiscountedAmount(),
+                0
         );
 
         return ResponseEntity.ok(responseDto);

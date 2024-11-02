@@ -16,16 +16,4 @@ public class CancelPaymentRequestDto {
      */
     @NotNull(message = "결제 고유 번호는 필수 값입니다.")
     private String tid;
-
-    /**
-     * 결제 취소 금액
-     */
-    @NotNull(message = "취소 금액은 필수 값입니다.")
-    private Integer cancelAmount;
-
-    /**
-     * 결제 취소 비과세 금액
-     */
-    @NotNull(message = "취소 비과세 금액은 필수 값입니다.")
-    private Integer cancelTaxFreeAmount;
 }

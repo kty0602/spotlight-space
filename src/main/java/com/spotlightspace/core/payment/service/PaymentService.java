@@ -15,7 +15,6 @@ import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepos
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.domain.PaymentStatus;
 import com.spotlightspace.core.payment.dto.PaymentDto;
-import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import com.spotlightspace.core.point.domain.Point;
 import com.spotlightspace.core.point.repository.PointRepository;
@@ -26,14 +25,9 @@ import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
 import com.spotlightspace.core.usercoupon.domain.UserCoupon;
 import com.spotlightspace.core.usercoupon.repository.UserCouponRepository;
-import com.spotlightspace.integration.kakaopay.KakaopayApi;
-import com.spotlightspace.integration.slack.SlackEvent;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.TransientDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final KakaopayApi kakaopayApi;
     private final TicketService ticketService;
     private final PointService pointService;
     private final PointHistoryService pointHistoryService;
@@ -53,10 +46,6 @@ public class PaymentService {
     private final UserCouponRepository userCouponRepository;
     private final PointRepository pointRepository;
     private final EventTicketStockRepository eventTicketStockRepository;
-    private final ApplicationEventPublisher eventPublisher;
-
-    @Value("${payment.kakao.cid}")
-    private String cid;
 
     public PaymentDto getPayment(String tid) {
         return PaymentDto.from(paymentRepository.findByTidOrElseThrow(tid));
@@ -110,8 +99,8 @@ public class PaymentService {
         ticketService.createTicket(payment.getUser(), payment.getEvent(), payment.getOriginalAmount());
     }
 
-    public CancelPaymentResponseDto cancelPayment(String tid, int cancelAmount, int cancelTaxFreeAmount) {
-        Payment payment = paymentRepository.findByTidOrElseThrow(tid);
+    public void cancelPayment(long paymentId) {
+        Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
         Event event = payment.getEvent();
 
         if (event.isFinishedRecruitment(LocalDateTime.now())) {
@@ -125,43 +114,12 @@ public class PaymentService {
 
         EventTicketStock eventTicketStock = eventTicketStockRepository.findByEventOrElseThrow(payment.getEvent());
         eventTicketStock.increaseStock();
-
-        return kakaopayApi.cancelPayment(cid, tid, cancelAmount, cancelTaxFreeAmount);
     }
 
     public void cancelPayments(Event event) {
-        paymentRepository.findPaymentsByEventAndStatus(event, PaymentStatus.APPROVED).forEach(payment ->
-                cancelPayment(payment.getTid(), payment.getDiscountedAmount(), 0)
+        paymentRepository.findPaymentsByEventAndStatus(event, PaymentStatus.APPROVED)
+                .forEach(payment -> cancelPayment(payment.getId())
         );
-    }
-
-    private void retryOperation(Runnable operation, String operationDescription, String tid) {
-        int retryCount = 0;
-        while (retryCount <= 2) {
-            try {
-                operation.run();
-                break;
-            } catch (TransientDataAccessException e) {
-                retryCount++;
-                log.error("TID: {}, {} 실패, {}: {}, 재시도 횟수: {}", tid, operationDescription,
-                        e.getClass().getSimpleName(), e.getMessage(), retryCount);
-                if (retryCount == 2) {
-                    eventPublisher.publishEvent(SlackEvent.from(
-                            String.format("TID: %s,  %s 실패, %s: %s, 재시도 횟수: %s",
-                                    tid, operationDescription, e.getClass().getSimpleName(), e.getMessage(),
-                                    retryCount)));
-                    throw e;
-                }
-            } catch (Exception e) {
-                log.error("TID: {}, {} 실패, {}: {}", tid, operationDescription,
-                        e.getClass().getSimpleName(), e.getMessage());
-                eventPublisher.publishEvent(SlackEvent.from(
-                        String.format("TID: %s, %s 실패, %s: %s", tid, operationDescription,
-                                e.getClass().getSimpleName(), e.getMessage()))
-                );
-                throw e;
-            }
-        }
     }
 
     public void failPayment(String tid) {
