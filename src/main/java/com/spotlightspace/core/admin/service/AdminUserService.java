@@ -4,6 +4,7 @@ import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import com.spotlightspace.core.admin.repository.AdminQueryRepository;
 import com.spotlightspace.core.user.domain.User;
+import com.spotlightspace.core.user.domain.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,10 +37,24 @@ public class AdminUserService {
     }
 
     @Transactional
+    public void updateUserRole(Long userId, String newRole) {
+        User user = adminRepository.findUserById(userId)
+                .orElseThrow(() -> new ApplicationException(USER_NOT_FOUND));
+
+        if ("ROLE_ADMIN".equalsIgnoreCase(newRole)) {
+            throw new IllegalArgumentException("ADMIN 역할로 변경할 수 없습니다.");
+        }
+
+        UserRole updatedRole = UserRole.from(newRole);
+        user.updateRole(updatedRole);
+    }
+
+    @Transactional
     public void deleteUser(Long id) {
         User user = adminRepository.findUserById(id)
                 .orElseThrow(() -> new ApplicationException(USER_NOT_FOUND));
         user.delete();
     }
+
 
 }

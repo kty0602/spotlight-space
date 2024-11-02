@@ -2,18 +2,12 @@ package com.spotlightspace.core.user.domain;
 
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,11 +48,10 @@ public class User {
     private UserRole role;
 
     private boolean isDeleted = false;
-
     private boolean isSocialLogin;
 
     private User(String email, String nickname, String password, UserRole role, LocalDate birth, String phoneNumber,
-            boolean isSocialLogin) {
+                 boolean isSocialLogin) {
         this.email = email;
         this.nickname = nickname;
         this.password = password;
@@ -111,4 +104,9 @@ public class User {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    public void updateRole(UserRole role) {
+        this.role = role;
+    }
+
 }

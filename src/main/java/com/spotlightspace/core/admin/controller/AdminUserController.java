@@ -46,4 +46,10 @@ public class AdminUserController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<Void> updateUserRole(@PathVariable Long id, @RequestParam String role) {
+        adminUserService.updateUserRole(id, role);
+        return ResponseEntity.noContent().build();
+    }
+
 }

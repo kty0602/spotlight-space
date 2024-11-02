@@ -44,7 +44,7 @@ public class AdminEventResponseDto {
         );
     }
 
-    public static AdminEventResponseDto from(Long id, String title, String content, String location, LocalDateTime startAt,
+    public static AdminEventResponseDto of(Long id, String title, String content, String location, LocalDateTime startAt,
                                              LocalDateTime endAt, int maxPeople, int price, String category,
                                              LocalDateTime recruitmentStartAt, LocalDateTime recruitmentFinishAt,
                                              Boolean isDeleted) {

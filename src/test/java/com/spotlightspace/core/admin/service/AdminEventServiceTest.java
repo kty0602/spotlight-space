@@ -41,7 +41,7 @@ class AdminEventServiceTest {
         // given
         String keyword = "test";
         PageRequest pageable = PageRequest.of(0, 10, Sort.by("title").ascending());
-        AdminEventResponseDto eventDto = AdminEventResponseDto.from(
+        AdminEventResponseDto eventDto = AdminEventResponseDto.of(
                 1L, "Test Event", "Content", "Location", null, null,
                 100, 1000, "Category", null, null, false
         );

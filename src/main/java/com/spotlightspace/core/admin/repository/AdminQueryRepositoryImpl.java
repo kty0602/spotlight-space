@@ -105,7 +105,7 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
 
         // Tuple 데이터를 DTO로 매핑
         List<AdminEventResponseDto> results = tuples.stream()
-                .map(tuple -> AdminEventResponseDto.from(
+                .map(tuple -> AdminEventResponseDto.of(
                         tuple.get(event.id),
                         tuple.get(event.title),
                         tuple.get(event.content),

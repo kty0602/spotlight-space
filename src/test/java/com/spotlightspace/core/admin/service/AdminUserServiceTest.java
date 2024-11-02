@@ -4,6 +4,7 @@ import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import com.spotlightspace.core.admin.repository.AdminQueryRepository;
 import com.spotlightspace.core.user.domain.User;
+import com.spotlightspace.core.user.domain.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -70,6 +72,19 @@ class AdminUserServiceTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
+    }
+
+
+    @Test
+    void testUpdateUserRole_userNotFound_shouldFail() {
+        // given
+        Long userId = 1L;
+        when(adminRepository.findUserById(anyLong())).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> adminUserService.updateUserRole(userId, "ROLE_ARTIST"))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(USER_NOT_FOUND.getMessage());
     }
 
     @Test
