@@ -15,7 +15,6 @@ import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepos
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.domain.PaymentStatus;
 import com.spotlightspace.core.payment.dto.PaymentDto;
-import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import com.spotlightspace.core.point.domain.Point;
@@ -59,6 +58,10 @@ public class PaymentService {
     @Value("${payment.kakao.cid}")
     private String cid;
 
+    public PaymentDto getPayment(String tid) {
+        return PaymentDto.from(paymentRepository.findByTidOrElseThrow(tid));
+    }
+
     public PaymentDto createPayment(long userId, long eventId, String cid, Long couponId, Integer pointAmount) {
         User user = userRepository.findByIdOrElseThrow(userId);
         Event event = eventRepository.findByIdOrElseThrow(eventId);
@@ -100,13 +103,11 @@ public class PaymentService {
         payment.ready(tid);
     }
 
-    public ApprovePaymentResponseDto approvePayment(String pgToken, String tid) {
+    public void approvePayment(String tid) {
         Payment payment = paymentRepository.findByTidOrElseThrow(tid);
-
         payment.approve();
-        ticketService.createTicket(payment.getUser(), payment.getEvent(), payment.getOriginalAmount());
 
-        return kakaopayApi.approvePayment(pgToken, payment);
+        ticketService.createTicket(payment.getUser(), payment.getEvent(), payment.getOriginalAmount());
     }
 
     public CancelPaymentResponseDto cancelPayment(String tid, int cancelAmount, int cancelTaxFreeAmount) {

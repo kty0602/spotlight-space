@@ -7,7 +7,6 @@ import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_A
 import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_CANCEL_URL;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_READY_URL;
 
-import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
@@ -57,8 +56,14 @@ public class KakaopayApi {
         return responseDto;
     }
 
-    public ApprovePaymentResponseDto approvePayment(String pgToken, Payment payment) {
-        Map<String, String> parameters = getParametersForApprovePayment(pgToken, payment);
+    public ApprovePaymentResponseDto approvePayment(
+            String pgToken,
+            String tid,
+            String cid,
+            long paymentId,
+            long userId
+    ) {
+        Map<String, String> parameters = getParametersForApprovePayment(pgToken, cid, tid, paymentId, userId);
 
         ApprovePaymentResponseDto responseDto = restTemplate.postForObject(
                 PAYMENT_APPROVE_URL,
@@ -103,12 +108,18 @@ public class KakaopayApi {
         return parameters;
     }
 
-    private Map<String, String> getParametersForApprovePayment(String pgToken, Payment payment) {
+    private Map<String, String> getParametersForApprovePayment(
+            String pgToken,
+            String cid,
+            String tid,
+            long partnerOrderId,
+            long partnerUserId
+    ) {
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("cid", payment.getCid());
-        parameters.put("tid", payment.getTid());
-        parameters.put("partner_order_id", String.valueOf(payment.getPartnerOrderId()));
-        parameters.put("partner_user_id", String.valueOf(payment.getPartnerUserId()));
+        parameters.put("cid", cid);
+        parameters.put("tid", tid);
+        parameters.put("partner_order_id", String.valueOf(partnerOrderId));
+        parameters.put("partner_user_id", String.valueOf(partnerUserId));
         parameters.put("pg_token", pgToken);
         return parameters;
     }

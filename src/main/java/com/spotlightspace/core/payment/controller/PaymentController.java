@@ -91,10 +91,17 @@ public class PaymentController {
             HttpSession session,
             @RequestParam("pg_token") String pgToken
     ) {
-        ApprovePaymentResponseDto responseDto = paymentService.approvePayment(
+        paymentService.approvePayment(String.valueOf(session.getAttribute(TID)));
+
+        PaymentDto paymentDto = paymentService.getPayment(String.valueOf(session.getAttribute(TID)));
+        ApprovePaymentResponseDto responseDto = kakaopayApi.approvePayment(
                 pgToken,
-                String.valueOf(session.getAttribute(TID))
+                paymentDto.getTid(),
+                paymentDto.getCid(),
+                paymentDto.getPaymentId(),
+                paymentDto.getUserId()
         );
+
         return ResponseEntity.ok(responseDto);
     }
 
