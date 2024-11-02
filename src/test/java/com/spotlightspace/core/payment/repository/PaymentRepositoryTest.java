@@ -1,7 +1,7 @@
 package com.spotlightspace.core.payment.repository;
 
 import static com.spotlightspace.core.event.domain.EventCategory.ART;
-import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.spotlightspace.core.data.UserTestData;
@@ -55,7 +55,7 @@ class PaymentRepositoryTest {
         paymentRepository.saveAll(List.of(approvedPayment, readyPayment, canceledPayment, failedPayment));
 
         // when
-        List<Payment> payments = paymentRepository.findPaymentsByEventAndStatus(event, APPROVED);
+        List<Payment> payments = paymentRepository.findPaymentsByEventAndStatus(event, PENDING);
 
         // then
         assertThat(payments).hasSize(1);

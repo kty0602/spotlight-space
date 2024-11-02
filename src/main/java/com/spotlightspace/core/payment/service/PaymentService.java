@@ -14,9 +14,9 @@ import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
 import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.domain.PaymentStatus;
+import com.spotlightspace.core.payment.dto.PaymentDto;
 import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
-import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import com.spotlightspace.core.point.domain.Point;
 import com.spotlightspace.core.point.repository.PointRepository;
@@ -54,13 +54,12 @@ public class PaymentService {
     private final UserCouponRepository userCouponRepository;
     private final PointRepository pointRepository;
     private final EventTicketStockRepository eventTicketStockRepository;
-    private final PaymentCommandService paymentCommandService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Value("${payment.kakao.cid}")
     private String cid;
 
-    public ReadyPaymentResponseDto readyPayment(long userId, long eventId, Long couponId, Integer pointAmount) {
+    public PaymentDto createPayment(long userId, long eventId, String cid, Long couponId, Integer pointAmount) {
         User user = userRepository.findByIdOrElseThrow(userId);
         Event event = eventRepository.findByIdOrElseThrow(eventId);
         EventTicketStock eventTicketStock = eventTicketStockRepository
@@ -68,6 +67,8 @@ public class PaymentService {
 
         validateRecruitmentPeriod(event);
         validateEventTicketStock(eventTicketStock);
+
+        eventTicketStock.decreaseStock();
 
         Point point = null;
         UserCoupon userCoupon = null;
@@ -90,24 +91,13 @@ public class PaymentService {
         if (isPointUsed(point)) {
             pointHistoryService.createPointHistory(payment, point, pointAmount);
         }
-        eventTicketStock.decreaseStock();
 
-        ReadyPaymentResponseDto responseDto = kakaopayApi.readyPayment(
-                cid,
-                payment.getPartnerOrderId(),
-                user.getId(),
-                event.getTitle(),
-                event.getId(),
-                payment.getDiscountedAmount()
-        );
+        return PaymentDto.from(payment);
+    }
 
-        retryOperation(
-                () -> paymentCommandService.setPaymentTid(payment, responseDto.getTid()),
-                "결제 고유 번호 설정",
-                responseDto.getTid()
-        );
-
-        return responseDto;
+    public void readyPayment(long paymentId, String tid) {
+        Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
+        payment.ready(tid);
     }
 
     public ApprovePaymentResponseDto approvePayment(String pgToken, String tid) {

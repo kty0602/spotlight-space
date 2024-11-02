@@ -82,7 +82,7 @@ class PaymentServiceTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    paymentService.readyPayment(user.getId(), event.getId(), null, null);
+                    paymentService.createPayment(user.getId(), event.getId(), "cid", null, null);
                 } catch (Exception e) {
                     System.err.println("결제 실패: " + e.getMessage());
                 } finally {

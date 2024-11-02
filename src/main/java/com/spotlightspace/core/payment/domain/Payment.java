@@ -2,6 +2,7 @@ package com.spotlightspace.core.payment.domain;
 
 import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
 import static com.spotlightspace.core.payment.domain.PaymentStatus.CANCELED;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.PENDING;
 import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 
 import com.spotlightspace.common.entity.Timestamped;
@@ -20,10 +21,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -36,7 +37,6 @@ public class Payment extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     private String tid;
 
     @Column(nullable = false)
@@ -96,7 +96,7 @@ public class Payment extends Timestamped {
             UserCoupon userCoupon,
             Point point
     ) {
-        return new Payment(null, cid, event, user, originalAmount, discountedAmount, userCoupon, point, READY);
+        return new Payment(null, cid, event, user, originalAmount, discountedAmount, userCoupon, point, PENDING);
     }
 
     public Long getPartnerOrderId() {
@@ -127,5 +127,10 @@ public class Payment extends Timestamped {
 
     public void fail() {
         this.status = PaymentStatus.FAILED;
+    }
+
+    public void ready(String tid) {
+        this.tid = tid;
+        this.status = READY;
     }
 }

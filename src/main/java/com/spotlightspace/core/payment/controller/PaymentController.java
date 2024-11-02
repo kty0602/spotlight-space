@@ -1,15 +1,17 @@
 package com.spotlightspace.core.payment.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
+import com.spotlightspace.core.payment.dto.PaymentDto;
 import com.spotlightspace.core.payment.dto.request.CancelPaymentRequestDto;
 import com.spotlightspace.core.payment.dto.request.ReadyPaymentRequestDto;
 import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import com.spotlightspace.core.payment.service.PaymentService;
+import com.spotlightspace.integration.kakaopay.KakaopayApi;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,12 +23,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 public class PaymentController {
 
     private static final String TID = "tid";
 
     private final PaymentService paymentService;
+    private final KakaopayApi kakaopayApi;
+    private final String cid;
+
+    public PaymentController(
+            PaymentService paymentService,
+            KakaopayApi kakaopayApi,
+            @Value("${payment.kakao.cid}") String cid
+    ) {
+        this.paymentService = paymentService;
+        this.kakaopayApi = kakaopayApi;
+        this.cid = cid;
+    }
 
     /**
      * 결제를 시작하기 위해 결제정보를 카카오페이 서버에 전달하고 결제 고유번호(TID)와 URL을 응답받아 반환합니다.
@@ -42,14 +55,26 @@ public class PaymentController {
             @RequestBody ReadyPaymentRequestDto requestDto,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        ReadyPaymentResponseDto readyPaymentResponseDto = paymentService.readyPayment(
+        PaymentDto paymentDto = paymentService.createPayment(
                 authUser.getUserId(),
                 requestDto.getEventId(),
+                cid,
                 requestDto.getCouponId(),
                 requestDto.getPointAmount()
         );
 
+        ReadyPaymentResponseDto readyPaymentResponseDto = kakaopayApi.readyPayment(
+                paymentDto.getCid(),
+                paymentDto.getPaymentId(),
+                paymentDto.getUserId(),
+                paymentDto.getEventTitle(),
+                paymentDto.getEventId(),
+                paymentDto.getDiscountedAmount()
+        );
+
         session.setAttribute(TID, readyPaymentResponseDto.getTid());
+
+        paymentService.readyPayment(paymentDto.getPaymentId(), readyPaymentResponseDto.getTid());
 
         return ResponseEntity.ok(readyPaymentResponseDto);
     }

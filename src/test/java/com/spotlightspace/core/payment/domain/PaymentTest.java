@@ -1,6 +1,7 @@
 package com.spotlightspace.core.payment.domain;
 
 import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.PENDING;
 import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +32,7 @@ class PaymentTest {
     }
 
     @Test
-    @DisplayName("Payment 생성 시 초기 상태는 READY 이다.")
+    @DisplayName("Payment 생성 시 초기 상태는 PENDING 이다.")
     void create() {
         // given
         User user = createUser();
@@ -39,7 +40,7 @@ class PaymentTest {
         Payment payment = Payment.create("cid", event, user, 10_000, 10_000, null, null);
 
         // when & then
-        assertThat(payment.getStatus()).isEqualTo(READY);
+        assertThat(payment.getStatus()).isEqualTo(PENDING);
     }
 
 
