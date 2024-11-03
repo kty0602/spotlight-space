@@ -1,5 +1,6 @@
 package com.spotlightspace.core.payment.service;
 
+import static com.spotlightspace.core.event.domain.EventCategory.ART;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.anyInt;
 import static org.mockito.BDDMockito.anyLong;
@@ -31,6 +32,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 @Slf4j
 @SpringBootTest
@@ -98,6 +101,63 @@ class PaymentServiceTest {
         EventTicketStock foundEventTicketStock = eventTicketStockRepository.findById(eventTicketStock.getId()).get();
         assertThat(payments).hasSize(10);
         assertThat(foundEventTicketStock.getStock()).isEqualTo(0);
+    }
+
+
+    @Test
+    @DisplayName("특정 유저의 결제 내역을 조회할 수 있다.")
+    void findPaymentsWithUserId() {
+        // given
+        User user = UserTestData.testUser();
+        userRepository.save(user);
+
+        CreateEventRequestDto requestDto = getCreateEventRequestDto();
+        Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+
+        Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice());
+        Payment readyPayment = getReadyPayment(event, user, requestDto.getPrice());
+        Payment canceledPayment = getCanceledPayment(event, user, requestDto.getPrice());
+        Payment failedPayment = getFailedPayment(event, user, requestDto.getPrice());
+        paymentRepository.saveAll(List.of(approvedPayment, readyPayment, canceledPayment, failedPayment));
+
+        // when
+        Page<Payment> payments = paymentRepository.findAllByUserId(user.getId(), PageRequest.of(0, 10));
+
+        // then
+        assertThat(payments).hasSize(4);
+        assertThat(payments.getTotalElements()).isEqualTo(4);
+        assertThat(payments.getTotalPages()).isEqualTo(1);
+    }
+
+    Payment getFailedPayment(Event event, User user, int price) {
+        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+        payment.fail();
+        return payment;
+    }
+
+    Payment getCanceledPayment(Event event, User user, int price) {
+        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+        payment.cancel();
+        return payment;
+    }
+
+    Payment getReadyPayment(Event event, User user, int price) {
+        return Payment.create("cid", event, user, price, price, null, null);
+    }
+
+    Payment getApprovedPayment(Event event, User user, int price) {
+        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+        payment.approve();
+        return payment;
+    }
+
+    CreateEventRequestDto getCreateEventRequestDto() {
+        return CreateEventRequestDto.of("title", "content", "location",
+                LocalDateTime.of(2024, 10, 10, 10, 0),
+                LocalDateTime.of(2024, 10, 10, 12, 0),
+                109, 10_000, ART,
+                LocalDateTime.of(2024, 10, 1, 0, 0),
+                LocalDateTime.of(2024, 10, 5, 10, 0));
     }
 
     ReadyPaymentResponseDto createReadyPaymentResponseDto() {
