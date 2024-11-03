@@ -10,10 +10,16 @@ import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import com.spotlightspace.core.payment.service.PaymentService;
 import com.spotlightspace.integration.kakaopay.KakaopayApi;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@Validated
 @RestController
 public class PaymentController {
 
@@ -137,5 +144,27 @@ public class PaymentController {
     public ResponseEntity<Void> failPayment(HttpSession session) {
         paymentService.failPayment((long) session.getAttribute(PAYMENT_ID));
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 특정 유저의 결제 내역을 조회합니다.
+     *
+     * @param userId 조회할 유저의 id입니다.
+     * @param pageNumber 결제 내역의 페이지 번호입니다.
+     * @param pageSize 결제 내역의 페이지 크기입니다.
+     * @return
+     */
+    @GetMapping("/api/v1/payments")
+    public ResponseEntity<Page<PaymentDto>> getPayment(
+            @RequestParam(value = "userId") long userId,
+            @Positive @RequestParam(defaultValue = "1") int pageNumber,
+            @Positive @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        PageRequest pageRequest = PageRequest.of(
+                pageNumber - 1,
+                pageSize,
+                Sort.by(Direction.DESC, "createAt")
+        );
+        return ResponseEntity.ok(paymentService.getPayments(userId, pageRequest));
     }
 }

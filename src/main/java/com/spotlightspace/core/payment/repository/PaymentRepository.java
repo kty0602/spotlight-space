@@ -8,15 +8,13 @@ import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.domain.PaymentStatus;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long>, PaymentQueryRepository {
-
-    @Query("select p from Payment p left join fetch p.userCoupon where p.tid = :tid")
-    Optional<Payment> findByTid(@Param("tid") String tid);
 
     @Query("select p " +
             "from Payment p " +
@@ -37,4 +35,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long>, Payment
     default Payment findByIdOrElseThrow(long paymentId) {
         return findById(paymentId).orElseThrow(() -> new ApplicationException(PAYMENT_NOT_FOUND));
     }
+
+    Page<Payment> findAllByUserId(long userId, PageRequest pageRequest);
 }

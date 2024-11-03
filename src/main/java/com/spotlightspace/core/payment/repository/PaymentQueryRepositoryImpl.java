@@ -1,5 +1,5 @@
 package com.spotlightspace.core.payment.repository;
 
-public class PaymentQueryRepositoryImpl implements PaymentQueryRepository{
+public class PaymentQueryRepositoryImpl implements PaymentQueryRepository {
 
 }

@@ -34,6 +34,8 @@ import org.springframework.dao.TransientDataAccessException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +58,10 @@ public class PaymentService {
 
     public PaymentDto getPayment(long paymentId) {
         return PaymentDto.from(paymentRepository.findByIdOrElseThrow(paymentId));
+    }
+
+    public Page<PaymentDto> getPayments(long userId, PageRequest pageRequest) {
+        return paymentRepository.findAllByUserId(userId, pageRequest).map(PaymentDto::from);
     }
 
     public long createPayment(long userId, long eventId, String cid, Long couponId, Integer pointAmount) {
