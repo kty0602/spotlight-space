@@ -84,6 +84,9 @@ dependencies {
     implementation("com.slack.api:bolt-servlet:1.44.1")
     implementation("com.slack.api:bolt-jetty:1.44.1")
     implementation("org.slf4j:slf4j-simple:1.7.36")
+
+    // spring retry
+    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.10'
 }
 
 tasks.named('test') {

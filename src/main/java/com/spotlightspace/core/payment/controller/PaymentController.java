@@ -75,7 +75,6 @@ public class PaymentController {
                 paymentDto.getEventId(),
                 paymentDto.getDiscountedAmount()
         );
-
         paymentService.readyPayment(paymentDto.getPaymentId(), readyPaymentResponseDto.getTid());
 
         return ResponseEntity.ok(readyPaymentResponseDto);
@@ -95,7 +94,6 @@ public class PaymentController {
     ) {
         PaymentDto paymentDto = paymentService.getPayment((long) session.getAttribute(PAYMENT_ID));
 
-        paymentService.approvePayment(paymentDto.getPaymentId());
         ApprovePaymentResponseDto responseDto = kakaopayApi.approvePayment(
                 pgToken,
                 paymentDto.getTid(),
@@ -103,6 +101,7 @@ public class PaymentController {
                 paymentDto.getPaymentId(),
                 paymentDto.getUserId()
         );
+        paymentService.approvePayment(paymentDto.getPaymentId());
 
         return ResponseEntity.ok(responseDto);
     }
@@ -117,13 +116,13 @@ public class PaymentController {
     public ResponseEntity<CancelPaymentResponseDto> cancelPayment(@RequestBody CancelPaymentRequestDto requestDto) {
         PaymentDto paymentDto = paymentService.getPayment(requestDto.getPaymentId());
 
-        paymentService.cancelPayment(paymentDto.getPaymentId());
         CancelPaymentResponseDto responseDto = kakaopayApi.cancelPayment(
                 paymentDto.getCid(),
                 paymentDto.getTid(),
                 paymentDto.getDiscountedAmount(),
                 0
         );
+        paymentService.cancelPayment(paymentDto.getPaymentId());
 
         return ResponseEntity.ok(responseDto);
     }

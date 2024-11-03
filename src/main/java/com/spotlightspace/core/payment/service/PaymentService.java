@@ -25,9 +25,15 @@ import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
 import com.spotlightspace.core.usercoupon.domain.UserCoupon;
 import com.spotlightspace.core.usercoupon.repository.UserCouponRepository;
+import com.spotlightspace.integration.slack.SlackEvent;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.TransientDataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +52,7 @@ public class PaymentService {
     private final UserCouponRepository userCouponRepository;
     private final PointRepository pointRepository;
     private final EventTicketStockRepository eventTicketStockRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PaymentDto getPayment(long paymentId) {
         return PaymentDto.from(paymentRepository.findByIdOrElseThrow(paymentId));
@@ -87,11 +94,31 @@ public class PaymentService {
         return payment.getId();
     }
 
+    @Retryable(
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000),
+            retryFor = TransientDataAccessException.class,
+            recover = "readyPaymentRecover"
+    )
     public void readyPayment(long paymentId, String tid) {
         Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
         payment.ready(tid);
     }
 
+    @Recover
+    public void readyPaymentRecover(Exception exception, long paymentId, String tid) {
+        log.error("결제 준비 중 오류 발생: {}, paymentId: {}, tid: {}", exception.getMessage(), paymentId, tid);
+        eventPublisher.publishEvent(SlackEvent.from(
+                String.format("결제 준비 중 오류 발생: %s, paymentId: %s, tid: %s", exception.getMessage(), paymentId, tid))
+        );
+    }
+
+    @Retryable(
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000),
+            retryFor = TransientDataAccessException.class,
+            recover = "approvePaymentRecover"
+    )
     public void approvePayment(long paymentId) {
         Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
         payment.approve();
@@ -99,6 +126,20 @@ public class PaymentService {
         ticketService.createTicket(payment.getUser(), payment.getEvent(), payment.getOriginalAmount());
     }
 
+    @Recover
+    public void approvePaymentRecover(Exception exception, long paymentId) {
+        log.error("결제 승인 중 오류 발생: {}, paymentId: {}", exception.getMessage(), paymentId);
+        eventPublisher.publishEvent(SlackEvent.from(
+                String.format("결제 승인 중 오류 발생: %s, paymentId: %s", exception.getMessage(), paymentId))
+        );
+    }
+
+    @Retryable(
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000),
+            retryFor = TransientDataAccessException.class,
+            recover = "cancelPaymentRecover"
+    )
     public void cancelPayment(long paymentId) {
         Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
         Event event = payment.getEvent();
@@ -116,10 +157,17 @@ public class PaymentService {
         eventTicketStock.increaseStock();
     }
 
+    @Recover
+    public void cancelPaymentRecover(Exception exception, long paymentId) {
+        log.error("결제 취소 중 오류 발생: {}, paymentId: {}", exception.getMessage(), paymentId);
+        eventPublisher.publishEvent(SlackEvent.from(
+                String.format("결제 취소 중 오류 발생: %s, paymentId: %s", exception.getMessage(), paymentId))
+        );
+    }
+
     public void cancelPayments(Event event) {
         paymentRepository.findPaymentsByEventAndStatus(event, PaymentStatus.APPROVED)
-                .forEach(payment -> cancelPayment(payment.getId())
-                );
+                .forEach(payment -> cancelPayment(payment.getId()));
     }
 
     public void failPayment(long paymentId) {
