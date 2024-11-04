@@ -54,7 +54,6 @@ public class AdminCouponService {
     }
 
     public void updateCoupon(Long couponId, AdminCouponUpdateRequestDto requestDto) {
-        //todo : or els throw 말고 defalut로
         Coupon coupon = couponRepository.findById(couponId)
                 .orElseThrow(() -> new ApplicationException(COUPON_NOT_FOUND));
         coupon.update(requestDto.getDiscountAmount(), requestDto.getExpiredAt());
