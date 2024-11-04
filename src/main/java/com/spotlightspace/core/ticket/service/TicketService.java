@@ -28,6 +28,11 @@ public class TicketService {
         return TicketResponse.from(ticketRepository.save(ticket));
     }
 
+    public void cancelTicket(User user, Event event) {
+        Ticket ticket = ticketRepository.findFirstByUserAndEventOrElseThrow(user, event);
+        ticket.cancel();
+    }
+
     private boolean isNegativePrice(int price) {
         return price < 0;
     }

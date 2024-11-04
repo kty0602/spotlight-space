@@ -18,8 +18,8 @@ import com.spotlightspace.core.payment.dto.PaymentDto;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import com.spotlightspace.core.point.domain.Point;
 import com.spotlightspace.core.point.repository.PointRepository;
-import com.spotlightspace.core.point.service.PointService;
-import com.spotlightspace.core.pointhistory.service.PointHistoryService;
+import com.spotlightspace.core.pointhistory.domain.PointHistory;
+import com.spotlightspace.core.pointhistory.repository.PointHistoryRepository;
 import com.spotlightspace.core.ticket.service.TicketService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
@@ -46,8 +46,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentService {
 
     private final TicketService ticketService;
-    private final PointService pointService;
-    private final PointHistoryService pointHistoryService;
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
@@ -55,6 +53,7 @@ public class PaymentService {
     private final PointRepository pointRepository;
     private final EventTicketStockRepository eventTicketStockRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final PointHistoryRepository pointHistoryRepository;
 
     public PaymentDto getPayment(long paymentId) {
         return PaymentDto.from(paymentRepository.findByIdOrElseThrow(paymentId));
@@ -75,27 +74,31 @@ public class PaymentService {
 
         eventTicketStock.decreaseStock();
 
-        Point point = null;
         UserCoupon userCoupon = null;
+        pointAmount = pointAmount == null ? 0 : pointAmount;
         int discountedPrice = event.getPrice();
         if (doesCouponIdExist(couponId)) {
             userCoupon = userCouponRepository.findByCouponIdAndUserIdOrElseThrow(couponId, user.getId());
             validateUserCoupon(userCoupon);
             discountedPrice -= userCoupon.getDiscountAmount();
         }
+        Point point = pointRepository.findByUserOrElseThrow(user);
         if (doesPointAmountExist(pointAmount)) {
-            point = pointRepository.findByUserOrElseThrow(user);
             validatePoint(point, pointAmount);
-            point.deduct(pointAmount);
             discountedPrice -= pointAmount;
         }
 
-        Payment payment = Payment.create(cid, event, user, event.getPrice(), discountedPrice, userCoupon, point);
+        Payment payment = Payment.create(
+                cid,
+                event,
+                user,
+                event.getPrice(),
+                discountedPrice,
+                userCoupon,
+                point,
+                pointAmount
+        );
         paymentRepository.save(payment);
-
-        if (isPointUsed(point)) {
-            pointHistoryService.createPointHistory(payment, point, pointAmount);
-        }
 
         return payment.getId();
     }
@@ -128,6 +131,9 @@ public class PaymentService {
     public void approvePayment(long paymentId) {
         Payment payment = paymentRepository.findByIdOrElseThrow(paymentId);
         payment.approve();
+        if (payment.isPointUsed()) {
+            pointHistoryRepository.save(PointHistory.create(payment, payment.getPoint(), payment.getUsedPointAmount()));
+        }
 
         ticketService.createTicket(payment.getUser(), payment.getEvent(), payment.getOriginalAmount());
     }
@@ -156,11 +162,14 @@ public class PaymentService {
 
         payment.cancel();
         if (payment.isPointUsed()) {
-            pointService.cancelPointUsage(payment.getPoint());
+            PointHistory pointHistory = pointHistoryRepository.findByPaymentOrElseThrow(payment);
+            pointHistory.cancelPointUsage();
         }
 
         EventTicketStock eventTicketStock = eventTicketStockRepository.findByEventOrElseThrow(payment.getEvent());
         eventTicketStock.increaseStock();
+
+        ticketService.cancelTicket(payment.getUser(), payment.getEvent());
     }
 
     @Recover
@@ -185,8 +194,8 @@ public class PaymentService {
         return couponId != null;
     }
 
-    private boolean doesPointAmountExist(Integer pointAmount) {
-        return pointAmount != null;
+    private boolean doesPointAmountExist(int pointAmount) {
+        return pointAmount > 0;
     }
 
     private void validateRecruitmentPeriod(Event event) {
@@ -214,9 +223,5 @@ public class PaymentService {
         if (point.cannotDeduct(pointAmount)) {
             throw new ApplicationException(NOT_ENOUGH_POINT_AMOUNT);
         }
-    }
-
-    private boolean isPointUsed(Point point) {
-        return point != null;
     }
 }

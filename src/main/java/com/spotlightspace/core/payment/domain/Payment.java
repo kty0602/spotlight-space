@@ -62,6 +62,8 @@ public class Payment extends Timestamped {
     @JoinColumn(name = "point_id")
     private Point point;
 
+    private int usedPointAmount;
+
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
@@ -74,6 +76,7 @@ public class Payment extends Timestamped {
             int discountedAmount,
             UserCoupon userCoupon,
             Point point,
+            int pointAmount,
             PaymentStatus status
     ) {
         this.tid = tid;
@@ -84,6 +87,7 @@ public class Payment extends Timestamped {
         this.discountedAmount = discountedAmount;
         this.userCoupon = userCoupon;
         this.point = point;
+        this.usedPointAmount = pointAmount;
         this.status = status;
     }
 
@@ -94,13 +98,15 @@ public class Payment extends Timestamped {
             int originalAmount,
             int discountedAmount,
             UserCoupon userCoupon,
-            Point point
+            Point point,
+            int pointAmount
     ) {
-        return new Payment(null, cid, event, user, originalAmount, discountedAmount, userCoupon, point, PENDING);
+        return new Payment(null, cid, event, user, originalAmount, discountedAmount, userCoupon, point, pointAmount, PENDING);
     }
 
     public void approve() {
         this.status = APPROVED;
+        this.point.deduct(this.usedPointAmount);
         if (this.userCoupon != null) {
             this.userCoupon.use();
         }
@@ -108,13 +114,14 @@ public class Payment extends Timestamped {
 
     public void cancel() {
         this.status = CANCELED;
+        this.point.cancelUsage(this.usedPointAmount);
         if (this.userCoupon != null) {
             this.userCoupon.cancelUsage();
         }
     }
 
     public boolean isPointUsed() {
-        return this.point != null;
+        return this.usedPointAmount != 0;
     }
 
     public void fail() {
