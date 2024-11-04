@@ -17,6 +17,8 @@ import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepos
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
+import com.spotlightspace.core.point.domain.Point;
+import com.spotlightspace.core.point.repository.PointRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
 import com.spotlightspace.integration.kakaopay.KakaopayApi;
@@ -56,12 +58,15 @@ class PaymentServiceTest {
 
     @MockBean
     KakaopayApi kakaopayApi;
+    @Autowired
+    private PointRepository pointRepository;
 
     @AfterEach
     void tearDown() {
         paymentRepository.deleteAllInBatch();
         eventTicketStockRepository.deleteAllInBatch();
         eventRepository.deleteAllInBatch();
+        pointRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }
 
@@ -70,6 +75,7 @@ class PaymentServiceTest {
     void pessimisticLock() throws InterruptedException {
         // given
         User user = userRepository.save(UserTestData.testUser());
+        pointRepository.save(Point.of(0, user));
         CreateEventRequestDto createEventRequestDto = getCreateEventRequestDtoWithMaxPeople(10);
         Event event = eventRepository.save(Event.of(createEventRequestDto, user));
         EventTicketStock eventTicketStock = eventTicketStockRepository.save(EventTicketStock.create(event));
@@ -100,7 +106,7 @@ class PaymentServiceTest {
         List<Payment> payments = paymentRepository.findAll();
         EventTicketStock foundEventTicketStock = eventTicketStockRepository.findById(eventTicketStock.getId()).get();
         assertThat(payments).hasSize(10);
-        assertThat(foundEventTicketStock.getStock()).isEqualTo(0);
+        assertThat(foundEventTicketStock.getStock()).isZero();
     }
 
 
@@ -113,11 +119,12 @@ class PaymentServiceTest {
 
         CreateEventRequestDto requestDto = getCreateEventRequestDto();
         Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+        Point point = pointRepository.save(Point.of(0, user));
 
-        Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice());
-        Payment readyPayment = getReadyPayment(event, user, requestDto.getPrice());
-        Payment canceledPayment = getCanceledPayment(event, user, requestDto.getPrice());
-        Payment failedPayment = getFailedPayment(event, user, requestDto.getPrice());
+        Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice(), point);
+        Payment readyPayment = getReadyPayment(event, user, requestDto.getPrice(), point);
+        Payment canceledPayment = getCanceledPayment(event, user, requestDto.getPrice(), point);
+        Payment failedPayment = getFailedPayment(event, user, requestDto.getPrice(), point);
         paymentRepository.saveAll(List.of(approvedPayment, readyPayment, canceledPayment, failedPayment));
 
         // when
@@ -129,24 +136,42 @@ class PaymentServiceTest {
         assertThat(payments.getTotalPages()).isEqualTo(1);
     }
 
-    Payment getFailedPayment(Event event, User user, int price) {
-        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+    Payment getFailedPayment(Event event, User user, int price, Point point) {
+        Payment payment = Payment.create("cid", event, user, price, price, null, point, 0);
         payment.fail();
         return payment;
     }
 
-    Payment getCanceledPayment(Event event, User user, int price) {
-        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+    Payment getCanceledPayment(Event event, User user, int price, Point point) {
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                price,
+                price,
+                null,
+                point,
+                0
+        );
         payment.cancel();
         return payment;
     }
 
-    Payment getReadyPayment(Event event, User user, int price) {
-        return Payment.create("cid", event, user, price, price, null, null);
+    Payment getReadyPayment(Event event, User user, int price, Point point) {
+        return Payment.create("cid", event, user, price, price, null, point, 0);
     }
 
-    Payment getApprovedPayment(Event event, User user, int price) {
-        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+    Payment getApprovedPayment(Event event, User user, int price, Point point) {
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                price,
+                price,
+                null,
+                point,
+                0
+        );
         payment.approve();
         return payment;
     }

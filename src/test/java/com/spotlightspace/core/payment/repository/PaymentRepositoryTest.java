@@ -9,6 +9,8 @@ import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.payment.domain.Payment;
+import com.spotlightspace.core.point.domain.Point;
+import com.spotlightspace.core.point.repository.PointRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -30,11 +32,14 @@ class PaymentRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private PointRepository pointRepository;
 
     @AfterEach
     void tearDown() {
         paymentRepository.deleteAllInBatch();
         eventRepository.deleteAllInBatch();
+        pointRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }
 
@@ -47,11 +52,12 @@ class PaymentRepositoryTest {
 
         CreateEventRequestDto requestDto = getCreateEventRequestDto();
         Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+        Point point = pointRepository.save(Point.of(0, user));
 
-        Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice());
-        Payment readyPayment = getReadyPayment(event, user, requestDto.getPrice());
-        Payment canceledPayment = getCanceledPayment(event, user, requestDto.getPrice());
-        Payment failedPayment = getFailedPayment(event, user, requestDto.getPrice());
+        Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice(), point);
+        Payment readyPayment = getReadyPayment(event, user, requestDto.getPrice(), point);
+        Payment canceledPayment = getCanceledPayment(event, user, requestDto.getPrice(), point);
+        Payment failedPayment = getFailedPayment(event, user, requestDto.getPrice(), point);
         paymentRepository.saveAll(List.of(approvedPayment, readyPayment, canceledPayment, failedPayment));
 
         // when
@@ -61,24 +67,42 @@ class PaymentRepositoryTest {
         assertThat(payments).hasSize(1);
     }
 
-    Payment getFailedPayment(Event event, User user, int price) {
-        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+    Payment getFailedPayment(Event event, User user, int price, Point point) {
+        Payment payment = Payment.create("cid", event, user, price, price, null, point, 0);
         payment.fail();
         return payment;
     }
 
-    Payment getCanceledPayment(Event event, User user, int price) {
-        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+    Payment getCanceledPayment(Event event, User user, int price, Point point) {
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                price,
+                price,
+                null,
+                point,
+                0
+        );
         payment.cancel();
         return payment;
     }
 
-    Payment getReadyPayment(Event event, User user, int price) {
-        return Payment.create("cid", event, user, price, price, null, null);
+    Payment getReadyPayment(Event event, User user, int price, Point point) {
+        return Payment.create("cid", event, user, price, price, null, point, 0);
     }
 
-    Payment getApprovedPayment(Event event, User user, int price) {
-        Payment payment = Payment.create("cid", event, user, price, price, null, null);
+    Payment getApprovedPayment(Event event, User user, int price, Point point) {
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                price,
+                price,
+                null,
+                point,
+                0
+        );
         payment.approve();
         return payment;
     }

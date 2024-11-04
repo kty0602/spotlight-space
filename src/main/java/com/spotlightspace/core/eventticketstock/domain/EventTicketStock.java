@@ -47,6 +47,10 @@ public class EventTicketStock {
         this.stock--;
     }
 
+    public void decreaseStock(long count) {
+        this.stock -= count;
+    }
+
     public void increaseStock() {
         this.stock++;
     }

@@ -6,7 +6,9 @@ import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +19,12 @@ public interface EventTicketStockRepository extends JpaRepository<EventTicketSto
     @Query("select e from EventTicketStock e where e.event.id = :eventId")
     Optional<EventTicketStock> findByEventIdWithPessimisticLock(long eventId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<EventTicketStock> findByEvent(Event event);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from EventTicketStock e where e.event in :events")
+    List<EventTicketStock> findEventTicketStocksByEventIn(Set<Event> events);
 
     default EventTicketStock findByEventOrElseThrow(Event event) {
         return findByEvent(event).orElseThrow(() -> new ApplicationException(EVENT_TICKET_STOCK_NOT_FOUND));

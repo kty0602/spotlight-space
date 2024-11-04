@@ -2,13 +2,13 @@ package com.spotlightspace.core.payment.domain;
 
 import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
 import static com.spotlightspace.core.payment.domain.PaymentStatus.PENDING;
-import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.domain.EventCategory;
 import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
+import com.spotlightspace.core.point.domain.Point;
 import com.spotlightspace.core.user.domain.User;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +22,16 @@ class PaymentTest {
         // given
         User user = createUser();
         Event event = createEvent(user);
-        Payment payment = Payment.create("cid", event, user, 10_000, 10_000, null, null);
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                10_000,
+                10_000,
+                null,
+                Point.of(0, user),
+                0
+        );
 
         // when
         payment.approve();
@@ -37,7 +46,16 @@ class PaymentTest {
         // given
         User user = createUser();
         Event event = createEvent(user);
-        Payment payment = Payment.create("cid", event, user, 10_000, 10_000, null, null);
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                10_000,
+                10_000,
+                null,
+                null,
+                0
+        );
 
         // when & then
         assertThat(payment.getStatus()).isEqualTo(PENDING);

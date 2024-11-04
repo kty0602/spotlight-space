@@ -2,9 +2,14 @@ package com.spotlightspace.core.payment.scheduler;
 
 import static com.spotlightspace.core.payment.domain.PaymentStatus.READY;
 
+import com.spotlightspace.core.event.domain.Event;
+import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.repository.PaymentRepository;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,11 +23,31 @@ public class PaymentScheduler {
     private static final long FIFTEEN_MINUTE = 15L;
 
     private final PaymentRepository paymentRepository;
+    private final EventTicketStockRepository eventTicketStockRepository;
 
     @Transactional
     @Scheduled(fixedDelay = ONE_MINUTE)
     public void failPayment() {
-        paymentRepository.findAllByStatusAndUpdateAtBefore(READY, LocalDateTime.now().minusMinutes(FIFTEEN_MINUTE))
-                .forEach(Payment::fail);
+        List<Payment> payments = paymentRepository.findAllByStatusAndUpdateAtBefore(
+                READY,
+                LocalDateTime.now().minusMinutes(FIFTEEN_MINUTE)
+        );
+        if (payments.isEmpty()) {
+            return;
+        }
+
+        Map<Event, Long> eventPaymentCountMap = new HashMap<>();
+        for (Payment payment : payments) {
+            payment.fail();
+            eventPaymentCountMap.put(
+                    payment.getEvent(),
+                    eventPaymentCountMap.getOrDefault(payment.getEvent(), 0L) + 1
+            );
+        }
+
+        eventTicketStockRepository.findEventTicketStocksByEventIn(eventPaymentCountMap.keySet()).forEach(
+                eventTicketStock ->
+                        eventTicketStock.decreaseStock(eventPaymentCountMap.get(eventTicketStock.getEvent()))
+        );
     }
 }
