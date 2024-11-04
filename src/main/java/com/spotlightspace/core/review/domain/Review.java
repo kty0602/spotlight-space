@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "reviews")
 public class Review extends Timestamped {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,6 +31,7 @@ public class Review extends Timestamped {
 
     private Integer rating;
 
+
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
@@ -43,6 +43,7 @@ public class Review extends Timestamped {
         this.contents = reviewRequestDto.getContents();
     }
 
+    //파일
     public static Review of(ReviewRequestDto reviewRequestDto, Event event, User user) {
         return new Review(reviewRequestDto, event, user);
     }

@@ -1,6 +1,8 @@
 package com.spotlightspace.core.review.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
+import com.spotlightspace.core.attachment.service.AttachmentService;
+import com.spotlightspace.core.event.service.EventService;
 import com.spotlightspace.core.review.dto.ReviewRequestDto;
 import com.spotlightspace.core.review.dto.ReviewResponseDto;
 import com.spotlightspace.core.review.dto.UpdateReviewRequestDto;
@@ -11,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -20,9 +24,12 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final EventService eventService;
+    private final AttachmentService attachmentService;
 
     /**
      * 리뷰 생성로직
+     *
      * @param reviewRequestDto
      * @param eventId
      * @param authUser
@@ -30,12 +37,13 @@ public class ReviewController {
      */
     @PostMapping("/review")
     public ResponseEntity<ReviewResponseDto> createReview(
-            @RequestBody @Valid ReviewRequestDto reviewRequestDto,
+            @RequestPart @Valid ReviewRequestDto reviewRequestDto,
             @PathVariable("eventId") Long eventId,
-            @AuthenticationPrincipal AuthUser authUser
-    ) {
-        //
-        ReviewResponseDto reviewResponseDto = reviewService.createReview(reviewRequestDto, eventId, authUser);
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestPart(required = false) MultipartFile file
+    ) throws IOException {
+
+        ReviewResponseDto reviewResponseDto = reviewService.createReview(reviewRequestDto, eventId, authUser, file);
         return new ResponseEntity<>(reviewResponseDto, HttpStatus.CREATED);
     }
 
@@ -45,11 +53,13 @@ public class ReviewController {
             @PathVariable("eventId") Long eventId
     ) {
         List<ReviewResponseDto> reviews = reviewService.getReviews(eventId);
+
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 
     /**
      * 리뷰 수정 로직
+     *
      * @param updateReviewRequestDto
      * @param reviewId
      * @param authUser
@@ -57,17 +67,18 @@ public class ReviewController {
      */
     @PatchMapping("/reviews/{reviewId}")
     public ResponseEntity<ReviewResponseDto> updateReview(
-            @RequestBody UpdateReviewRequestDto updateReviewRequestDto,
+            @RequestPart UpdateReviewRequestDto updateReviewRequestDto,
             @PathVariable("reviewId") Long reviewId,
-            @AuthenticationPrincipal AuthUser authUser
-    ) {
-        ReviewResponseDto reviewResponseDto = reviewService.updateReview(reviewId, updateReviewRequestDto, authUser);
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestPart MultipartFile file
+    ) throws IOException {
+        ReviewResponseDto reviewResponseDto = reviewService.updateReview(reviewId, updateReviewRequestDto, authUser, file);
         return new ResponseEntity<>(reviewResponseDto, HttpStatus.OK);
     }
 
-
     /**
      * 리뷰 삭제
+     *
      * @param reviewId
      * @param authUser
      * @return
@@ -77,7 +88,6 @@ public class ReviewController {
             @PathVariable("reviewId") Long reviewId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-
         reviewService.deleteReview(reviewId, authUser);
         return new ResponseEntity<>("성공적으로 삭제되었습니다.", HttpStatus.OK);
     }

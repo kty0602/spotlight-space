@@ -8,4 +8,6 @@ public class UpdateReviewRequestDto {
     private Integer rating;
 
     private String contents;
+
+    private String attachment;
 }
