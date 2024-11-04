@@ -1,0 +1,92 @@
+name: deploy to ec2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: JDK 17버전 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: gradlew 실행 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: gradle build 실행
+        run: ./gradlew clean build -x test
+
+      - name: AWS Resource에 접근할 수 있게 AWS credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: ECR에 로그인하기
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Docker 이미지 생성
+        run: docker build -t ${{ secrets.SERVER_NAME }} .
+
+      - name: Docker 이미지에 Tag 붙이기
+        run: docker tag ${{ secrets.SERVER_NAME }} ${{ steps.login-ecr.outputs.registry }}/${{ secrets.SERVER_NAME }}:latest
+
+      #확장성을 고려한 설계.
+      - name: ECR에 Docker 이미지 Push하기
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.SERVER_NAME }}:latest
+
+      - name: 환경 변수 파일 생성하기
+        run: |
+          echo "ECR_URL=${{ secrets.ECR_URL }}" >> .env
+          echo "DB_LINK=${{ secrets.DB_LINK }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }}" >> .env
+          echo "SPRING_MAIL_PASSWORD=\"${{ secrets.SPRING_MAIL_PASSWORD }}\"" >> .env
+          echo "S3_BUCKET=${{ secrets.S3_BUCKET }}" >> .env
+          echo "S3_PUBLIC=${{ secrets.S3_PUBLIC }}" >> .env
+          echo "S3_SECRET=${{ secrets.S3_SECRET }}" >> .env
+          echo "S3_REGION=${{ secrets.S3_REGION }}" >> .env
+          echo "PAYMENT_KAKAO_SECRET_KEY=${{ secrets.PAYMENT_KAKAO_SECRET_KEY }}" >> .env
+          echo "PAYMENT_KAKAO_CID=${{ secrets.PAYMENT_KAKAO_CID }}" >> .env
+          echo "KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}" >> .env
+          echo "KAKAO_REDIRECT_URL=${{ secrets.KAKAO_REDIRECT_URL }}" >> .env
+          echo "NAVER_REST_API_KEY=${{ secrets.NAVER_REST_API_KEY }}" >> .env
+          echo "NAVER_REDIRECT_URL=${{ secrets.NAVER_REDIRECT_URL }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "NAVER_CLIENT_SECRET_KEY=${{ secrets.NAVER_CLIENT_SECRET_KEY }}" >> .env
+          echo "SPRING_MAIL_HOST=${{ secrets.SPRING_MAIL_HOST }}" >> .env
+          echo "SPRING_MAIL_PORT=${{ secrets.SPRING_MAIL_PORT }}" >> .env
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT}}" >> .env
+          echo "SERVER_NAME=${{ secrets.SERVER_NAME}}" >> .env
+          echo "SLACK_TOKEN=${{ secrets.SLACK_TOKEN }}" >> .env
+
+      - name: .env 파일 S3에 업로드
+        run: aws s3 cp .env s3://${{ secrets.S3_SERVER }}/.env --region ap-northeast-2
+
+      - name: 압축하기
+        run: tar -czvf $GITHUB_SHA.tar.gz appspec.yml scripts docker-compose.yml  # docker-compose.yml 추가
+
+      - name: S3에 프로젝트 폴더 업로드하기
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.tar.gz s3://${{ secrets.S3_SERVER }}/$GITHUB_SHA.tar.gz
+
+      - name: Code Deploy를 활용해 EC2에 프로젝트 코드 배포
+        run: |
+          aws deploy create-deployment \
+            --application-name ${{ secrets.SERVER_NAME }} \
+            --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --deployment-group-name ${{ secrets.SERVER_NAME }} \
+            --s3-location bucket=${{ secrets.S3_SERVER }},bundleType=tgz,key=$GITHUB_SHA.tar.gz

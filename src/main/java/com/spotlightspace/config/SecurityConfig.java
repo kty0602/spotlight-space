@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/callback").permitAll()
                         .requestMatchers("/login/page").permitAll()
                         .requestMatchers("/images/**").permitAll()
+                        .requestMatchers("/health").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();

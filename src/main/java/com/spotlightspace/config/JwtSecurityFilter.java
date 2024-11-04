@@ -38,7 +38,8 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             "/paymentform.html",
             "/loginform.html",
             "/callback",
-            "^/images/.*$"
+            "^/images/.*$",
+            "/health"
     );
 
 
