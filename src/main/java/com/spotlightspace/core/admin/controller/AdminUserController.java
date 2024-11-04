@@ -40,12 +40,22 @@ public class AdminUserController {
         }
         return ResponseEntity.ok(users);
     }
+
+    /**
+     * @param id 삭제할 사용자의 ID
+     * @return 삭제 완료 응답
+     */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         adminUserService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * @param id   역할을 변경할 사용자의 ID
+     * @param role 새로운 역할 (ADMIN으로 변경은 불가)
+     * @return 역할 변경 완료 응답
+     */
     @PatchMapping("/{id}/role")
     public ResponseEntity<Void> updateUserRole(@PathVariable Long id, @RequestParam String role) {
         adminUserService.updateUserRole(id, role);

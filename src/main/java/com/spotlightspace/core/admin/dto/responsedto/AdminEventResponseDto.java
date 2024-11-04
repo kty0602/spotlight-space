@@ -24,7 +24,8 @@ public class AdminEventResponseDto {
     private String category;
     private LocalDateTime recruitmentStartAt;
     private LocalDateTime recruitmentFinishAt;
-    private Boolean isDeleted;
+    //todo : 소문자로
+    private boolean isDeleted;
 
     // Event 엔티티에서 데이터를 가져오는 정적 팩토리 메서드
     public static AdminEventResponseDto from(Event event) {

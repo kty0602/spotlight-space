@@ -14,7 +14,7 @@ public class AdminReviewResponseDto {
     private String userNickname;
     private String contents;
     private Integer rating;
-    private Boolean isDeleted;
+    private boolean isDeleted;
 
 
     public static AdminReviewResponseDto of(Long id, String eventTitle, String userNickname, String contents, Integer rating, Boolean isDeleted) {

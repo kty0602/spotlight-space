@@ -43,6 +43,10 @@ public class AdminReviewController {
         return ResponseEntity.ok(reviews);
     }
 
+    /**
+     * @param id 삭제할 리뷰의 ID
+     * @return 성공 시 204 No Content 응답
+     */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
         adminReviewService.deleteReview(id);

@@ -45,6 +45,12 @@ public class AdminEventController {
         }
         return ResponseEntity.ok(events);
     }
+
+    /**
+     *
+     * @param id 삭제할 이벤트의 Id
+     * @return 성공 시 204 No Content 응답
+     */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         adminEventService.deleteEvent(id);

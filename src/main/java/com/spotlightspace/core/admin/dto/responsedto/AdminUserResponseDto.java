@@ -16,7 +16,7 @@ public class AdminUserResponseDto {
     private String nickname;
     private String phoneNumber;
     private String role;
-    private Boolean isDeleted;
+    private boolean isDeleted;
 
     // User 엔티티에서 데이터를 가져오는 정적 팩토리 메서드
     public static AdminUserResponseDto from(User user) {
