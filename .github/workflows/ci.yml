@@ -10,10 +10,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      elasticsearch:
+        image : docker.elastic.co/elasticsearch/elasticsearch:7.17.16
+        ports:
+          - 9200:9200
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      #도커파일에 올리면 ecr 전송비용이 증가함. (트레이드 오프 고려)
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -29,12 +35,12 @@ jobs:
       - name: Build project
         run: ./gradlew build -x test
 
-      - name: Run tests
+      - name: Run test
         env:
           SPRING_PROFILES_ACTIVE: test
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          spring_mail_username: ${{ secrets.SPRING_MAIL_USERNAME }}
-          spring_mail_password: ${{ secrets.SPRING_MAIL_PASSWORD }}
+          SPRING_MAIL_USERNAME: ${{ secrets.SPRING_MAIL_USERNAME }}
+          SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           S3_PUBLIC: ${{ secrets.S3_PUBLIC }}
           S3_SECRET: ${{ secrets.S3_SECRET }}
@@ -47,5 +53,9 @@ jobs:
           NAVER_REDIRECT_URL: ${{ secrets.NAVER_REDIRECT_URL }}
           NAVER_CLIENT_SECRET_KEY: ${{ secrets.NAVER_CLIENT_SECRET_KEY }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SPRING_MAIL_HOST: ${{ secrets.SPRING_MAIL_HOST }}
+          SPRING_MAIL_PORT: ${{ secrets.SPRING_MAIL_PORT }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          ELASTIC_URL: ${{ secrets.ELASTIC_URL }}
         run: ./gradlew test -Dspring.profiles.active=test
-

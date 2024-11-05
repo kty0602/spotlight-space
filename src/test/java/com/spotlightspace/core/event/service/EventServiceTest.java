@@ -5,12 +5,15 @@ import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
+import com.spotlightspace.core.event.domain.EventElastic;
 import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
 import com.spotlightspace.core.event.dto.request.SearchEventRequestDto;
 import com.spotlightspace.core.event.dto.request.UpdateEventRequestDto;
 import com.spotlightspace.core.event.dto.response.CreateEventResponseDto;
+import com.spotlightspace.core.event.dto.response.GetEventElasticResponseDto;
 import com.spotlightspace.core.event.dto.response.GetEventResponseDto;
 import com.spotlightspace.core.event.dto.response.UpdateEventResponseDto;
+import com.spotlightspace.core.event.repository.EventElasticRepository;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
 import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
@@ -24,14 +27,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
@@ -61,6 +62,9 @@ public class EventServiceTest {
 
     @Mock
     private AttachmentService attachmentService;
+
+    @Mock
+    private EventElasticRepository eventElasticRepository;
 
     @InjectMocks
     private EventService eventService;
@@ -145,10 +149,12 @@ public class EventServiceTest {
             // given
             AuthUser authUser = testArtistAuthUser();
             Event event = testEvent();
+            EventElastic eventElastic = testEventElastic1();
 
             UpdateEventRequestDto updateEventRequestDto = updateDefaultEventRequestDto();
 
             given(eventRepository.findByIdOrElseThrow(event.getId())).willReturn(event);
+            given(eventElasticRepository.findByIdOrElseThrow(event.getId())).willReturn(eventElastic);
             given(eventRepository.save(event)).willReturn(event);
 
             // when
@@ -211,9 +217,11 @@ public class EventServiceTest {
             // given
             AuthUser authUser = testArtistAuthUser();
             Event event = testEvent();
+            EventElastic eventElastic = testEventElastic1();
             UpdateEventRequestDto requestDto = updateDefaultEventRequestDto();
 
             given(ticketRepository.countTicketByEvent(event.getId())).willReturn(50);
+            given(eventElasticRepository.findByIdOrElseThrow(event.getId())).willReturn(eventElastic);
             given(eventRepository.findByIdOrElseThrow(event.getId())).willReturn(event);
 
             // when
@@ -283,6 +291,44 @@ public class EventServiceTest {
             assertEquals("test1", result.getContent().get(0).getTitle());
             assertEquals("test2", result.getContent().get(1).getTitle());
         }
+
+        @Test
+        @DisplayName("엘라스틱 서치 다건 조회")
+        void getEventElastic_success() throws IOException {
+
+            // given
+            EventElastic eventElastic1 = testEventElastic1();
+            EventElastic eventElastic2 = testEventElastic2();
+            List<EventElastic> events = List.of(eventElastic1, eventElastic2);
+
+            SearchEventRequestDto searchRequest =
+                    SearchEventRequestDto
+                            .of("", null, "", null, null, null);
+            String type = "";
+            int page = 1;
+            int size = 10;
+            Pageable pageable = PageRequest.of(page - 1, size);
+
+            Page<GetEventElasticResponseDto> expectedPage = new PageImpl<>(
+                    events.stream()
+                            .map(GetEventElasticResponseDto::from)
+                            .sorted(Comparator.comparing(GetEventElasticResponseDto::getTitle))
+                            .toList(),
+                    pageable,
+                    events.size()
+            );
+
+            given(eventElasticRepository.searchElasticEvents(searchRequest, type, pageable)).willReturn(expectedPage);
+
+            // when
+            Page<GetEventElasticResponseDto> result = eventService.getElasticEvents(page, size, searchRequest, type);
+
+            // then
+            assertNotNull(result);
+            assertEquals(2, result.getTotalElements());
+            assertEquals(1, result.getTotalPages());
+            assertEquals("test1", result.getContent().get(0).getTitle());
+        }
     }
 
     @Nested
@@ -296,8 +342,10 @@ public class EventServiceTest {
             // given
             AuthUser authUser = testArtistAuthUser();
             Event event = testEvent();
+            EventElastic eventElastic = testEventElastic1();
 
             given(eventRepository.findByIdOrElseThrow(event.getId())).willReturn(event);
+            given(eventElasticRepository.findByIdOrElseThrow(event.getId())).willReturn(eventElastic);
             doNothing().when(attachmentService).deleteAttachmentWithOtherTable(event.getId(), TableRole.EVENT);
 
             // when
@@ -308,8 +356,4 @@ public class EventServiceTest {
             assertTrue(event.isDeleted());
         }
     }
-
-
-
-
 }

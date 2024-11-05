@@ -25,8 +25,8 @@ spring:
       max-request-size: 5MB
       enabled: true
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
     username: ${spring_mail_username}
     password: ${spring_mail_password}
     properties:
@@ -38,8 +38,10 @@ spring:
             enable: true
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  elasticsearch:
+    uris: ${ELASTIC_URL}
 
 cloud:
   aws:
