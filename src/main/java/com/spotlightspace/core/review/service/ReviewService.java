@@ -23,9 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.spotlightspace.common.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -47,16 +48,15 @@ public class ReviewService {
         User user = checkUserExist(authUser.getUserId());
 
         //티켓아이디를 가지고 있나?
-        Ticket ticket = ticketRepository.findById(reviewRequestDto.getTicketId())
-                .orElseThrow(() -> new ApplicationException(ErrorCode.TICKET_NOT_FOUND));
+        Ticket ticket = ticketRepository.findByIdOrElseThrow(reviewRequestDto.getTicketId());
 
         if (!ticket.getEvent().getId().equals(eventId) || !ticket.getUser().getId().equals(authUser.getUserId())) {
-            throw new ApplicationException(ErrorCode.TICKET_NOT_FOUND);
+            throw new ApplicationException(TICKET_NOT_FOUND);
         }
 
         // 리뷰 달려고 하는 이벤트가 존재하는가?
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ApplicationException(ErrorCode.EVENT_NOT_FOUND));
+        Event event = eventRepository.findByIdOrElseThrow(eventId);
+
 
         Review review = reviewRepository.save(Review.of(reviewRequestDto, event, user));
 
@@ -64,7 +64,7 @@ public class ReviewService {
 
         String attachment = attachmentService.getImageUrl(review.getId(), TableRole.REVIEW);
 
-        return ReviewResponseDto.from(review, attachment);
+        return ReviewResponseDto.of(review, attachment);
     }
 
     //리뷰 조회
@@ -76,18 +76,8 @@ public class ReviewService {
         return reviews.stream()
                 .map(review -> {
                     String attachment = attachmentService.getImageUrl(review.getId(), TableRole.REVIEW);
-                    return ReviewResponseDto.from(review, attachment);
+                    return ReviewResponseDto.of(review, attachment);
                 }).collect(Collectors.toList());
-
-        //for문 리뷰 조회 시
-//        List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
-//        for (Review review : reviews) {
-//            String attachment = attachmentService.getImageUrl(review.getId(), TableRole.REVIEW);
-//            ReviewResponseDto reviewResponseDto = ReviewResponseDto.from(review, attachment);
-//            reviewResponseDtos.add(reviewResponseDto);
-//        }
-//        return reviewResponseDtos;
-
     }
 
     //리뷰 수정
@@ -95,7 +85,7 @@ public class ReviewService {
                                           AuthUser authUser, MultipartFile file) throws IOException {
         // id로 기존 리뷰를 찾음
         Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
-                .orElseThrow(() -> new ApplicationException(ErrorCode.REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new ApplicationException(REVIEW_NOT_FOUND));
 
         // 권한 체크 코드
         checkUserOnReview(review, authUser);
@@ -116,14 +106,14 @@ public class ReviewService {
         String saveAttachment = attachmentService.getImageUrl(reviewId, TableRole.REVIEW);
 
         // 수정된 리뷰 데이터를 반환 (DTO로 변환하여)
-        return ReviewResponseDto.from(savedReview, saveAttachment);
+        return ReviewResponseDto.of(savedReview, saveAttachment);
     }
 
     //리뷰 삭제
     public void deleteReview(Long reviewId, AuthUser authUser) {
         // id를 기반으로 리뷰 조회
         Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
-                .orElseThrow(() -> new ApplicationException(ErrorCode.REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new ApplicationException(REVIEW_NOT_FOUND));
         // 권한 체크 코드
         checkUserOnReview(review, authUser);
         // 리뷰 삭제
@@ -133,7 +123,7 @@ public class ReviewService {
     // 리뷰 작성자인가?
     private void checkUserOnReview(Review review, AuthUser authUser) {
         if (!review.getUser().getId().equals(authUser.getUserId())) {
-            throw new ApplicationException(ErrorCode.FORBIDDEN_USER);
+            throw new ApplicationException(FORBIDDEN_USER);
         }
     }
 

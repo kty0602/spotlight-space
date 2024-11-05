@@ -7,6 +7,8 @@ import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.ticket.domain.Ticket;
 import com.spotlightspace.core.user.domain.User;
 import java.util.Optional;
+
+import org.eclipse.jetty.util.DateCache;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,5 +25,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketQue
 
     default Ticket findFirstByUserAndEventOrElseThrow(User user, Event event) {
         return findFirstByUserAndEvent(user, event).orElseThrow(() -> new ApplicationException(TICKET_NOT_FOUND));
+    }
+
+    default Ticket findByIdOrElseThrow(Long id) {
+        return findById(id).orElseThrow(() -> new ApplicationException(TICKET_NOT_FOUND));
     }
 }

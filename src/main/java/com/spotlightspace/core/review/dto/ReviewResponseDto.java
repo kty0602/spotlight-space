@@ -19,6 +19,8 @@ public class ReviewResponseDto {
         this.contents = review.getContents();
         this.attachment = attachment;
     }
-    public static ReviewResponseDto from(Review review, String attachment) {
+
+    public static ReviewResponseDto of(Review review, String attachment) {
         return new ReviewResponseDto(review, attachment);
-    }}
+    }
+}

@@ -33,7 +33,7 @@ public class Review extends Timestamped {
 
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted = false;
+    private boolean isDeleted = false;
 
 
     private Review(ReviewRequestDto reviewRequestDto, Event event, User user) {
