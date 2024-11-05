@@ -5,14 +5,18 @@ import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
+import com.spotlightspace.core.event.domain.EventElastic;
 import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
 import com.spotlightspace.core.event.dto.request.SearchEventRequestDto;
 import com.spotlightspace.core.event.dto.request.UpdateEventRequestDto;
 import com.spotlightspace.core.event.dto.response.CreateEventResponseDto;
+import com.spotlightspace.core.event.dto.response.GetEventElasticResponseDto;
 import com.spotlightspace.core.event.dto.response.GetEventResponseDto;
 import com.spotlightspace.core.event.dto.response.UpdateEventResponseDto;
+import com.spotlightspace.core.event.repository.EventElasticRepository;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
+import com.spotlightspace.core.payment.service.PaymentService;
 import com.spotlightspace.core.ticket.repository.TicketRepository;
 import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.user.domain.User;
@@ -27,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.spotlightspace.common.exception.ErrorCode.*;
@@ -40,8 +45,10 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final AttachmentService attachmentService;
+    private final PaymentService paymentService;
     private final TicketRepository ticketRepository;
     private final EventTicketStockRepository eventTicketStockRepository;
+    private final EventElasticRepository eventElasticRepository;
 
     @Transactional
     public CreateEventResponseDto createEvent(CreateEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException {
@@ -57,6 +64,10 @@ public class EventService {
 
         eventTicketStockRepository.save(EventTicketStock.create(event));
 
+        // 엘라스틱 이벤트 저장
+        EventElastic eventElastic = EventElastic.from(requestDto, event.getId());
+        eventElasticRepository.save(eventElastic);
+
         return CreateEventResponseDto.from(event);
     }
 
@@ -68,21 +79,28 @@ public class EventService {
         checkEventAndUser(event, authUser);
         // 현재 이벤트에 결제된 티켓 수 조회
         int ticketCount = ticketRepository.countTicketByEvent(event.getId());
+        // 엘라스틱 이벤트 존재 확인
+        EventElastic eventElastic = checkElasticExist(id);
 
         // 수정 로직
         if (requestDto.getTitle() != null) {
             event.changeTitle(requestDto.getTitle());
+            eventElastic.changeTitle(requestDto.getTitle());
         }
         if (requestDto.getContent() != null) {
             event.changeContent(requestDto.getContent());
+            eventElastic.changeContent(requestDto.getContent());
         }
         if (requestDto.getLocation() != null) {
             event.changeLocation(requestDto.getLocation());
+            eventElastic.changeLocation(requestDto.getLocation());
         }
         if (requestDto.getStartAt() != null) {
             event.changeStartAt(requestDto.getStartAt());
+            eventElastic.changeStartAt(requestDto.getStartAt());
         }
         if (requestDto.getEndAt() != null) {
+            event.changeEndAt(requestDto.getEndAt());
             event.changeEndAt(requestDto.getEndAt());
         }
         if (requestDto.getMaxPeople() != null) {
@@ -91,20 +109,26 @@ public class EventService {
                 throw new ApplicationException(CANNOT_MAX_PEOPLE_UPDATE);
             }
             event.changeMaxPeople(requestDto.getMaxPeople());
+            eventElastic.changeMaxPeople(requestDto.getMaxPeople());
         }
         if (requestDto.getPrice() != null) {
             event.changePrice(requestDto.getPrice());
+            eventElastic.changePrice(requestDto.getPrice());
         }
         if (requestDto.getCategory() != null) {
             event.changeCategory(requestDto.getCategory());
+            eventElastic.changeCategory(requestDto.getCategory());
         }
         if (requestDto.getRecruitmentStartAt() != null) {
             event.changeRecruitmentStartAt(requestDto.getRecruitmentStartAt());
+            eventElastic.changeRecruitmentStartAt(requestDto.getRecruitmentStartAt());
         }
         if (requestDto.getRecruitmentFinishAt() != null) {
             event.changeRecruitmentFinishAt(requestDto.getRecruitmentFinishAt());
+            eventElastic.changeRecruitmentFinishAt(requestDto.getRecruitmentFinishAt());
         }
         eventRepository.save(event);
+        eventElasticRepository.save(eventElastic);
         return UpdateEventResponseDto.from(event);
     }
 
@@ -114,9 +138,15 @@ public class EventService {
         Event event = checkEventExist(id);
         // 이벤트를 작성한 아티스트인가 검사
         checkEventAndUser(event, authUser);
+        // 엘라스틱 이벤트 존재 확인
+        EventElastic eventElastic = checkElasticExist(id);
         // 삭제 진행 시 결제한 사람 (포인트, 쿠폰)환불처리
+        if (LocalDateTime.now().isBefore(event.getStartAt())) {
+            paymentService.cancelPayments(event);
+        }
         attachmentService.deleteAttachmentWithOtherTable(event.getId(), TableRole.EVENT);
         event.deleteEvent();
+        eventElastic.deleteEvent();
     }
 
     public GetEventResponseDto getEvent(Long eventId) {
@@ -124,10 +154,19 @@ public class EventService {
         return GetEventResponseDto.from(event);
     }
 
-    public Page<GetEventResponseDto> getEvents(int page, int size, SearchEventRequestDto searchEventRequestDto, String type) {
+    public Page<GetEventResponseDto> getEvents(
+            int page, int size, SearchEventRequestDto searchEventRequestDto, String type) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<GetEventResponseDto> events = eventRepository.searchEvents(searchEventRequestDto, type, pageable);
+        return events;
+    }
+
+    public Page<GetEventElasticResponseDto> getElasticEvents(
+            int page, int size, SearchEventRequestDto requestDto, String type) throws IOException {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        Page<GetEventElasticResponseDto> events = eventElasticRepository.searchElasticEvents(requestDto, type, pageable);
         return events;
     }
 
@@ -154,4 +193,7 @@ public class EventService {
             throw new ApplicationException(USER_NOT_ACCESS_EVENT);
         }
     }
+
+    // 엘라스틱 이벤트 존재 확인
+    private EventElastic checkElasticExist(Long id) { return eventElasticRepository.findByIdOrElseThrow(id); }
 }

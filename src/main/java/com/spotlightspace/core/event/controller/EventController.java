@@ -9,6 +9,7 @@ import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
 import com.spotlightspace.core.event.dto.request.SearchEventRequestDto;
 import com.spotlightspace.core.event.dto.request.UpdateEventRequestDto;
 import com.spotlightspace.core.event.dto.response.CreateEventResponseDto;
+import com.spotlightspace.core.event.dto.response.GetEventElasticResponseDto;
 import com.spotlightspace.core.event.dto.response.GetEventResponseDto;
 import com.spotlightspace.core.event.dto.response.UpdateEventResponseDto;
 import com.spotlightspace.core.event.service.EventService;
@@ -120,6 +121,44 @@ public class EventController {
         SearchEventRequestDto requestDto =
                 SearchEventRequestDto.of(title, maxPeople, location, category, recruitmentStart, recruitmentFinish);
         Page<GetEventResponseDto> responseDtoPage = eventService.getEvents(page, size, requestDto, type);
+        return new ResponseEntity<>(responseDtoPage, HttpStatus.OK);
+    }
+
+    /**
+     * 엘라스틱 서치를 위한 컨트롤러
+     * @param page
+     * @param size
+     * @param title
+     * @param maxPeople
+     * @param location
+     * @param category
+     * @param recruitmentStartAt
+     * @param recruitmentFinishAt
+     * @param type  아무값도 없으면 수정 날짜로 desc, upprice, downprice, date값을 넣으면 각각에 맞는 정렬이 수행
+     * @return
+     * @throws IOException
+     */
+    @GetMapping("/search")
+    public ResponseEntity<Page<GetEventElasticResponseDto>> searchElasticEvent(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "maxPeople", required = false) Integer maxPeople,
+            @RequestParam(value = "location", required = false) String location,
+            @RequestParam(value = "category", required = false) EventCategory category,
+            @RequestParam(value = "recruitmentStartAt", required = false) LocalDate recruitmentStartAt,
+            @RequestParam(value = "recruitmentFinishAt", required = false) LocalDate recruitmentFinishAt,
+            @RequestParam(value = "type") String type
+    ) throws IOException {
+        LocalDateTime recruitmentStart = (recruitmentStartAt != null)
+                ? recruitmentStartAt.atStartOfDay() : null;
+        LocalDateTime recruitmentFinish = (recruitmentFinishAt != null)
+                ? recruitmentFinishAt.plusDays(1).atStartOfDay() : null;
+
+        SearchEventRequestDto requestDto =
+                SearchEventRequestDto.of(title, maxPeople, location, category, recruitmentStart, recruitmentFinish);
+
+        Page<GetEventElasticResponseDto> responseDtoPage = eventService.getElasticEvents(page, size, requestDto, type);
         return new ResponseEntity<>(responseDtoPage, HttpStatus.OK);
     }
 

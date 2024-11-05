@@ -1,6 +1,7 @@
 package com.spotlightspace.core.data;
 
 import com.spotlightspace.core.event.domain.EventCategory;
+import com.spotlightspace.core.event.domain.EventElastic;
 import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
 import com.spotlightspace.core.event.dto.request.UpdateEventRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -76,5 +77,21 @@ public class EventTestData {
         Event event = Event.of(eventRequestDto, user);
         ReflectionTestUtils.setField(event, "id", 2L);
         return event;
+    }
+
+    public static EventElastic testEventElastic1() {
+        Event event = testEvent();
+        CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto();
+        EventElastic eventElastic = EventElastic.from(eventRequestDto, event.getId());
+        ReflectionTestUtils.setField(eventElastic, "id", 1L);
+        return eventElastic;
+    }
+
+    public static EventElastic testEventElastic2() {
+        Event event = testEvent2();
+        CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto();
+        EventElastic eventElastic = EventElastic.from(eventRequestDto, event.getId());
+        ReflectionTestUtils.setField(eventElastic, "id", 2L);
+        return eventElastic;
     }
 }
