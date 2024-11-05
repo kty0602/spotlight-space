@@ -1,8 +1,6 @@
 package com.spotlightspace.core.review.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
-import com.spotlightspace.core.attachment.service.AttachmentService;
-import com.spotlightspace.core.event.service.EventService;
 import com.spotlightspace.core.review.dto.ReviewRequestDto;
 import com.spotlightspace.core.review.dto.ReviewResponseDto;
 import com.spotlightspace.core.review.dto.UpdateReviewRequestDto;
@@ -24,8 +22,6 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final EventService eventService;
-    private final AttachmentService attachmentService;
 
     /**
      * 리뷰 생성로직
@@ -53,7 +49,6 @@ public class ReviewController {
             @PathVariable("eventId") Long eventId
     ) {
         List<ReviewResponseDto> reviews = reviewService.getReviews(eventId);
-
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 

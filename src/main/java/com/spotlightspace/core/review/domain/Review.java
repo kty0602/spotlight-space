@@ -59,4 +59,5 @@ public class Review extends Timestamped {
     public void changeIsDeleted() {
         this.isDeleted = true;
     }
+
 }

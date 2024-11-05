@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,11 +50,9 @@ public class ReviewService {
         Ticket ticket = ticketRepository.findById(reviewRequestDto.getTicketId())
                 .orElseThrow(() -> new ApplicationException(ErrorCode.TICKET_NOT_FOUND));
 
-        // 이벤트 eventId와 티켓의 eventId값이 동일한지 비교, authUser의 getUserId값과 티켓의 userId값이 동일한지 비교
-        //todo : tiket.getUser.getid).equals(authuser.getId() || ticket.getEvent().getId().equals(eventId))
-//        if (!ticket.getEvent().getId().equals(ticket.getId()) || !authUser.getUserId().equals(ticket.getId())) {
-//             throw new ApplicationException(ErrorCode.TICKET_NOT_FOUND);
-//        }
+        if (!ticket.getEvent().getId().equals(eventId) || !ticket.getUser().getId().equals(authUser.getUserId())) {
+            throw new ApplicationException(ErrorCode.TICKET_NOT_FOUND);
+        }
 
         // 리뷰 달려고 하는 이벤트가 존재하는가?
         Event event = eventRepository.findById(eventId)
@@ -70,16 +69,25 @@ public class ReviewService {
 
     //리뷰 조회
     public List<ReviewResponseDto> getReviews(Long eventId) {
+
         List<Review> reviews = reviewRepository.findByEventIdAndIsDeletedFalse(eventId);
 
-        //todo : 스트림 공부
-        // attchment를 아래 map에다 넣는다 review getid를 사용해서 각각의 review에 해당하는 attachment를 들고온다.
-
+        //stream리뷰 조회 시
         return reviews.stream()
                 .map(review -> {
                     String attachment = attachmentService.getImageUrl(review.getId(), TableRole.REVIEW);
                     return ReviewResponseDto.from(review, attachment);
                 }).collect(Collectors.toList());
+
+        //for문 리뷰 조회 시
+//        List<ReviewResponseDto> reviewResponseDtos = new ArrayList<>();
+//        for (Review review : reviews) {
+//            String attachment = attachmentService.getImageUrl(review.getId(), TableRole.REVIEW);
+//            ReviewResponseDto reviewResponseDto = ReviewResponseDto.from(review, attachment);
+//            reviewResponseDtos.add(reviewResponseDto);
+//        }
+//        return reviewResponseDtos;
+
     }
 
     //리뷰 수정
