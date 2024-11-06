@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import static com.spotlightspace.common.exception.ErrorCode.ATTACHMENT_NOT_FOUND;
 
-public interface AttachmentRepository extends JpaRepository<Attachment, Long>, AttachmentQueryRepository {
+public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
 
     Attachment findByTableRoleAndTargetId(TableRole tableRole, Long userId);
     Optional<Attachment> findByTargetIdAndTableRole(Long targetId, TableRole tableRole);
