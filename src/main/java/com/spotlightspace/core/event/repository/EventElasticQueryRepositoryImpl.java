@@ -15,6 +15,7 @@ import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,7 @@ public class EventElasticQueryRepositoryImpl implements EventElasticQueryReposit
     public Page<GetEventElasticResponseDto> searchElasticEvents(
             SearchEventRequestDto requestDto, String type, Pageable pageable) throws IOException {
 
+        LocalDateTime now = LocalDateTime.now();
         CriteriaQuery query = new CriteriaQuery(new Criteria());
 
         if (requestDto.getTitle() != null) {
@@ -59,6 +61,7 @@ public class EventElasticQueryRepositoryImpl implements EventElasticQueryReposit
             sort = Sort.by(Sort.Order.desc("price"));
         }
         if (type.equals("date")) {
+            query.addCriteria(Criteria.where("recruitmentFinishAt").greaterThanEqual(now));
             sort = Sort.by(Sort.Order.asc("recruitmentFinishAt"));
         }
 

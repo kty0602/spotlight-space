@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
     @Override
     public Page<GetEventResponseDto> searchEvents(SearchEventRequestDto requestDto, String type, Pageable pageable) {
         QEvent event = QEvent.event;
+        LocalDateTime now = LocalDateTime.now();
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(event.isDeleted.eq(false));
@@ -60,6 +62,7 @@ public class EventQueryRepositoryImpl implements EventQueryRepository {
                 orderSpecifier = event.price.desc();
                 break;
             case "date":
+                builder.and(event.recruitmentFinishAt.goe(now));
                 orderSpecifier = event.recruitmentFinishAt.asc();
                 break;
             default:
