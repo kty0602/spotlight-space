@@ -39,7 +39,8 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             "/loginform.html",
             "/callback",
             "^/images/.*$",
-            "/health"
+            "/health",
+            "/api/v(?:[1-9])/admin/auth"
     );
 
 

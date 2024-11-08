@@ -182,33 +182,42 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
 
         // 정렬을 위한 OrderSpecifier 목록 생성
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+
+        // pageable 객체로부터 정렬 정보를 가져와 각 필드에 대해 정렬 조건을 설정
         pageable.getSort().forEach(order -> {
+            // PathBuilder를 사용해 정렬할 엔티티의 필드를 설정
+            // coupon.getType()과 coupon.getMetadata()를 통해 쿠폰 엔티티의 필드에 접근
             PathBuilder<?> entityPath = new PathBuilder<>(coupon.getType(), coupon.getMetadata());
+
+            // OrderSpecifier를 생성하여 정렬 순서를 지정 (오름차순 또는 내림차순)
+            // order.isAscending()이 참이면 오름차순, 거짓이면 내림차순으로 정렬
             orderSpecifiers.add(new OrderSpecifier(
                     order.isAscending() ? Order.ASC : Order.DESC,
-                    entityPath.get(order.getProperty())
+                    entityPath.get(order.getProperty()) // 정렬할 필드명을 가져와 정렬 조건에 사용
             ));
         });
 
         // 쿼리 실행 및 페이징 적용
+        //여기서 Tuple은 여러 컬럼 값을 한 번에 가져오는 역할
         List<Tuple> tuples = queryFactory
                 .select(
-                        coupon.id,
-                        coupon.discountAmount,
-                        coupon.expiredAt,
-                        coupon.code,
-                        coupon.isUsed
+                        coupon.id, // coupon 테이블의 id 필드
+                        coupon.discountAmount, // 할인 금액
+                        coupon.expiredAt, // 쿠폰의 만료일
+                        coupon.code, // 쿠폰 코드 값
+                        coupon.isUsed // 쿠폰 사용 여부
                 )
                 .from(coupon)
                 .where(keywordContainsForCoupon(keyword)) // 검색어 조건 추가
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())  // 페이징을 위해 시작 위치 설정
+                .limit(pageable.getPageSize())  // 페이징을 위해 몇 개의 항목을 가져올지 설정
                 .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0])) // 정렬 조건 적용
-                .fetch();
+                .fetch();  // 쿼리 실행
 
         // Tuple 데이터를 DTO로 매핑
         List<AdminCouponResponseDto> results = tuples.stream()
                 .map(tuple -> AdminCouponResponseDto.of(
+                        // 튜플로 받아온 데이터를 DTO 필드에 매핑
                         tuple.get(coupon.id),
                         tuple.get(coupon.discountAmount),
                         tuple.get(coupon.expiredAt),
@@ -223,7 +232,7 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
                 .where(keywordContainsForCoupon(keyword)) // 검색어 조건 추가
                 .fetchOne();
 
-        return new PageImpl<>(results, pageable, totalCount);
+        return new PageImpl<>(results, pageable, totalCount);  // 결과를 페이지로 감싸서 반환
     }
 
 

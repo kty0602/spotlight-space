@@ -43,7 +43,7 @@ public class AdminEventResponseDto {
                 event.isDeleted()
         );
     }
-
+    //of 메서드는 DTO 객체를 생성하는 정적 팩토리 메서드로 외부에서 이 메서드를 호출해 DTO를 생성할 수 있으며, 생성자와 달리 이름을 부여할 수 있다.
     public static AdminEventResponseDto of(Long id, String title, String content, String location, LocalDateTime startAt,
                                              LocalDateTime endAt, int maxPeople, int price, String category,
                                              LocalDateTime recruitmentStartAt, LocalDateTime recruitmentFinishAt,

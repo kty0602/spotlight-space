@@ -74,3 +74,6 @@ naver:
 
 slack:
   token: ${SLACK_TOKEN}
+
+admin:
+  credentials: ${ADMIN_CREDENTIALS}
