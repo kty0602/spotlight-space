@@ -126,7 +126,7 @@ public class AuthService {
         password = passwordEncoder.encode(password);
         String birth = LocalDate.now().toString();
         SignUpUserRequestDto signupUserRequestDto = new SignUpUserRequestDto(email, password, nickname, "ROLE_USER",
-                birth, true, id.toString());
+                birth, true, id.toString(), "한국");
         User user = User.of(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
@@ -144,7 +144,7 @@ public class AuthService {
         String birth = LocalDate.now().toString();
 
         SignUpUserRequestDto signupUserRequestDto = new SignUpUserRequestDto(email, password, nickname, "ROLE_USER",
-                birth, true, mobile);
+                birth, true, mobile, "한국");
 
         User user = User.of(password, signupUserRequestDto);
 

@@ -22,7 +22,8 @@ public class UserTestData {
                 "ROLE_USER",
                 "2024-10-24",
                 false,
-                "010-1010-1010");
+                "010-1010-1010",
+                "한국");
     }
 
     public static SignUpUserRequestDto testSignupArtistRequestDto() {
@@ -33,7 +34,8 @@ public class UserTestData {
                 "ROLE_ARTIST",
                 "2024-10-24",
                 false,
-                "010-1010-1010");
+                "010-1010-1010",
+                "한국");
     }
 
     public static User testUser() {
@@ -51,7 +53,7 @@ public class UserTestData {
     }
 
     public static UpdateUserRequestDto testUpdateUserRequestDto() {
-        return new UpdateUserRequestDto("email@test.com", "newPassword", "2024-10-21", "newPhone");
+        return new UpdateUserRequestDto("email@test.com", "newPassword", "2024-10-21", "newPhone", null);
     }
 
     //authUser

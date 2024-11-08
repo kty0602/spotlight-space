@@ -107,7 +107,8 @@ class TicketServiceTest {
                 "role_user",
                 "1998-12-12",
                 false,
-                "010-1234-1234"
+                "010-1234-1234",
+                "한국"
         );
         return userRepository.save(User.of("encryptPassword", requestDto));
     }
@@ -120,7 +121,8 @@ class TicketServiceTest {
                 "role_artist",
                 "1998-12-12",
                 false,
-                "010-4321-1234"
+                "010-4321-1234",
+                "한국"
         );
         return userRepository.save(User.of("encryptPassword", requestDto));
     }

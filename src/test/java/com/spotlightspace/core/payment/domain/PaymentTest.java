@@ -70,7 +70,8 @@ class PaymentTest {
                 "role_user",
                 "1998-12-12",
                 false,
-                "010-1234-1234"
+                "010-1234-1234",
+                "한국"
         );
         return User.of("encryptPassword", requestDto);
     }
