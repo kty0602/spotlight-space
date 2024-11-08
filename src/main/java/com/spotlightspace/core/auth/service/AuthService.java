@@ -14,6 +14,8 @@ import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.auth.dto.request.SignInUserRequestDto;
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.auth.dto.response.SaveTokenResponseDto;
+import com.spotlightspace.core.point.repository.PointRepository;
+import com.spotlightspace.core.point.service.PointService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
@@ -40,6 +42,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AttachmentService attachmentService;
+    private final PointService pointService;
     private final RedisTemplate<String, String> redisTemplate;
 
     public void signUp(SignUpUserRequestDto signupUserRequestDto, MultipartFile file) throws IOException {
@@ -53,6 +56,7 @@ public class AuthService {
         User user = User.of(encryptPassword, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
+        pointService.generatePoint(savedUser);
 
         if (file != null) {
             attachmentService.addAttachment(file, savedUser.getId(), TableRole.USER);
@@ -130,6 +134,7 @@ public class AuthService {
         User user = User.of(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
+        pointService.generatePoint(savedUser);
 
         if (image != null) {
             attachmentService.addAttachmentWithUrl(image, savedUser.getId(), TableRole.USER);
@@ -149,6 +154,7 @@ public class AuthService {
         User user = User.of(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
+        pointService.generatePoint(savedUser);
 
         if (mobile != null) {
             attachmentService.addAttachmentWithUrl(mobile, savedUser.getId(), TableRole.USER);

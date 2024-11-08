@@ -60,4 +60,9 @@ public class PointService {
 
         return userRepository.findByIdOrElseThrow(userId);
     }
+
+    //todo : 이름 어떻게 할지 물어보기
+    public void generatePoint(User user) {
+        pointRepository.save(Point.of(0, user));
+    }
 }
