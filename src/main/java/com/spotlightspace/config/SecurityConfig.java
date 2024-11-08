@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/*/auth/**").permitAll()
                         .requestMatchers("/api/*/mail/**").permitAll()
-                        .requestMatchers("/api/*/admin").hasAuthority(UserRole.Authority.ADMIN)
+                        .requestMatchers("/api/*/admin/**").hasAuthority(UserRole.Authority.ADMIN)
                         .requestMatchers("/api/*/admin/auth").permitAll()
                         .requestMatchers("/paymentform.html").permitAll()
                         .requestMatchers("/loginform.html").permitAll()
