@@ -60,4 +60,5 @@ jobs:
           REDIS_HOST: ${{ secrets.REDIS_HOST }}
           REDIS_PORT: ${{ secrets.REDIS_PORT }}
           ELASTIC_URL: ${{ secrets.ELASTIC_URL }}
+          ADMIN_CREDENTIALS: ${{ secrets.ADMIN_CREDENTIALS }}
         run: ./gradlew test -Dspring.profiles.active=test
