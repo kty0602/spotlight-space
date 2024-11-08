@@ -1,13 +1,19 @@
 package com.spotlightspace.core.admin.repository;
 
+import static com.spotlightspace.core.coupon.domain.QCoupon.coupon;
+import static com.spotlightspace.core.event.domain.QEvent.event;
+import static com.spotlightspace.core.review.domain.QReview.review;
+import static com.spotlightspace.core.user.domain.QUser.user;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.spotlightspace.core.admin.dto.requestdto.SearchAdminUserRequestDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminCouponResponseDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminEventResponseDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminReviewResponseDto;
@@ -20,21 +26,15 @@ import com.spotlightspace.core.review.domain.QReview;
 import com.spotlightspace.core.review.domain.Review;
 import com.spotlightspace.core.user.domain.QUser;
 import com.spotlightspace.core.user.domain.User;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.spotlightspace.core.coupon.domain.QCoupon.coupon;
-import static com.spotlightspace.core.event.domain.QEvent.event;
-import static com.spotlightspace.core.review.domain.QReview.review;
-import static com.spotlightspace.core.user.domain.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,7 +43,8 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<AdminUserResponseDto> getAdminUsers(String keyword, Pageable pageable) {
+    public Page<AdminUserResponseDto> getAdminUsers(SearchAdminUserRequestDto searchAdminUserRequestDto,
+            Pageable pageable) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
         pageable.getSort().forEach(order -> {
             PathBuilder<?> entityPath = new PathBuilder<>(user.getType(), user.getMetadata());
@@ -53,11 +54,13 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
             ));
         });
 
+        BooleanExpression whereClause = createWhereClause(searchAdminUserRequestDto);
+
         // 쿼리 실행 및 페이징 적용
         List<Tuple> tuples = queryFactory
                 .select(user.id, user.email, user.nickname, user.phoneNumber, user.role.stringValue(), user.isDeleted)
                 .from(user)
-                .where(keywordContainsForUser(keyword))
+                .where(whereClause)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
@@ -77,7 +80,7 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
         long totalCount = queryFactory
                 .select(Wildcard.count)
                 .from(user)
-                .where(keywordContainsForUser(keyword))
+                .where(whereClause)
                 .fetchOne();
 
         return new PageImpl<>(results, pageable, totalCount);
@@ -148,7 +151,8 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
 
         // 쿼리 실행 및 페이징 적용
         List<Tuple> tuples = queryFactory
-                .select(review.id, review.event.title, review.user.nickname, review.contents, review.rating, review.isDeleted)
+                .select(review.id, review.event.title, review.user.nickname, review.contents, review.rating,
+                        review.isDeleted)
                 .from(review)
                 .where(keywordContainsForReview(keyword)) // 검색어 조건 추가
                 .offset(pageable.getOffset())
@@ -237,15 +241,40 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
 
 
     // 유저 검색용 키워드 조건 추가 메서드
-    private BooleanExpression keywordContainsForUser(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return null;
+    private BooleanExpression createWhereClause(SearchAdminUserRequestDto searchAdminUserRequestDto) {
+        BooleanExpression predicate = Expressions.asBoolean(true).isTrue();
+
+        if (searchAdminUserRequestDto.getNickname() != null && !searchAdminUserRequestDto.getNickname().trim()
+                .isEmpty()) {
+            predicate = predicate.and(user.nickname.startsWith(searchAdminUserRequestDto.getNickname()));
         }
-        return user.nickname.startsWith(keyword)
-                .or(user.email.startsWith(keyword))
-                .or(user.phoneNumber.startsWith(keyword))
-                .or(user.role.stringValue().startsWith(keyword));
+        if (searchAdminUserRequestDto.getEmail() != null && !searchAdminUserRequestDto.getEmail().trim().isEmpty()) {
+            predicate = predicate.and(user.email.startsWith(searchAdminUserRequestDto.getEmail()));
+        }
+        if (searchAdminUserRequestDto.getPhoneNumber() != null && !searchAdminUserRequestDto.getPhoneNumber().trim()
+                .isEmpty()) {
+            predicate = predicate.and(user.phoneNumber.startsWith(searchAdminUserRequestDto.getPhoneNumber()));
+        }
+        if (searchAdminUserRequestDto.getRole() != null && !searchAdminUserRequestDto.getRole().trim().isEmpty()) {
+            predicate = predicate.and(user.role.stringValue().startsWith(searchAdminUserRequestDto.getRole()));
+        }
+        if (searchAdminUserRequestDto.getLocation() != null && !searchAdminUserRequestDto.getLocation().trim()
+                .isEmpty()) {
+            predicate = predicate.and(user.location.startsWith(searchAdminUserRequestDto.getLocation()));
+        }
+        if (searchAdminUserRequestDto.isSocialLogin()) {
+            predicate = predicate.and(user.isSocialLogin.eq(true));
+        }
+        if (searchAdminUserRequestDto.isDeleted()) {
+            predicate = predicate.and(user.isDeleted.eq(true));
+        }
+        if (searchAdminUserRequestDto.getBirth() != null && !searchAdminUserRequestDto.getBirth().trim().isEmpty()) {
+            predicate = predicate.and(user.birth.stringValue().startsWith(searchAdminUserRequestDto.getBirth()));
+        }
+
+        return predicate;
     }
+
 
     // 이벤트 검색용 키워드 조건 추가 메서드
     private BooleanExpression keywordContainsForEvent(String keyword) {
@@ -316,7 +345,8 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
 
     @Override
     public List<Tuple> findCoupons(String keyword, Pageable pageable) {
-        BooleanExpression keywordCondition = keyword != null && !keyword.isEmpty() ? QCoupon.coupon.code.containsIgnoreCase(keyword) : null;
+        BooleanExpression keywordCondition =
+                keyword != null && !keyword.isEmpty() ? QCoupon.coupon.code.containsIgnoreCase(keyword) : null;
 
         return queryFactory.select(
                         QCoupon.coupon.id,
@@ -334,7 +364,8 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
 
     @Override
     public long countCoupons(String keyword) {
-        BooleanExpression keywordCondition = keyword != null && !keyword.isEmpty() ? QCoupon.coupon.code.containsIgnoreCase(keyword) : null;
+        BooleanExpression keywordCondition =
+                keyword != null && !keyword.isEmpty() ? QCoupon.coupon.code.containsIgnoreCase(keyword) : null;
 
         return queryFactory.select(Wildcard.count)
                 .from(QCoupon.coupon)

@@ -1,6 +1,7 @@
 package com.spotlightspace.core.admin.repository;
 
 import com.querydsl.core.Tuple;
+import com.spotlightspace.core.admin.dto.requestdto.SearchAdminUserRequestDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminCouponResponseDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminEventResponseDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminReviewResponseDto;
@@ -9,15 +10,15 @@ import com.spotlightspace.core.coupon.domain.Coupon;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.review.domain.Review;
 import com.spotlightspace.core.user.domain.User;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Optional;
-
 
 public interface AdminQueryRepository {
-    Page<AdminUserResponseDto> getAdminUsers(String keyword, Pageable pageable);
+
+    Page<AdminUserResponseDto> getAdminUsers(SearchAdminUserRequestDto searchAdminUserRequestDto, Pageable pageable);
 
     Page<AdminEventResponseDto> getAdminEvents(String keyword, Pageable pageable);
 

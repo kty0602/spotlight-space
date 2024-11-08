@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -20,10 +21,18 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Entity
-@Table(name = "users")
 @Getter
 @Service
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_nickname_phone", columnList = "phone_number, nickname"),
+                @Index(name = "idx_nickname_birth", columnList = "nickname, birth"),
+                @Index(name = "idx_location", columnList = "location, nickname")
+        }
+)
+
 public class User {
 
     @Id
@@ -130,3 +139,4 @@ public class User {
     }
 
 }
+

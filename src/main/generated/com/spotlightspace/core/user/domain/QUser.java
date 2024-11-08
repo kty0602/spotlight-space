@@ -29,6 +29,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final BooleanPath isSocialLogin = createBoolean("isSocialLogin");
 
+    public final StringPath location = createString("location");
+
     public final StringPath nickname = createString("nickname");
 
     public final StringPath password = createString("password");

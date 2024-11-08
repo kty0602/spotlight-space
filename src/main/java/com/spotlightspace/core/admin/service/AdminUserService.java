@@ -1,6 +1,9 @@
 package com.spotlightspace.core.admin.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+
 import com.spotlightspace.common.exception.ApplicationException;
+import com.spotlightspace.core.admin.dto.requestdto.SearchAdminUserRequestDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminUserResponseDto;
 import com.spotlightspace.core.admin.repository.AdminQueryRepository;
 import com.spotlightspace.core.user.domain.User;
@@ -13,8 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
-
 
 @Service
 @RequiredArgsConstructor
@@ -24,16 +25,24 @@ public class AdminUserService {
     private final AdminQueryRepository adminRepository;
 
     @Transactional(readOnly = true)
-    public Page<AdminUserResponseDto> getAdminUsers(int page, int size, String keyword, String sortField, String sortOrder) {
-        Sort sort = Sort.by(sortField);
-        if ("desc".equalsIgnoreCase(sortOrder)) {
+    public Page<AdminUserResponseDto> getAdminUsers(
+            int page,
+            int size,
+            SearchAdminUserRequestDto searchAdminUserRequestDto,
+            String field,
+            String order
+    ) {
+
+        Sort sort = Sort.by(field);
+
+        if ("desc".equalsIgnoreCase(order)) {
             sort = sort.descending();
         } else {
             sort = sort.ascending();
         }
 
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, sort);
-        return adminRepository.getAdminUsers(keyword, pageable);
+        return adminRepository.getAdminUsers(searchAdminUserRequestDto, pageable);
     }
 
     @Transactional
