@@ -53,7 +53,7 @@ public class UserTestData {
     }
 
     public static UpdateUserRequestDto testUpdateUserRequestDto() {
-        return new UpdateUserRequestDto("email@test.com", "newPassword", "2024-10-21", "newPhone", null);
+        return new UpdateUserRequestDto("email@test.com", "newPassword", "2024-10-21", "newPhone", "한국");
     }
 
     //authUser
