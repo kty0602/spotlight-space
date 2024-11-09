@@ -64,8 +64,9 @@ public enum ErrorCode {
 
     CANNOT_MAX_PEOPLE_UPDATE(BAD_REQUEST, "현제 결제된 인원보다 작은 수로 인원 설정이 불가합니다."),
 
-    NO_RESULTS_FOUND(NOT_FOUND,"검색 결과가 없습니다.");
+    NO_RESULTS_FOUND(NOT_FOUND,"검색 결과가 없습니다."),
 
+    NO_HAVE_LOCK(FORBIDDEN, "해당 요청은 락을 획득할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

@@ -23,6 +23,8 @@ import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.spotlightspace.common.exception.ErrorCode.*;
 
@@ -40,6 +43,7 @@ import static com.spotlightspace.common.exception.ErrorCode.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class EventService {
 
     private final EventRepository eventRepository;
@@ -49,26 +53,49 @@ public class EventService {
     private final TicketRepository ticketRepository;
     private final EventTicketStockRepository eventTicketStockRepository;
     private final EventElasticRepository eventElasticRepository;
+    private final RedissonLockService redissonLockService;
+    private static final String EVENT_LOCK_KEY = "lock:event:";
 
     @Transactional
-    public CreateEventResponseDto createEvent(CreateEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException {
-        // 유저 확인
-        User user = checkUserExist(authUser.getUserId());
-        // 유저 권한 확인
-        validateUserRole(user.getRole());
-        // 프로필 이미지가 있다면 저장 로직
-        Event event = eventRepository.save(Event.of(requestDto, user));
-        if (files != null && !files.isEmpty()) {
-            attachmentService.addAttachmentList(files, event.getId(), TableRole.EVENT);
+    public CreateEventResponseDto createEvent(
+            CreateEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException, InterruptedException {
+        String key = EVENT_LOCK_KEY + authUser.getUserId();
+        RLock lock = redissonLockService.lock(key);
+        boolean isLocked = false;
+        try {
+            // 락을 얻을 수 있으면 isLocked가 true로 설정됨
+            isLocked = lock.tryLock(0, 5, TimeUnit.SECONDS);
+
+            if (!isLocked) {
+                throw new ApplicationException(NO_HAVE_LOCK); // 락을 얻지 못한 경우 예외 발생
+            }
+
+            // 유저 확인
+            User user = checkUserExist(authUser.getUserId());
+            // 유저 권한 확인
+            validateUserRole(user.getRole());
+            // 프로필 이미지가 있다면 저장 로직
+            Event event = eventRepository.save(Event.of(requestDto, user));
+            if (files != null && !files.isEmpty()) {
+                attachmentService.addAttachmentList(files, event.getId(), TableRole.EVENT);
+            }
+
+            eventTicketStockRepository.save(EventTicketStock.create(event));
+
+            // 엘라스틱 이벤트 저장
+            EventElastic eventElastic = EventElastic.from(requestDto, event.getId());
+            eventElasticRepository.save(eventElastic);
+
+            return CreateEventResponseDto.from(event);
+        } catch (ApplicationException | InterruptedException exception) {
+            log.error("에러 발생 : {}", exception.getMessage(), exception);
+            throw exception;
+        } finally {
+            if (isLocked) {
+                log.info("unlock 수행");
+                redissonLockService.unlock(lock);
+            }
         }
-
-        eventTicketStockRepository.save(EventTicketStock.create(event));
-
-        // 엘라스틱 이벤트 저장
-        EventElastic eventElastic = EventElastic.from(requestDto, event.getId());
-        eventElasticRepository.save(eventElastic);
-
-        return CreateEventResponseDto.from(event);
     }
 
     @Transactional

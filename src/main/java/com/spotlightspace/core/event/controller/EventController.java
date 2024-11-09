@@ -49,7 +49,7 @@ public class EventController {
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestPart CreateEventRequestDto requestDto,
             @RequestPart(required = false) List<MultipartFile> files
-    ) throws IOException {
+    ) throws IOException, InterruptedException {
 
         CreateEventResponseDto createEventResponseDto = eventService.createEvent(requestDto, authUser, files);
         return new ResponseEntity<>(createEventResponseDto, HttpStatus.CREATED);

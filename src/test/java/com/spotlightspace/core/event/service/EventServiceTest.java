@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.redisson.api.RLock;
 import org.springframework.data.domain.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
@@ -66,16 +68,18 @@ public class EventServiceTest {
     @Mock
     private EventElasticRepository eventElasticRepository;
 
+    @Mock
+    private RedissonLockService redissonLockService;
+
     @InjectMocks
     private EventService eventService;
 
     @Nested
     @DisplayName("이벤트 등록 시")
     class CreateEventTests {
-
         @Test
         @DisplayName("이벤트를 정상적으로 생성한다.")
-        void createEvent_success() throws IOException {
+        void createEvent_success() throws IOException, InterruptedException {
 
             // given
             AuthUser authUser = testArtistAuthUser();
@@ -86,6 +90,10 @@ public class EventServiceTest {
             given(userRepository.findByIdOrElseThrow(authUser.getUserId())).willReturn(user);
             given(eventRepository.save(any(Event.class))).willReturn(event);
             given(eventTicketStockRepository.save(any(EventTicketStock.class))).willReturn(EventTicketStock.create(event));
+
+            RLock lock = mock(RLock.class);
+            given(redissonLockService.lock(anyString())).willReturn(lock);
+            given(lock.tryLock(0, 5, TimeUnit.SECONDS)).willReturn(true);
 
             MultipartFile file = mock(MultipartFile.class);
             List<MultipartFile> files = List.of(file);
@@ -99,7 +107,7 @@ public class EventServiceTest {
 
         @Test
         @DisplayName("이벤트 등록하려는 회원을 찾을 수 없음")
-        void createEvent_userNotFound() {
+        void createEvent_userNotFound() throws InterruptedException {
 
             // given
             AuthUser authUser = testArtistAuthUser();
@@ -107,6 +115,10 @@ public class EventServiceTest {
 
             given(userRepository.findByIdOrElseThrow(authUser.getUserId()))
                     .willThrow(new ApplicationException(USER_NOT_FOUND));
+
+            RLock lock = mock(RLock.class);
+            given(redissonLockService.lock(anyString())).willReturn(lock);
+            given(lock.tryLock(0, 5, TimeUnit.SECONDS)).willReturn(true);
 
             // when
             ApplicationException exception = assertThrows(ApplicationException.class, () -> {
@@ -119,7 +131,7 @@ public class EventServiceTest {
 
         @Test
         @DisplayName("일반 유저는 이벤트를 생성할 수 없다.")
-        void createEvent_userNotArtist() {
+        void createEvent_userNotArtist() throws InterruptedException {
 
             // given
             AuthUser authUser = testAuthUser(); // 일반 유저
@@ -127,6 +139,10 @@ public class EventServiceTest {
             CreateEventRequestDto requestDto = createDefaultEventRequestDto();
 
             given(userRepository.findByIdOrElseThrow(authUser.getUserId())).willReturn(user);
+
+            RLock lock = mock(RLock.class);
+            given(redissonLockService.lock(anyString())).willReturn(lock);
+            given(lock.tryLock(0, 5, TimeUnit.SECONDS)).willReturn(true);
 
             // when
             ApplicationException exception = assertThrows(ApplicationException.class, () -> {

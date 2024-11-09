@@ -42,7 +42,7 @@ public class AdminUserService {
         }
 
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, sort);
-        return adminRepository.getAdminUsers(searchAdminUserRequestDto, pageable);
+        return adminRepository.getAdminUsers(keyword, pageable);
     }
 
     @Transactional
