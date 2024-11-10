@@ -14,7 +14,7 @@ import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.auth.dto.request.SignInUserRequestDto;
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.auth.dto.response.SaveTokenResponseDto;
-import com.spotlightspace.core.point.repository.PointRepository;
+import com.spotlightspace.core.auth.dto.response.SignUpUserResponseDto;
 import com.spotlightspace.core.point.service.PointService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
@@ -45,7 +45,8 @@ public class AuthService {
     private final PointService pointService;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void signUp(SignUpUserRequestDto signupUserRequestDto, MultipartFile file) throws IOException {
+    public SignUpUserResponseDto signUp(SignUpUserRequestDto signupUserRequestDto, MultipartFile file)
+            throws IOException {
         boolean isExistUser = userRepository.existsByEmail(signupUserRequestDto.getEmail());
 
         if (isExistUser) {
@@ -61,6 +62,7 @@ public class AuthService {
         if (file != null) {
             attachmentService.addAttachment(file, savedUser.getId(), TableRole.USER);
         }
+        return SignUpUserResponseDto.from(savedUser);
     }
 
     @Transactional(readOnly = true)

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.spotlightspace.core.auth.dto.request.SignInUserRequestDto;
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.auth.dto.response.SaveTokenResponseDto;
+import com.spotlightspace.core.auth.dto.response.SignUpUserResponseDto;
 import com.spotlightspace.core.auth.service.AuthService;
 import com.spotlightspace.core.auth.service.KakaoService;
 import com.spotlightspace.core.auth.service.NaverService;
@@ -19,6 +20,8 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,16 +63,18 @@ public class AuthController {
      *
      * @param signUpUserRequestDto 이메일, 비밀번호, 닉네임, 권한, 생일을 설정합니다
      * @param file                 유저의 프로필 파일을 업로드하며 필수는 아닙니다
-     * @return
+     * @return 생성된 유저 정보를 반환하며 201 CREATED 로 반환됩니다.
      * @throws IOException
      */
     @PostMapping("/auth/signup")
-    public ResponseEntity<String> signUp(
+    public ResponseEntity<SignUpUserResponseDto> signUp(
             @Valid @RequestPart SignUpUserRequestDto signUpUserRequestDto,
-            @RequestPart(required = false) MultipartFile file) throws IOException {
-        authService.signUp(signUpUserRequestDto, file);
-        return ResponseEntity.ok()
-                .build();
+            @RequestPart(required = false) MultipartFile file
+    ) throws IOException {
+        SignUpUserResponseDto signupUserResponseDto = authService.signUp(signUpUserRequestDto, file);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(signupUserResponseDto);
     }
 
     /**
@@ -77,45 +82,55 @@ public class AuthController {
      *
      * @param signInUserRequestDto 아이디와 비밀번호를 받습니다
      * @param httpServletResponse  쿠키 저장용입니다
-     * @return 헤더에 엑세스 토큰을 저장합니다
+     * @return 200OK와 유저 정보를 반환하며 헤더에 엑세스 토큰을 저장합니다
      * @throws IOException
      */
     @PostMapping("/auth/signin")
-    public ResponseEntity<String> signIn(
+    public ResponseEntity<Map<String, String>> signIn(
             @Valid @RequestBody SignInUserRequestDto signInUserRequestDto,
-            HttpServletResponse httpServletResponse) throws IOException {
+            HttpServletResponse httpServletResponse
+    ) throws IOException {
         SaveTokenResponseDto tokenDto = authService.signIn(signInUserRequestDto);
         setAccessTokenCookie(httpServletResponse, tokenDto.getAccessToken());
         setRefreshTokenCookie(httpServletResponse, tokenDto.getRefreshToken());
 
-        return ResponseEntity.ok()
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "성공적으로 로그인 되었습니다.");
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .header(AUTHORIZATION, tokenDto.getAccessToken())
-                .build();
+                .body(response);
     }
 
     /**
      * 패스워드 변경을 구현했습니다.
      *
      * @param updateUserRequestDto 비밀번호와 이메일을 입력받습니다
-     * @return
+     * @return 변경되었다는 메세지를 출력합니다.
      */
     @PatchMapping("/auth/password")
-    public ResponseEntity<Void> updatePassword(
+    public ResponseEntity<Map<String, String>> updatePassword(
             @Valid @RequestBody UpdatePasswordUserRequestDto updateUserRequestDto
     ) {
         authService.updatePassword(updateUserRequestDto);
-        return ResponseEntity.ok().build();
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "성공적으로 비밀번호가 변경되었습니다!");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     /**
-     * 리프레시 토큰을 사용하여 토큰을 재발급 받습니다
+     * 리프레시 토큰을 사용하여 토큰을 재발급 받습니다.
      *
      * @param httpServletRequest 쿠키에 있는 리프레시 토큰을 확인합니다
-     * @return 헤더에 accessToken을 발급받습니다.
+     * @return 헤더에 accessToken을 발급받습니다. 또한 발급되었습니다 메세지를 출력합니다.
      * @throws UnsupportedEncodingException
      */
     @GetMapping("/auth/refresh")
-    public ResponseEntity<Void> getAccessToken(
+    public ResponseEntity<Map<String, String>> getAccessToken(
             HttpServletRequest httpServletRequest) throws UnsupportedEncodingException {
         String refreshToken = null;
 
@@ -130,9 +145,14 @@ public class AuthController {
         }
 
         String accessToken = authService.getAccessToken(refreshToken);
-        return ResponseEntity.ok()
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "성공적으로 액세스 토큰이 발급되었습니다!");
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .header(AUTHORIZATION, accessToken)
-                .build();
+                .body(response);
     }
 
     /**
@@ -152,7 +172,8 @@ public class AuthController {
 
         setRefreshTokenCookie(response, token);
 
-        return ResponseEntity.status(HttpStatus.FOUND)
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
                 .header("Location", "/")
                 .header(AUTHORIZATION, token)
                 .build();
