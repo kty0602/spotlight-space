@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GetUserResponseDto {
+
     private long id;
     private String email;
     private String nickname;

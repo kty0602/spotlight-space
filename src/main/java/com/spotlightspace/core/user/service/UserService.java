@@ -20,6 +20,7 @@ import com.spotlightspace.core.user.dto.response.GetCalculateListResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCalculateResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
+import com.spotlightspace.core.user.dto.response.UpdateUserResponseDto;
 import com.spotlightspace.core.user.repository.UserRepository;
 import com.spotlightspace.core.usercoupon.service.UserCouponService;
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class UserService {
     private final ReviewService reviewService;
     private final PointService pointService;
 
-    public void updateUser(
+    public UpdateUserResponseDto updateUser(
             Long userId,
             AuthUser authUser,
             UpdateUserRequestDto updateUserRequestDto,
@@ -75,6 +76,8 @@ public class UserService {
         String encryptPassword = passwordEncoder.encode(updateUserRequestDto.getPassword());
 
         user.update(encryptPassword, updateUserRequestDto);
+
+        return UpdateUserResponseDto.from(user);
     }
 
     @Transactional(readOnly = true)
@@ -107,6 +110,7 @@ public class UserService {
         //포인트 삭제는.. 계좌로 따로 뺄 수 없으니 삭제처리 가능케함.
         pointService.deleteUserPoint(userId);
         //프로필 이미지 삭제
+
         if (!attachmentService.getAttachmentList(userId, TableRole.USER).isEmpty()) {
             long attachmentId = attachmentService.getAttachmentList(userId, TableRole.USER).get(0).getId();
             attachmentService.deleteAttachment(attachmentId, userId, TableRole.USER, authuser);

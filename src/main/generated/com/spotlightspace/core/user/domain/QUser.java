@@ -19,7 +19,12 @@ public class QUser extends EntityPathBase<User> {
 
     public static final QUser user = new QUser("user");
 
+    public final com.spotlightspace.common.entity.QTimestamped _super = new com.spotlightspace.common.entity.QTimestamped(this);
+
     public final DatePath<java.time.LocalDate> birth = createDate("birth", java.time.LocalDate.class);
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> createAt = _super.createAt;
 
     public final StringPath email = createString("email");
 
@@ -38,6 +43,9 @@ public class QUser extends EntityPathBase<User> {
     public final StringPath phoneNumber = createString("phoneNumber");
 
     public final EnumPath<UserRole> role = createEnum("role", UserRole.class);
+
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> updateAt = _super.updateAt;
 
     public QUser(String variable) {
         super(User.class, forVariable(variable));

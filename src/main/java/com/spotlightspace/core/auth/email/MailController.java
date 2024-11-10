@@ -1,8 +1,5 @@
 package com.spotlightspace.core.auth.email;
 
-import static com.spotlightspace.common.exception.ErrorCode.INVALID_EMAIL_MATCH;
-
-import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.auth.email.dto.MatchMailRequestDto;
 import com.spotlightspace.core.auth.email.dto.SendMailRequestDto;
 import java.util.HashMap;

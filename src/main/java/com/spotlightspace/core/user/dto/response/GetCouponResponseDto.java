@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GetCouponResponseDto {
+
     private long id;
     private LocalDate expiredAt;
     private int discountAmount;

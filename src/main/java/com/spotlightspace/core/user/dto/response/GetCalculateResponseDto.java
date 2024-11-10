@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GetCalculateResponseDto {
+
     private int totalAmount;
 
     public static GetCalculateResponseDto from(int totalAmount) {

@@ -4,5 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class SendMailRequestDto {
+
     private String mail;
 }
