@@ -22,4 +22,6 @@ public interface PointRepository extends JpaRepository<Point, Long> {
         return findByUser(user)
                 .orElseThrow(() -> new ApplicationException(POINT_NOT_FOUND));
     }
+
+    void deleteByUserId(Long userId);
 }

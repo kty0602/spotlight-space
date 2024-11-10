@@ -1,9 +1,12 @@
 package com.spotlightspace.core.review.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.FORBIDDEN_USER;
+import static com.spotlightspace.common.exception.ErrorCode.REVIEW_NOT_FOUND;
+import static com.spotlightspace.common.exception.ErrorCode.TICKET_NOT_FOUND;
+
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
 import com.spotlightspace.core.attachment.service.AttachmentService;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.repository.EventRepository;
@@ -17,16 +20,13 @@ import com.spotlightspace.core.ticket.repository.TicketRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.spotlightspace.common.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -42,7 +42,7 @@ public class ReviewService {
 
     //리뷰 생성
     public ReviewResponseDto createReview(ReviewRequestDto reviewRequestDto, Long eventId,
-                                          AuthUser authUser, MultipartFile file) throws IOException {
+            AuthUser authUser, MultipartFile file) throws IOException {
 
         // 티켓을 가진 유저만 생성 할 수 있다.
         User user = checkUserExist(authUser.getUserId());
@@ -56,7 +56,6 @@ public class ReviewService {
 
         // 리뷰 달려고 하는 이벤트가 존재하는가?
         Event event = eventRepository.findByIdOrElseThrow(eventId);
-
 
         Review review = reviewRepository.save(Review.of(reviewRequestDto, event, user));
 
@@ -82,7 +81,7 @@ public class ReviewService {
 
     //리뷰 수정
     public ReviewResponseDto updateReview(Long reviewId, UpdateReviewRequestDto updateReviewRequestDto,
-                                          AuthUser authUser, MultipartFile file) throws IOException {
+            AuthUser authUser, MultipartFile file) throws IOException {
         // id로 기존 리뷰를 찾음
         Review review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
                 .orElseThrow(() -> new ApplicationException(REVIEW_NOT_FOUND));
@@ -130,5 +129,9 @@ public class ReviewService {
     // 유저 존재 확인
     private User checkUserExist(Long id) {
         return userRepository.findByIdOrElseThrow(id);
+    }
+
+    public void deleteUserReview(Long userId) {
+        reviewRepository.deleteByUserId(userId);
     }
 }

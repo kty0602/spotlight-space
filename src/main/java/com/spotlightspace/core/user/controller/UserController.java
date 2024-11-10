@@ -88,7 +88,7 @@ public class UserController {
     ) {
         String accessToken = invalidateRefreshTokenAndGetAccessToken(httpServletResponse, httpServletRequest);
 
-        userService.deleteUser(userId, authUser.getUserId(), accessToken);
+        userService.deleteUser(userId, authUser, accessToken);
         return ResponseEntity.ok().build();
     }
 

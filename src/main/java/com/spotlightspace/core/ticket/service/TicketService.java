@@ -1,5 +1,6 @@
 package com.spotlightspace.core.ticket.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.RESERVED_TICKET_CANCELLATION_REQUIRED;
 import static com.spotlightspace.common.exception.ErrorCode.TICKET_PRICE_CANNOT_BE_NEGATIVE;
 
 import com.spotlightspace.common.exception.ApplicationException;
@@ -35,5 +36,12 @@ public class TicketService {
 
     private boolean isNegativePrice(int price) {
         return price < 0;
+    }
+
+    public void deleteUserTickets(Long userId) {
+        if (ticketRepository.existTicket(userId) > 0) {
+            throw new ApplicationException(RESERVED_TICKET_CANCELLATION_REQUIRED);
+        }
+        ticketRepository.deleteByUserId(userId);
     }
 }

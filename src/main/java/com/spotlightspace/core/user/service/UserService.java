@@ -8,7 +8,12 @@ import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.attachment.service.AttachmentService;
+import com.spotlightspace.core.calculation.repository.CalculationRepository;
+import com.spotlightspace.core.event.service.EventService;
+import com.spotlightspace.core.point.service.PointService;
+import com.spotlightspace.core.review.service.ReviewService;
 import com.spotlightspace.core.ticket.repository.TicketRepository;
+import com.spotlightspace.core.ticket.service.TicketService;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
 import com.spotlightspace.core.user.dto.response.GetCalculateListResponseDto;
@@ -39,9 +44,18 @@ public class UserService {
     private final RedisTemplate<String, String> redisTemplate;
     private final TicketRepository ticketRepository;
 
-    public void updateUser(Long userId, AuthUser authUser, UpdateUserRequestDto updateUserRequestDto,
-            MultipartFile file)
-            throws IOException {
+    private final TicketService ticketService;
+    private final EventService eventService;
+    private final CalculationRepository calculationRepository;
+    private final ReviewService reviewService;
+    private final PointService pointService;
+
+    public void updateUser(
+            Long userId,
+            AuthUser authUser,
+            UpdateUserRequestDto updateUserRequestDto,
+            MultipartFile file
+    ) throws IOException {
         User user = userRepository.findByIdOrElseThrow(userId);
 
         if (!userId.equals(authUser.getUserId())) {
@@ -75,11 +89,27 @@ public class UserService {
         return GetUserResponseDto.from(user, url);
     }
 
-    public void deleteUser(Long userId, Long currentUserId, String accessToken) {
+    public void deleteUser(Long userId, AuthUser authuser, String accessToken) {
         User user = userRepository.findByIdOrElseThrow(userId);
 
-        if (!userId.equals(currentUserId)) {
+        if (!userId.equals(authuser.getUserId())) {
             throw new ApplicationException(FORBIDDEN_USER);
+        }
+
+        //티켓 삭제 로직 - 이미 예매중인 티켓이 있으면 취소후 다시 시도하게 에러 반환함
+        ticketService.deleteUserTickets(userId);
+        //정산 삭제로직 - 미정산금이 아직 남아있을경우 취소후 다시 시도하게 에러 반환함.
+        eventService.existCalculation(userId);
+        //이벤트 삭제로직 - 지금 판매중인 이벤트가 있으면 취소후 다시 시도하게 에러 반환함.
+        eventService.deleteUserEvent(userId);
+        //리뷰 삭제
+        reviewService.deleteUserReview(userId);
+        //포인트 삭제는.. 계좌로 따로 뺄 수 없으니 삭제처리 가능케함.
+        pointService.deleteUserPoint(userId);
+        //프로필 이미지 삭제
+        if (!attachmentService.getAttachmentList(userId, TableRole.USER).isEmpty()) {
+            long attachmentId = attachmentService.getAttachmentList(userId, TableRole.USER).get(0).getId();
+            attachmentService.deleteAttachment(attachmentId, userId, TableRole.USER, authuser);
         }
 
         addBlackList(userId, accessToken);
@@ -88,7 +118,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<GetCouponResponseDto> getCoupons(Long userId, Long currentUserId) {
-        User user = userRepository.findByIdOrElseThrow(userId);
+        userRepository.findByIdOrElseThrow(userId);
 
         if (!userId.equals(currentUserId)) {
             throw new ApplicationException(FORBIDDEN_USER);

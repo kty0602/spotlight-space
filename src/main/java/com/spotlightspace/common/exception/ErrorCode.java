@@ -19,6 +19,9 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "리프레시토큰이 없습니다"),
     INVALID_PASSWORD_OR_EMAIL(NOT_FOUND, "이메일 또는 패스워드가 일치하지 않습니다"),
     EMAIL_DUPLICATED(CONFLICT, "이미 존재하는 이메일입니다."),
+    RESERVED_TICKET_CANCELLATION_REQUIRED(CONFLICT, "예약된 티켓을 취소하고 다시 시도해주세요."),
+    RESERVED_EVENT_CANCELLATION_REQUIRED(CONFLICT, "진행중인 이벤트를 취소하고 다시 시도해주세요."),
+    RESERVED_CALCULATION_REQUIRED(CONFLICT, "완료되지 않은 정산이 있습니다."),
 
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
     ADMIN_PASSWORD_MISMATCH(FORBIDDEN, "어드민 암호가 일치하지 않습니다."),
@@ -64,7 +67,7 @@ public enum ErrorCode {
 
     CANNOT_MAX_PEOPLE_UPDATE(BAD_REQUEST, "현제 결제된 인원보다 작은 수로 인원 설정이 불가합니다."),
 
-    NO_RESULTS_FOUND(NOT_FOUND,"검색 결과가 없습니다."),
+    NO_RESULTS_FOUND(NOT_FOUND, "검색 결과가 없습니다."),
 
     NO_HAVE_LOCK(FORBIDDEN, "해당 요청은 락을 획득할 수 없습니다.");
 

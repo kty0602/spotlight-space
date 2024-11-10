@@ -1,5 +1,12 @@
 package com.spotlightspace.core.event.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.CANNOT_MAX_PEOPLE_UPDATE;
+import static com.spotlightspace.common.exception.ErrorCode.NO_HAVE_LOCK;
+import static com.spotlightspace.common.exception.ErrorCode.RESERVED_CALCULATION_REQUIRED;
+import static com.spotlightspace.common.exception.ErrorCode.RESERVED_EVENT_CANCELLATION_REQUIRED;
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ACCESS_EVENT;
+import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ARTIST;
+
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
@@ -16,12 +23,16 @@ import com.spotlightspace.core.event.dto.response.UpdateEventResponseDto;
 import com.spotlightspace.core.event.repository.EventElasticRepository;
 import com.spotlightspace.core.event.repository.EventRepository;
 import com.spotlightspace.core.eventticketstock.domain.EventTicketStock;
+import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.payment.service.PaymentService;
 import com.spotlightspace.core.ticket.repository.TicketRepository;
-import com.spotlightspace.core.eventticketstock.repository.EventTicketStockRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.domain.UserRole;
 import com.spotlightspace.core.user.repository.UserRepository;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -31,13 +42,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static com.spotlightspace.common.exception.ErrorCode.*;
 
 
 @Service
@@ -58,7 +62,8 @@ public class EventService {
 
     @Transactional
     public CreateEventResponseDto createEvent(
-            CreateEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files) throws IOException, InterruptedException {
+            CreateEventRequestDto requestDto, AuthUser authUser, List<MultipartFile> files)
+            throws IOException, InterruptedException {
         String key = EVENT_LOCK_KEY + authUser.getUserId();
         RLock lock = redissonLockService.lock(key);
         boolean isLocked = false;
@@ -87,10 +92,12 @@ public class EventService {
             eventElasticRepository.save(eventElastic);
 
             return CreateEventResponseDto.from(event);
-        } catch (ApplicationException | InterruptedException exception) {
+        }
+        catch (ApplicationException | InterruptedException exception) {
             log.error("에러 발생 : {}", exception.getMessage(), exception);
             throw exception;
-        } finally {
+        }
+        finally {
             if (isLocked) {
                 log.info("unlock 수행");
                 redissonLockService.unlock(lock);
@@ -193,7 +200,8 @@ public class EventService {
             int page, int size, SearchEventRequestDto requestDto, String type) throws IOException {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<GetEventElasticResponseDto> events = eventElasticRepository.searchElasticEvents(requestDto, type, pageable);
+        Page<GetEventElasticResponseDto> events = eventElasticRepository.searchElasticEvents(requestDto, type,
+                pageable);
         return events;
     }
 
@@ -216,11 +224,25 @@ public class EventService {
 
     // 이벤트를 작성한 사람인가 확인
     private void checkEventAndUser(Event event, AuthUser authUser) {
-        if(!event.getUser().getId().equals(authUser.getUserId())) {
+        if (!event.getUser().getId().equals(authUser.getUserId())) {
             throw new ApplicationException(USER_NOT_ACCESS_EVENT);
         }
     }
 
     // 엘라스틱 이벤트 존재 확인
-    private EventElastic checkElasticExist(Long id) { return eventElasticRepository.findByIdOrElseThrow(id); }
+    private EventElastic checkElasticExist(Long id) {return eventElasticRepository.findByIdOrElseThrow(id);}
+
+    @Transactional
+    public void deleteUserEvent(Long userId) {
+        if (eventRepository.existEvent(userId) > 0) {
+            throw new ApplicationException(RESERVED_EVENT_CANCELLATION_REQUIRED);
+        }
+        eventRepository.deleteByUserId(userId);
+    }
+
+    public void existCalculation(Long userId) {
+        if (eventRepository.existCalculation(userId) > 0) {
+            throw new ApplicationException(RESERVED_CALCULATION_REQUIRED);
+        }
+    }
 }

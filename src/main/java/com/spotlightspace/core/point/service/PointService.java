@@ -65,4 +65,8 @@ public class PointService {
     public void generatePoint(User user) {
         pointRepository.save(Point.of(0, user));
     }
+
+    public void deleteUserPoint(Long userId) {
+        pointRepository.deleteByUserId(userId);
+    }
 }

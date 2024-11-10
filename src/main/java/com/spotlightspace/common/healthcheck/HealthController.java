@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/health")
-public class healthController {
+public class HealthController {
 
     @GetMapping
     public String healthCheck() {

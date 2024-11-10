@@ -1,5 +1,6 @@
 package com.spotlightspace.core.user.domain;
 
+import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
 import jakarta.persistence.Column;
@@ -33,7 +34,7 @@ import org.springframework.stereotype.Service;
         }
 )
 
-public class User {
+public class User extends Timestamped {
 
     @Id
     @Column(name = "user_id")

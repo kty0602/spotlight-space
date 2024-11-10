@@ -1,20 +1,20 @@
 package com.spotlightspace.core.review.repository;
 
-import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.core.event.domain.Event;
-import com.spotlightspace.core.review.domain.Review;
-import org.springframework.data.jpa.repository.JpaRepository;
+import static com.spotlightspace.common.exception.ErrorCode.REVIEW_NOT_FOUND;
 
+import com.spotlightspace.common.exception.ApplicationException;
+import com.spotlightspace.core.review.domain.Review;
 import java.util.List;
 import java.util.Optional;
-
-import static com.spotlightspace.common.exception.ErrorCode.REVIEW_NOT_FOUND;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewQueryRepository {
 
     List<Review> findByEventIdAndIsDeletedFalse(Long eventId);
 
-    Optional<Review> findByIdAndIsDeletedFalse (Long reviewId);
+    Optional<Review> findByIdAndIsDeletedFalse(Long reviewId);
 
     Optional<Review> findByIdAndUserIdAndIsDeletedFalse(Long id, Long userId);
 
@@ -27,4 +27,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewQue
         return findByIdAndUserIdAndIsDeletedFalse(id, userId)
                 .orElseThrow(() -> new ApplicationException(REVIEW_NOT_FOUND));
     }
+
+    @Modifying
+    @Query("UPDATE Review r SET r.isDeleted = true WHERE r.user.id = :userId")
+    void deleteByUserId(Long userId);
 }
