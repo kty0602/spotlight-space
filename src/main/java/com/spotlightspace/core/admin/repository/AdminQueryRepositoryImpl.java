@@ -209,7 +209,7 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
                         coupon.discountAmount, // 할인 금액
                         coupon.expiredAt, // 쿠폰의 만료일
                         coupon.code, // 쿠폰 코드 값
-                        coupon.isUsed // 쿠폰 사용 여부
+                        coupon.isDeleted // 쿠폰 삭제 여부
                 )
                 .from(coupon)
                 .where(keywordContainsForCoupon(keyword)) // 검색어 조건 추가
@@ -226,7 +226,7 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
                         tuple.get(coupon.discountAmount),
                         tuple.get(coupon.expiredAt),
                         tuple.get(coupon.code),
-                        tuple.get(coupon.isUsed)
+                        tuple.get(coupon.isDeleted)
                 ))
                 .collect(Collectors.toList());
 
@@ -338,7 +338,7 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
     @Override
     public Optional<Coupon> findCouponById(Long id) {
         Coupon coupon = queryFactory.selectFrom(QCoupon.coupon)
-                .where(QCoupon.coupon.id.eq(id).and(QCoupon.coupon.isUsed.isFalse()))
+                .where(QCoupon.coupon.id.eq(id).and(QCoupon.coupon.isDeleted.isFalse()))
                 .fetchOne();
         return Optional.ofNullable(coupon);
     }
@@ -353,10 +353,10 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
                         QCoupon.coupon.discountAmount,
                         QCoupon.coupon.expiredAt,
                         QCoupon.coupon.code,
-                        QCoupon.coupon.isUsed
+                        QCoupon.coupon.isDeleted
                 )
                 .from(QCoupon.coupon)
-                .where(keywordCondition, QCoupon.coupon.isUsed.isFalse())
+                .where(keywordCondition, QCoupon.coupon.isDeleted.isFalse())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -369,7 +369,7 @@ public class AdminQueryRepositoryImpl implements AdminQueryRepository {
 
         return queryFactory.select(Wildcard.count)
                 .from(QCoupon.coupon)
-                .where(keywordCondition, QCoupon.coupon.isUsed.isFalse())
+                .where(keywordCondition, QCoupon.coupon.isDeleted.isFalse())
                 .fetchOne();
     }
 

@@ -36,7 +36,7 @@ public class AdminCouponService {
                 savedCoupon.getDiscountAmount(),
                 savedCoupon.getExpiredAt(),
                 savedCoupon.getCode(),
-                savedCoupon.getIsUsed()
+                savedCoupon.getIsDeleted()
         );
     }
 

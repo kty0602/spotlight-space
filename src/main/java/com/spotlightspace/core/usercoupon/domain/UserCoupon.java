@@ -2,15 +2,7 @@ package com.spotlightspace.core.usercoupon.domain;
 
 import com.spotlightspace.core.coupon.domain.Coupon;
 import com.spotlightspace.core.user.domain.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "user_coupons")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserCoupon {
 
     @Id
@@ -37,6 +29,10 @@ public class UserCoupon {
     private Coupon coupon;
 
     private boolean isUsed = false;
+
+    public static UserCoupon of(User user, Coupon coupon) {
+        return new UserCoupon(null, user, coupon, false);
+    }
 
     public void use() {
         this.isUsed = true;

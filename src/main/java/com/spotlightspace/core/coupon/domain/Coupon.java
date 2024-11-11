@@ -1,5 +1,7 @@
 package com.spotlightspace.core.coupon.domain;
 
+import com.spotlightspace.common.exception.ApplicationException;
+import com.spotlightspace.common.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -7,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+
+import static com.spotlightspace.common.exception.ErrorCode.COUPON_COUNT_EXHAUSTED;
 
 
 @Entity
@@ -34,7 +38,7 @@ public class Coupon {
     private String code;
 
     @Column(nullable = false)
-    private Boolean isUsed = true;
+    private Boolean isDeleted = true;
 
     public static Coupon of(int discountAmount, LocalDate expiredAt, Integer count, String code) {
         return new Coupon(null, discountAmount, expiredAt, count, code, false);
@@ -46,7 +50,19 @@ public class Coupon {
     }
 
     public void setAsUnusable() {
-        this.isUsed = true;
+        this.isDeleted = true;
+    }
+
+    public boolean isExpired() {
+        return LocalDate.now().isAfter(this.expiredAt);
+    }
+
+    public void decreaseCount() {
+        if (this.count > 0) {
+            this.count--;
+        } else {
+            throw new ApplicationException(COUPON_COUNT_EXHAUSTED);
+        }
     }
 
 }

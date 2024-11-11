@@ -26,6 +26,7 @@ public enum ErrorCode {
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
     ADMIN_PASSWORD_MISMATCH(FORBIDDEN, "어드민 암호가 일치하지 않습니다."),
 
+
     TICKET_PRICE_CANNOT_BE_NEGATIVE(BAD_REQUEST, "티켓 가격은 음수일 수 없습니다."),
     EVENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 이벤트입니다."),
 
@@ -44,6 +45,9 @@ public enum ErrorCode {
 
     COUPON_ALREADY_USED(BAD_REQUEST, "이미 사용된 쿠폰입니다."),
     COUPON_NOT_FOUND(NOT_FOUND, "존재하지 않는 쿠폰입니다."),
+    COUPON_EXPIRED(BAD_REQUEST, "만료된 쿠폰입니다."),
+    COUPON_COUNT_EXHAUSTED(CONFLICT, "발급 가능한 쿠폰 수량이 부족합니다."),
+    COUPON_ALREADY_ISSUED(CONFLICT, "해당 쿠폰이 이미 발급되었습니다."),
 
     INVALID_PAYMENT_STATUS(BAD_REQUEST, "유효하지 않은 결제 상태입니다."),
     NOT_IN_EVENT_RECRUITMENT_PERIOD(BAD_REQUEST, "이벤트 모집 기간이 아닙니다."),
