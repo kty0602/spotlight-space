@@ -50,6 +50,7 @@ public enum ErrorCode {
     TID_NOT_FOUND(NOT_FOUND, "결제 고유 번호가 존재하지 않습니다."),
     CANCELLATION_PERIOD_EXPIRED(BAD_REQUEST, "결제 취소 가능 기간이 아닙니다."),
     PAYMENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 결제입니다."),
+    PAYMENT_EVENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 결제 이벤트입니다."),
 
     REVIEW_NOT_FOUND(NOT_FOUND, "존재하지 않는 리뷰입니다."),
 
@@ -68,6 +69,8 @@ public enum ErrorCode {
     CANNOT_MAX_PEOPLE_UPDATE(BAD_REQUEST, "현제 결제된 인원보다 작은 수로 인원 설정이 불가합니다."),
 
     NO_RESULTS_FOUND(NOT_FOUND, "검색 결과가 없습니다."),
+
+    JSON_PROCESSING_EXCEPTION(BAD_REQUEST, "Json 처리 중 오류가 발생했습니다."),
 
     NO_HAVE_LOCK(FORBIDDEN, "해당 요청은 락을 획득할 수 없습니다.");
 

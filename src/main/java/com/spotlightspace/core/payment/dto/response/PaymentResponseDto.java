@@ -1,11 +1,11 @@
-package com.spotlightspace.core.payment.dto;
+package com.spotlightspace.core.payment.dto.response;
 
 import com.spotlightspace.core.payment.domain.Payment;
 import com.spotlightspace.core.payment.domain.PaymentStatus;
 import lombok.Getter;
 
 @Getter
-public class PaymentDto {
+public class PaymentResponseDto {
 
     private long paymentId;
     private String tid;
@@ -19,7 +19,7 @@ public class PaymentDto {
     private Long pointId;
     private PaymentStatus status;
 
-    private PaymentDto(
+    private PaymentResponseDto(
             long paymentId,
             String tid,
             String cid,
@@ -45,11 +45,11 @@ public class PaymentDto {
         this.status = status;
     }
 
-    public static PaymentDto from(Payment payment) {
+    public static PaymentResponseDto from(Payment payment) {
         Long userCouponId = payment.getUserCoupon() == null ? null : payment.getUserCoupon().getId();
         Long pointId = payment.getPoint() == null ? null : payment.getPoint().getId();
 
-        return new PaymentDto(
+        return new PaymentResponseDto(
                 payment.getId(),
                 payment.getTid(),
                 payment.getCid(),

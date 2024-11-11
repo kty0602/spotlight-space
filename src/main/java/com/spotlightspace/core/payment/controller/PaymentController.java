@@ -1,14 +1,11 @@
 package com.spotlightspace.core.payment.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
-import com.spotlightspace.core.payment.dto.PaymentDto;
+import com.spotlightspace.core.payment.dto.response.PaymentResponseDto;
 import com.spotlightspace.core.payment.dto.request.CancelPaymentRequestDto;
 import com.spotlightspace.core.payment.dto.request.ReadyPaymentRequestDto;
-import com.spotlightspace.core.payment.dto.response.ApprovePaymentResponseDto;
-import com.spotlightspace.core.payment.dto.response.CancelPaymentResponseDto;
-import com.spotlightspace.core.payment.dto.response.ReadyPaymentResponseDto;
-import com.spotlightspace.core.payment.service.PaymentService;
-import com.spotlightspace.integration.kakaopay.KakaopayApi;
+import com.spotlightspace.core.payment.dto.response.kakaopay.KakaopayPaymentResponseDto;
+import com.spotlightspace.core.payment.service.PaymentServiceFacade;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
@@ -32,19 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PaymentController {
 
-    private static final String PAYMENT_ID = "paymentId";
-
-    private final PaymentService paymentService;
-    private final KakaopayApi kakaopayApi;
+    private final PaymentServiceFacade paymentServiceFacade;
     private final String cid;
 
     public PaymentController(
-            PaymentService paymentService,
-            KakaopayApi kakaopayApi,
+            PaymentServiceFacade paymentServiceFacade,
             @Value("${payment.kakao.cid}") String cid
     ) {
-        this.paymentService = paymentService;
-        this.kakaopayApi = kakaopayApi;
+        this.paymentServiceFacade = paymentServiceFacade;
         this.cid = cid;
     }
 
@@ -57,34 +49,21 @@ public class PaymentController {
      * @return
      */
     @PostMapping("/api/v1/payments/ready")
-    public ResponseEntity<ReadyPaymentResponseDto> readyPayment(
+    public ResponseEntity<KakaopayPaymentResponseDto> readyPayment(
             HttpSession session,
             @RequestBody ReadyPaymentRequestDto requestDto,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        long paymentId = paymentService.createPayment(
+        KakaopayPaymentResponseDto responseDto = paymentServiceFacade.readyPayment(
                 authUser.getUserId(),
                 requestDto.getEventId(),
                 cid,
                 requestDto.getCouponId(),
                 requestDto.getPointAmount()
         );
+        session.setAttribute("tid", responseDto.getTid());
 
-        PaymentDto paymentDto = paymentService.getPayment(paymentId);
-
-        session.setAttribute(PAYMENT_ID, paymentDto.getPaymentId());
-
-        ReadyPaymentResponseDto readyPaymentResponseDto = kakaopayApi.readyPayment(
-                paymentDto.getCid(),
-                paymentDto.getPaymentId(),
-                paymentDto.getUserId(),
-                paymentDto.getEventTitle(),
-                paymentDto.getEventId(),
-                paymentDto.getDiscountedAmount()
-        );
-        paymentService.readyPayment(paymentDto.getPaymentId(), readyPaymentResponseDto.getTid());
-
-        return ResponseEntity.ok(readyPaymentResponseDto);
+        return ResponseEntity.ok(responseDto);
     }
 
     /**
@@ -95,20 +74,14 @@ public class PaymentController {
      * @return
      */
     @GetMapping("/api/v1/payments/approve")
-    public ResponseEntity<ApprovePaymentResponseDto> approvePayment(
+    public ResponseEntity<KakaopayPaymentResponseDto> approvePayment(
             HttpSession session,
             @RequestParam("pg_token") String pgToken
     ) {
-        PaymentDto paymentDto = paymentService.getPayment((long) session.getAttribute(PAYMENT_ID));
-
-        ApprovePaymentResponseDto responseDto = kakaopayApi.approvePayment(
+        KakaopayPaymentResponseDto responseDto = paymentServiceFacade.approvePayment(
                 pgToken,
-                paymentDto.getTid(),
-                paymentDto.getCid(),
-                paymentDto.getPaymentId(),
-                paymentDto.getUserId()
+                String.valueOf(session.getAttribute("tid"))
         );
-        paymentService.approvePayment(paymentDto.getPaymentId());
 
         return ResponseEntity.ok(responseDto);
     }
@@ -120,30 +93,10 @@ public class PaymentController {
      * @return
      */
     @PatchMapping("/api/v1/payments/cancel")
-    public ResponseEntity<CancelPaymentResponseDto> cancelPayment(@RequestBody CancelPaymentRequestDto requestDto) {
-        PaymentDto paymentDto = paymentService.getPayment(requestDto.getPaymentId());
-
-        CancelPaymentResponseDto responseDto = kakaopayApi.cancelPayment(
-                paymentDto.getCid(),
-                paymentDto.getTid(),
-                paymentDto.getDiscountedAmount(),
-                0
-        );
-        paymentService.cancelPayment(paymentDto.getPaymentId());
+    public ResponseEntity<KakaopayPaymentResponseDto> cancelPayment(@RequestBody CancelPaymentRequestDto requestDto) {
+        KakaopayPaymentResponseDto responseDto = paymentServiceFacade.cancelPayment(requestDto.getTid());
 
         return ResponseEntity.ok(responseDto);
-    }
-
-    /**
-     * 결제 실패 처리를 합니다.
-     *
-     * @param session payment id를 얻기 위한 세션입니다.
-     * @return
-     */
-    @GetMapping("/api/v1/payments/fail")
-    public ResponseEntity<Void> failPayment(HttpSession session) {
-        paymentService.failPayment((long) session.getAttribute(PAYMENT_ID));
-        return ResponseEntity.ok().build();
     }
 
     /**
@@ -155,7 +108,7 @@ public class PaymentController {
      * @return
      */
     @GetMapping("/api/v1/payments")
-    public ResponseEntity<Page<PaymentDto>> getPayment(
+    public ResponseEntity<Page<PaymentResponseDto>> getPayments(
             @RequestParam(value = "userId") long userId,
             @Positive @RequestParam(defaultValue = "1") int pageNumber,
             @Positive @RequestParam(defaultValue = "10") int pageSize
@@ -165,6 +118,6 @@ public class PaymentController {
                 pageSize,
                 Sort.by(Direction.DESC, "createAt")
         );
-        return ResponseEntity.ok(paymentService.getPayments(userId, pageRequest));
+        return ResponseEntity.ok(paymentServiceFacade.getPayments(userId, pageRequest));
     }
 }

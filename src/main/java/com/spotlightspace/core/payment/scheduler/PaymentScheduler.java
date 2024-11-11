@@ -41,7 +41,7 @@ public class PaymentScheduler {
             payment.fail();
             eventPaymentCountMap.put(
                     payment.getEvent(),
-                    eventPaymentCountMap.getOrDefault(payment.getEvent(), 0L) + 1
+                    eventPaymentCountMap.getOrDefault(payment.getEvent(), 0L) + 1L
             );
         }
 
