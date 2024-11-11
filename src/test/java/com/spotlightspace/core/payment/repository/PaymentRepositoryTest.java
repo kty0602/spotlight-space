@@ -20,6 +20,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 @SpringBootTest
 class PaymentRepositoryTest {
@@ -55,7 +57,7 @@ class PaymentRepositoryTest {
         Point point = pointRepository.save(Point.of(0, user));
 
         Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice(), point);
-        Payment readyPayment = getReadyPayment(event, user, requestDto.getPrice(), point);
+        Payment readyPayment = getPendingPayment(event, user, requestDto.getPrice(), point);
         Payment canceledPayment = getCanceledPayment(event, user, requestDto.getPrice(), point);
         Payment failedPayment = getFailedPayment(event, user, requestDto.getPrice(), point);
         paymentRepository.saveAll(List.of(approvedPayment, readyPayment, canceledPayment, failedPayment));
@@ -67,10 +69,40 @@ class PaymentRepositoryTest {
         assertThat(payments).hasSize(1);
     }
 
+    @Test
+    @DisplayName("특정 유저의 결제 내역을 조회할 수 있다.")
+    void findPaymentsWithUserId() {
+        // given
+        User user = UserTestData.testUser();
+        userRepository.save(user);
+
+        CreateEventRequestDto requestDto = getCreateEventRequestDto();
+        Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+        Point point = pointRepository.save(Point.of(0, user));
+
+        Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice(), point);
+        Payment readyPayment = getReadyPayment(event, user, requestDto.getPrice(), point);
+        Payment canceledPayment = getCanceledPayment(event, user, requestDto.getPrice(), point);
+        Payment failedPayment = getFailedPayment(event, user, requestDto.getPrice(), point);
+        paymentRepository.saveAll(List.of(approvedPayment, readyPayment, canceledPayment, failedPayment));
+
+        // when
+        Page<Payment> payments = paymentRepository.findAllByUserId(user.getId(), PageRequest.of(0, 10));
+
+        // then
+        assertThat(payments).hasSize(4);
+        assertThat(payments.getTotalElements()).isEqualTo(4);
+        assertThat(payments.getTotalPages()).isEqualTo(1);
+    }
+
     Payment getFailedPayment(Event event, User user, int price, Point point) {
         Payment payment = Payment.create("cid", event, user, price, price, null, point, 0);
         payment.fail();
         return payment;
+    }
+
+    Payment getReadyPayment(Event event, User user, int price, Point point) {
+        return Payment.create("cid", event, user, price, price, null, point, 0);
     }
 
     Payment getCanceledPayment(Event event, User user, int price, Point point) {
@@ -88,7 +120,7 @@ class PaymentRepositoryTest {
         return payment;
     }
 
-    Payment getReadyPayment(Event event, User user, int price, Point point) {
+    Payment getPendingPayment(Event event, User user, int price, Point point) {
         return Payment.create("cid", event, user, price, price, null, point, 0);
     }
 

@@ -1,6 +1,8 @@
 package com.spotlightspace.core.payment.domain;
 
 import static com.spotlightspace.core.payment.domain.PaymentStatus.APPROVED;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.CANCELED;
+import static com.spotlightspace.core.payment.domain.PaymentStatus.FAILED;
 import static com.spotlightspace.core.payment.domain.PaymentStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,6 +63,102 @@ class PaymentTest {
         assertThat(payment.getStatus()).isEqualTo(PENDING);
     }
 
+    @Test
+    @DisplayName("cancel 호출 시 Payment 상태가 CANCELED 가 된다.")
+    void cancelPayment() {
+        // given
+        User user = createUser();
+        Event event = createEvent(user);
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                10_000,
+                10_000,
+                null,
+                Point.of(0, user),
+                0
+        );
+
+        // when
+        payment.cancel();
+
+        // then
+        assertThat(payment.getStatus()).isEqualTo(CANCELED);
+    }
+
+    @Test
+    @DisplayName("fail 호출 시 Payment 상태가 FAILED 가 된다.")
+    void failPayment() {
+        // given
+        User user = createUser();
+        Event event = createEvent(user);
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                10_000,
+                10_000,
+                null,
+                Point.of(0, user),
+                0
+        );
+
+        // when
+        payment.fail();
+
+        // then
+        assertThat(payment.getStatus()).isEqualTo(FAILED);
+    }
+
+    @Test
+    @DisplayName("포인트가 사용되었다면 true를 반환한다.")
+    void isPointUsed() {
+        // given
+        User user = createUser();
+        Event event = createEvent(user);
+        Point point = Point.of(10_000, user);
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                10_000,
+                10_000,
+                null,
+                point,
+                1_000
+        );
+
+        // when & then
+        assertThat(payment.isPointUsed()).isTrue();
+    }
+
+    @Test
+    @DisplayName("approve 호출 시 포인드를 사용했다면 포인트가 차감된다.")
+    void approvePaymentWithPoint() {
+        // given
+        User user = createUser();
+        Event event = createEvent(user);
+        Point point = Point.of(10_000, user);
+        Payment payment = Payment.create(
+                "cid",
+                event,
+                user,
+                10_000,
+                10_000,
+                null,
+                point,
+                1_000
+        );
+
+        int initialPoint = point.getAmount();
+
+        // when
+        payment.approve();
+
+        // then
+        assertThat(point.getAmount()).isEqualTo(initialPoint - payment.getUsedPointAmount());
+    }
 
     private User createUser() {
         SignUpUserRequestDto requestDto = new SignUpUserRequestDto(
