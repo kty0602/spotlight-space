@@ -19,6 +19,11 @@ public class UserCouponController {
 
     private final UserCouponService userCouponService;
 
+    /**
+     *
+     * @param requestDto 쿠폰 발급에 필요한 정보가 포함된 요청 객체
+     * @return 발급된 쿠폰에 대한 세부 정보를 담고 있는 ResponseEntity
+     */
     @PostMapping("/issue")
     public ResponseEntity<UserCouponIssueResponseDto> issueCoupon(@Valid @RequestBody UserCouponIssueRequestDto requestDto) {
         UserCouponIssueResponseDto responseDto = userCouponService.issueCoupon(requestDto);
