@@ -76,7 +76,7 @@ public class EventElastic {
         this.recruitmentFinishAt = createEventRequestDto.getRecruitmentFinishAt();
     }
 
-    public static EventElastic from(CreateEventRequestDto createEventRequestDto, Long id) {
+    public static EventElastic of(CreateEventRequestDto createEventRequestDto, Long id) {
         return new EventElastic(createEventRequestDto, id);
     }
 

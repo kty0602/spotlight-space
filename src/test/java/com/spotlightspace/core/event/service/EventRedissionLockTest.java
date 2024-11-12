@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.spotlightspace.common.exception.ErrorCode.NO_HAVE_LOCK;
 import static com.spotlightspace.core.data.EventTestData.createDefaultEventRequestDto;
 import static com.spotlightspace.core.data.UserTestData.testArtist;
 import static com.spotlightspace.core.data.UserTestData.testArtistAuthUser;

@@ -1,12 +1,5 @@
 package com.spotlightspace.core.event.service;
 
-import static com.spotlightspace.common.exception.ErrorCode.CANNOT_MAX_PEOPLE_UPDATE;
-import static com.spotlightspace.common.exception.ErrorCode.NO_HAVE_LOCK;
-import static com.spotlightspace.common.exception.ErrorCode.RESERVED_CALCULATION_REQUIRED;
-import static com.spotlightspace.common.exception.ErrorCode.RESERVED_EVENT_CANCELLATION_REQUIRED;
-import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ACCESS_EVENT;
-import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_ARTIST;
-
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
@@ -43,6 +36,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import static com.spotlightspace.common.exception.ErrorCode.*;
+
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +67,7 @@ public class EventService {
             isLocked = lock.tryLock(0, 5, TimeUnit.SECONDS);
 
             if (!isLocked) {
-                throw new ApplicationException(NO_HAVE_LOCK); // 락을 얻지 못한 경우 예외 발생
+                throw new ApplicationException(LOCK_NOT_ACQUIRED); // 락을 얻지 못한 경우 예외 발생
             }
 
             // 유저 확인
@@ -88,7 +83,7 @@ public class EventService {
             eventTicketStockRepository.save(EventTicketStock.create(event));
 
             // 엘라스틱 이벤트 저장
-            EventElastic eventElastic = EventElastic.from(requestDto, event.getId());
+            EventElastic eventElastic = EventElastic.of(requestDto, event.getId());
             eventElasticRepository.save(eventElastic);
 
             return CreateEventResponseDto.from(event);
