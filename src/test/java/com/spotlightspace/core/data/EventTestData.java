@@ -82,7 +82,7 @@ public class EventTestData {
     public static EventElastic testEventElastic1() {
         Event event = testEvent();
         CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto();
-        EventElastic eventElastic = EventElastic.from(eventRequestDto, event.getId());
+        EventElastic eventElastic = EventElastic.of(eventRequestDto, event.getId());
         ReflectionTestUtils.setField(eventElastic, "id", 1L);
         return eventElastic;
     }
@@ -90,7 +90,7 @@ public class EventTestData {
     public static EventElastic testEventElastic2() {
         Event event = testEvent2();
         CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto();
-        EventElastic eventElastic = EventElastic.from(eventRequestDto, event.getId());
+        EventElastic eventElastic = EventElastic.of(eventRequestDto, event.getId());
         ReflectionTestUtils.setField(eventElastic, "id", 2L);
         return eventElastic;
     }
