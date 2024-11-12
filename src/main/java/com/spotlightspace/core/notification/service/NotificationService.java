@@ -86,7 +86,7 @@ public class NotificationService {
             try {
                 emitter.send(SseEmitter.event().name("connect").data(message));
                 System.out.println("알림 전송 성공: 사용자 ID=" + userId + ", 메시지=" + message);
-            } catch (Exception e) {
+            } catch (Exception exception) {
                 userEmitters.remove(userId);
             }
         }
