@@ -9,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,10 +33,14 @@ public class Review extends Timestamped {
 
     private Integer rating;
 
-
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
+    @Column(name = "likes")
+    private int likeCount;
+
+    @OneToMany(cascade = CascadeType.PERSIST)
+    private List<User> likeUsers;
 
     private Review(ReviewRequestDto reviewRequestDto, Event event, User user) {
         this.event = event;
@@ -48,6 +54,12 @@ public class Review extends Timestamped {
         return new Review(reviewRequestDto, event, user);
     }
 
+    public void likeReview(User user) {
+        this.likeUsers.add(user);
+    }
+
+    public void dislikeReview(User user) { this.likeUsers.remove(user); }
+
     public void changeRating(Integer rating) {
         this.rating = rating;
     }
@@ -59,5 +71,4 @@ public class Review extends Timestamped {
     public void changeIsDeleted() {
         this.isDeleted = true;
     }
-
 }

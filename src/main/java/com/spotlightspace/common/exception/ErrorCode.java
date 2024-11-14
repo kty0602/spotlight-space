@@ -24,7 +24,7 @@ public enum ErrorCode {
     RESERVED_CALCULATION_REQUIRED(CONFLICT, "완료되지 않은 정산이 있습니다."),
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
     ADMIN_PASSWORD_MISMATCH(FORBIDDEN, "어드민 암호가 일치하지 않습니다."),
-    
+
     TICKET_PRICE_CANNOT_BE_NEGATIVE(BAD_REQUEST, "티켓 가격은 음수일 수 없습니다."),
     EVENT_NOT_FOUND(NOT_FOUND, "존재하지 않는 이벤트입니다."),
 
@@ -73,7 +73,7 @@ public enum ErrorCode {
     NO_RESULTS_FOUND(NOT_FOUND, "검색 결과가 없습니다."),
 
     JSON_PROCESSING_EXCEPTION(BAD_REQUEST, "Json 처리 중 오류가 발생했습니다."),
-    
+
     LOCK_NOT_ACQUIRED(FORBIDDEN, "해당 요청은 락을 획득할 수 없습니다.");
 
     private final HttpStatus httpStatus;

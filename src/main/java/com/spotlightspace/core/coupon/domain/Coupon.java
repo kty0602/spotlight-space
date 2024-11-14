@@ -1,7 +1,6 @@
 package com.spotlightspace.core.coupon.domain;
 
 import com.spotlightspace.common.exception.ApplicationException;
-import com.spotlightspace.common.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

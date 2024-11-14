@@ -35,6 +35,10 @@ public class QReview extends EntityPathBase<Review> {
 
     public final BooleanPath isDeleted = createBoolean("isDeleted");
 
+    public final NumberPath<Integer> likeCount = createNumber("likeCount", Integer.class);
+
+    public final ListPath<com.spotlightspace.core.user.domain.User, com.spotlightspace.core.user.domain.QUser> likeUsers = this.<com.spotlightspace.core.user.domain.User, com.spotlightspace.core.user.domain.QUser>createList("likeUsers", com.spotlightspace.core.user.domain.User.class, com.spotlightspace.core.user.domain.QUser.class, PathInits.DIRECT2);
+
     public final NumberPath<Integer> rating = createNumber("rating", Integer.class);
 
     //inherited

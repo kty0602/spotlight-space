@@ -1,6 +1,9 @@
 package com.spotlightspace.core.review.controller;
 
 import com.spotlightspace.common.annotation.AuthUser;
+import com.spotlightspace.core.likes.likesRequestDto.LikesResponseDto;
+import com.spotlightspace.core.likes.service.LikeService;
+import com.spotlightspace.core.review.dto.GetReviewResponseDto;
 import com.spotlightspace.core.review.dto.ReviewRequestDto;
 import com.spotlightspace.core.review.dto.ReviewResponseDto;
 import com.spotlightspace.core.review.dto.UpdateReviewRequestDto;
@@ -22,6 +25,8 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final LikeService likeService;
+
 
     /**
      * 리뷰 생성로직
@@ -45,10 +50,11 @@ public class ReviewController {
 
     //리뷰 조회
     @GetMapping("/reviews")
-    public ResponseEntity<List<ReviewResponseDto>> getReviews(
-            @PathVariable("eventId") Long eventId
+    public ResponseEntity<List<GetReviewResponseDto>> getReviews(
+            @PathVariable("eventId") Long eventId,
+            @AuthenticationPrincipal AuthUser authUser
     ) {
-        List<ReviewResponseDto> reviews = reviewService.getReviews(eventId);
+        List<GetReviewResponseDto> reviews = reviewService.getReviews(eventId, authUser);
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 
@@ -65,7 +71,7 @@ public class ReviewController {
             @RequestPart UpdateReviewRequestDto updateReviewRequestDto,
             @PathVariable("reviewId") Long reviewId,
             @AuthenticationPrincipal AuthUser authUser,
-            @RequestPart MultipartFile file
+            @RequestPart(required = false) MultipartFile file
     ) throws IOException {
         ReviewResponseDto reviewResponseDto = reviewService.updateReview(reviewId, updateReviewRequestDto, authUser, file);
         return new ResponseEntity<>(reviewResponseDto, HttpStatus.OK);
@@ -85,6 +91,38 @@ public class ReviewController {
     ) {
         reviewService.deleteReview(reviewId, authUser);
         return new ResponseEntity<>("성공적으로 삭제되었습니다.", HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param reviewId
+     * @param userId
+     * @return
+     */
+    //좋아요
+    @PostMapping("/reviews/likes")
+    public ResponseEntity<LikesResponseDto> likeReview(
+            @PathVariable Long reviewId,
+            @RequestParam Long userId
+    ) {
+        LikesResponseDto addLike = likeService.likeReview(userId, reviewId);
+        return new ResponseEntity<>(addLike, HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param reviewId
+     * @param userId
+     * @return
+     */
+    //좋아요 취소
+    @PatchMapping("/reviews/likes")
+    public ResponseEntity<LikesResponseDto> cancelLike(
+            @PathVariable Long reviewId,
+            @RequestParam Long userId
+    ) {
+        LikesResponseDto message = likeService.cancelLike(userId, reviewId);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
 }

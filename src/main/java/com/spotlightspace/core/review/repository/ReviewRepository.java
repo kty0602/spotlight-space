@@ -1,14 +1,15 @@
 package com.spotlightspace.core.review.repository;
 
-import static com.spotlightspace.common.exception.ErrorCode.REVIEW_NOT_FOUND;
-
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.review.domain.Review;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.spotlightspace.common.exception.ErrorCode.REVIEW_NOT_FOUND;
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewQueryRepository {
 
