@@ -44,6 +44,7 @@ public class AuthService {
     private final AttachmentService attachmentService;
     private final PointService pointService;
     private final RedisTemplate<String, String> redisTemplate;
+    private static final int price = 0;
 
     public SignUpUserResponseDto signUp(SignUpUserRequestDto signupUserRequestDto, MultipartFile file)
             throws IOException {
@@ -57,7 +58,7 @@ public class AuthService {
         User user = User.of(encryptPassword, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
-        pointService.generatePoint(savedUser);
+        pointService.createPoint(price, savedUser);
 
         if (file != null) {
             attachmentService.addAttachment(file, savedUser.getId(), TableRole.USER);
@@ -136,7 +137,7 @@ public class AuthService {
         User user = User.of(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
-        pointService.generatePoint(savedUser);
+        pointService.createPoint(price, savedUser);
 
         if (image != null) {
             attachmentService.addAttachmentWithUrl(image, savedUser.getId(), TableRole.USER);
@@ -156,7 +157,7 @@ public class AuthService {
         User user = User.of(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
-        pointService.generatePoint(savedUser);
+        pointService.createPoint(price, savedUser);
 
         if (mobile != null) {
             attachmentService.addAttachmentWithUrl(mobile, savedUser.getId(), TableRole.USER);

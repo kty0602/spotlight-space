@@ -40,19 +40,17 @@ public class PointServiceTest {
     @DisplayName("포인트가 없을 때 새로운 데이터를 가지고 생성한다.")
     void createNewPoint() {
         // given
-        AuthUser authUser = testAuthUser();
         User user = testUser();
         CreatePointRequestDto requestDto = CreatePointRequestDto.of(10000);
         int amount = (int) (requestDto.getPrice() * 0.005);
 
         Point point = Point.of(amount, user);
 
-        given(userRepository.findByIdOrElseThrow(authUser.getUserId())).willReturn(user);
         given(pointRepository.findByUser(user)).willReturn(Optional.empty());
         given(pointRepository.save(any(Point.class))).willReturn(point);
 
         // when
-        CreatePointResponseDto responseDto = pointService.createPoint(requestDto, authUser);
+        CreatePointResponseDto responseDto = pointService.createPoint(requestDto.getPrice(), user);
 
         // then
         assertNotNull(responseDto);
@@ -63,7 +61,6 @@ public class PointServiceTest {
     @DisplayName("포인트가 있을 때 기존 데이터에 포인트를 추가한다.")
     void addPointsWhenPointExists() {
         // given
-        AuthUser authUser = testAuthUser();
         User user = testUser();
 
         int initPoint = 100;
@@ -74,12 +71,11 @@ public class PointServiceTest {
 
         CreatePointRequestDto requestDto = CreatePointRequestDto.of(addedPoint);
 
-        given(userRepository.findByIdOrElseThrow(authUser.getUserId())).willReturn(user);
         given(pointRepository.findByUser(user)).willReturn(Optional.of(existingPoint));
         given(pointRepository.save(existingPoint)).willReturn(existingPoint);
 
         // when
-        CreatePointResponseDto responseDto = pointService.createPoint(requestDto, authUser);
+        CreatePointResponseDto responseDto = pointService.createPoint(requestDto.getPrice(), user);
 
         // then
         assertNotNull(responseDto);

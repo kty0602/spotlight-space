@@ -15,11 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Entity
-@Table(name = "events",
-        indexes = {
-                @Index(name = "idx_title_category", columnList = "title, category"),
-                @Index(name = "idx_location_category", columnList = "location, category")
-        })
+@Table(name = "events")
 public class Event extends Timestamped {
 
     @Id

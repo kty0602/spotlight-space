@@ -21,13 +21,10 @@ public class PointService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CreatePointResponseDto createPoint(CreatePointRequestDto requestDto, AuthUser authUser) {
-
-        // 맴버 존재하는지 확인
-        User user = checkUserData(authUser.getUserId());
+    public CreatePointResponseDto createPoint(int price, User user) {
 
         // 0.5% 포인트 변환
-        int rewardPoint = (int) (requestDto.getPrice() * 0.005);
+        int rewardPoint = (int) (price * 0.005);
         // 포인트 테이블에 맴버 id값으로 데이터가 존재하는 지 확인
         Point point = pointRepository.findByUser(user).orElse(null);
 
@@ -59,11 +56,6 @@ public class PointService {
     private User checkUserData(Long userId) {
 
         return userRepository.findByIdOrElseThrow(userId);
-    }
-
-    //todo : 이름 어떻게 할지 물어보기
-    public void generatePoint(User user) {
-        pointRepository.save(Point.of(0, user));
     }
 
     public void deleteUserPoint(Long userId) {
