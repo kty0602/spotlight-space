@@ -30,7 +30,7 @@ public class CalculationService {
     private final PaymentRepository paymentRepository;
     private final PointRepository pointRepository;
 
-    @Scheduled(cron = MONTHLY_AT_3_AM_ON_1ST)
+   // @Scheduled(cron = MONTHLY_AT_3_AM_ON_1ST)
     public void calculate() {
         LocalDateTime now = LocalDateTime.now()
                 .withDayOfMonth(1)

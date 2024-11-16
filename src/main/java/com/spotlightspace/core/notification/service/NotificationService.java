@@ -55,7 +55,7 @@ public class NotificationService {
     }
 
     // 매 분마다 작업 실행
-    @Scheduled(cron = NOTIFICATION_CRON_EVERY_MINUTE)
+    //@Scheduled(cron = NOTIFICATION_CRON_EVERY_MINUTE)
     public void sendNotification() {
         LocalDateTime now = LocalDateTime.now();
 

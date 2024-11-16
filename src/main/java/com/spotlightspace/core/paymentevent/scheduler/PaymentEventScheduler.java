@@ -33,7 +33,7 @@ public class PaymentEventScheduler {
     private final KakaopayApi kakaopayApi;
     private final PaymentRepository paymentRepository;
 
-    @Scheduled(fixedDelay = ONE_MINUTE)
+   // @Scheduled(fixedDelay = ONE_MINUTE)
     public void handleReadyTypePaymentEvent() {
         List<PaymentEvent> paymentEvents =
                 paymentEventRepository.findAllByTypeAndCreatedAtBefore(READY, LocalDateTime.now().minusMinutes(1));
@@ -50,7 +50,7 @@ public class PaymentEventScheduler {
         );
     }
 
-    @Scheduled(fixedDelay = ONE_MINUTE)
+    //@Scheduled(fixedDelay = ONE_MINUTE)
     public void handleApproveTypePaymentEvent() {
         List<PaymentEvent> paymentEvents =
                 paymentEventRepository.findAllByTypeAndCreatedAtBefore(APPROVE, LocalDateTime.now().minusMinutes(1));
@@ -74,7 +74,7 @@ public class PaymentEventScheduler {
         );
     }
 
-    @Scheduled(fixedDelay = ONE_MINUTE)
+    //@Scheduled(fixedDelay = ONE_MINUTE)
     public void handleCancelTypePaymentEvent() {
         List<PaymentEvent> paymentEvents =
                 paymentEventRepository.findAllByTypeAndCreatedAtBefore(CANCEL, LocalDateTime.now().minusMinutes(1));
