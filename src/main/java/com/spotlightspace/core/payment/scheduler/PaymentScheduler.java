@@ -26,7 +26,7 @@ public class PaymentScheduler {
     private final EventTicketStockRepository eventTicketStockRepository;
 
     @Transactional
-    @Scheduled(fixedDelay = ONE_MINUTE)
+    //@Scheduled(fixedDelay = ONE_MINUTE)
     public void failPayment() {
         List<Payment> payments = paymentRepository.findAllByStatusAndUpdateAtBefore(
                 READY,
