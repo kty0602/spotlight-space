@@ -1,0 +1,88 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        auto_quote_keyword: true
+        highlight_sql: true
+        show_sql: true
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+  config:
+    import: optional:file:.env[.properties]
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+      enabled: true
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  elasticsearch:
+    uris: ${ELASTIC_URL}
+
+cloud:
+  aws:
+    s3:
+      bucket: ${S3_BUCKET}
+    credentials:
+      accessKey: ${S3_PUBLIC}
+      secretKey: ${S3_SECRET}
+    region:
+      static: ${S3_REGION}
+    stack:
+      auto: false
+
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
+#  config: classpath:logback-spring.xml
+
+payment:
+  kakao:
+    secret:
+      key: ${PAYMENT_KAKAO_SECRET_KEY}
+    cid: ${PAYMENT_KAKAO_CID}
+
+kakao:
+  client_id: ${KAKAO_REST_API_KEY}
+  redirect_uri: ${KAKAO_REDIRECT_URL}
+
+naver:
+  client_id: ${NAVER_REST_API_KEY}
+  redirect_uri : ${NAVER_REDIRECT_URL}
+  client_secret: ${NAVER_CLIENT_SECRET_KEY}
+
+slack:
+  token: ${SLACK_TOKEN}
+
+admin:
+  credentials: ${ADMIN_CREDENTIALS}
+#
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "prometheus"

@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  spotlight-server:
+    image: "${ECR_URL}:latest"
+    container_name: spotlight-server
+    ports:
+      - "8080:8080"
+    env_file:
+      - /home/ubuntu/spotlight-server/.env
+    environment:
+      DB_LINK: ${DB_LINK}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_PUBLIC: ${S3_PUBLIC}
+      S3_SECRET: ${S3_SECRET}
+      S3_REGION: ${S3_REGION}
+      PAYMENT_KAKAO_SECRET_KEY: ${PAYMENT_KAKAO_SECRET_KEY}
+      PAYMENT_KAKAO_CID: ${PAYMENT_KAKAO_CID}
+      KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY}
+      KAKAO_REDIRECT_URL: ${KAKAO_REDIRECT_URL}
+      NAVER_REST_API_KEY: ${NAVER_REST_API_KEY}
+      NAVER_REDIRECT_URL: ${NAVER_REDIRECT_URL}
+      NAVER_CLIENT_SECRET_KEY: ${NAVER_CLIENT_SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      ELASTIC_URL: ${ELASTIC_URL}
+      LOGSTASH_HOST: ${LOGSTASH_HOST}
+      LOGSTASH_PORT: ${LOGSTASH_PORT}

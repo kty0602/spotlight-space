@@ -1,0 +1,21 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    # EC2의 어떤 경로에 저장할 지 지정한다.
+    destination: /home/ubuntu/spotlight-server
+
+permissions:
+  - object: /
+    owner: ubuntu
+    group: ubuntu
+
+hooks:
+  BeforeInstall:
+    - location: scripts/stop_health_check.sh
+      timeout: 300
+  AfterInstall:
+    - location: scripts/start-server.sh
+      timeout: 300
+      runas: ubuntu
