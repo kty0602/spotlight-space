@@ -20,13 +20,6 @@ jobs:
         image: redis
         ports:
           - 6379:6379
-      logstash:
-        image: docker.elastic.co/logstash/logstash:7.17.16
-        ports:
-          - 5001:5001
-        options: >
-          --env LS_JAVA_OPTS="-Xmx256m -Xms256m" 
-          --env LS_CONFIG=/usr/share/logstash/pipeline/logstash.conf
 
     steps:
       - name: Checkout code
@@ -37,21 +30,6 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '17'
-
-      - name: Create Logstash configuration
-        run: |
-          mkdir -p logstash/pipeline
-          echo '
-          input {
-            tcp {
-              port => 5001
-              codec => json
-            }
-          }
-          output {
-            stdout {}
-          }
-          ' > logstash/pipeline/logstash.conf
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
@@ -88,4 +66,6 @@ jobs:
           REDIS_PORT: 6379
           ELASTIC_URL: localhost:9200
           ADMIN_CREDENTIALS: ${{ secrets.ADMIN_CREDENTIALS }}
+          LOGSTASH_HOST: ${{ secrets.LOGSTASH_HOST }}
+          LOGSTASH_PORT: ${{ secrets.LOGSTASH_PORT }}
         run: ./gradlew test -Dspring.profiles.active=test
