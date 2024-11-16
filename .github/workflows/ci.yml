@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       elasticsearch:
-        image : docker.elastic.co/elasticsearch/elasticsearch:7.17.16
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.16
         ports:
           - 9200:9200
         options: --env discovery.type=single-node
@@ -20,23 +20,44 @@ jobs:
         image: redis
         ports:
           - 6379:6379
+      logstash:
+        image: docker.elastic.co/logstash/logstash:7.17.16
+        ports:
+          - 5001:5001
+        options: >
+          --env LS_JAVA_OPTS="-Xmx256m -Xms256m" 
+          --env LS_CONFIG=/usr/share/logstash/pipeline/logstash.conf
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      #도커파일에 올리면 ecr 전송비용이 증가함. (트레이드 오프 고려)
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: '17'
 
-      - name: Clean generated sources
-        run: rm -rf src/main/generated
+      - name: Create Logstash configuration
+        run: |
+          mkdir -p logstash/pipeline
+          echo '
+          input {
+            tcp {
+              port => 5001
+              codec => json
+            }
+          }
+          output {
+            stdout {}
+          }
+          ' > logstash/pipeline/logstash.conf
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+
+      - name: Clean generated sources
+        run: rm -rf src/main/generated
 
       - name: Build project
         run: ./gradlew build -x test
@@ -44,6 +65,8 @@ jobs:
       - name: Run test
         env:
           SPRING_PROFILES_ACTIVE: test
+          LOGSTASH_HOST_TEST: logstash
+          LOGSTASH_PORT_TEST: 5001
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           SPRING_MAIL_USERNAME: ${{ secrets.SPRING_MAIL_USERNAME }}
           SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
@@ -61,8 +84,8 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SPRING_MAIL_HOST: ${{ secrets.SPRING_MAIL_HOST }}
           SPRING_MAIL_PORT: ${{ secrets.SPRING_MAIL_PORT }}
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
-          ELASTIC_URL: ${{ secrets.ELASTIC_URL }}
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          ELASTIC_URL: localhost:9200
           ADMIN_CREDENTIALS: ${{ secrets.ADMIN_CREDENTIALS }}
         run: ./gradlew test -Dspring.profiles.active=test
