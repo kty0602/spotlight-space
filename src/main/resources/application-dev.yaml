@@ -56,6 +56,8 @@ cloud:
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace
+#  config: classpath:logback-spring.xml
+
 
 payment:
   kakao:
@@ -77,3 +79,9 @@ slack:
 
 admin:
   credentials: ${ADMIN_CREDENTIALS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"

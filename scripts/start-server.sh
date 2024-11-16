@@ -16,7 +16,7 @@ fuser -k 8080/tcp || true
 pkill -f health_check.py || true
 
 # 최신 Docker 이미지 Pull
-docker pull $ECR_URL/$SERVER_NAME:latest
+docker pull $ECR_URL:latest
 
 cd /home/ubuntu/$SERVER_NAME
 

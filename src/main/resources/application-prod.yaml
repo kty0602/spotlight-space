@@ -1,39 +1,86 @@
 spring:
   datasource:
-    url: ${DB_URL}
+    url: jdbc:mysql://${DB_LINK}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 50
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        auto_quote_keyword: false
-        highlight_sql: false
-        show_sql: false
-        format_sql: false
+        auto_quote_keyword: true
+        highlight_sql: true
+        show_sql: true
+        format_sql: true
   config:
     import: optional:file:.env[.properties]
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+      enabled: true
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  elasticsearch:
+    uris: ${ELASTIC_URL}
 
-#  servlet:
-#    multipart:
-#      max-file-size: 5MB
-#      max-request-size: 5MB
-#      enabled: true
-
-#cloud:
-#  aws:
-#    s3:
-#      bucket: ${S3_BUCKET}
-#    credentials:
-#      accessKey: ${S3_PUBLIC}
-#      secretKey: ${S3_SECRET}
-#    region:
-#      static: ${S3_REGION}
-#    stack:
-#      auto: false
+cloud:
+  aws:
+    s3:
+      bucket: ${S3_BUCKET}
+    credentials:
+      accessKey: ${S3_PUBLIC}
+      secretKey: ${S3_SECRET}
+    region:
+      static: ${S3_REGION}
+    stack:
+      auto: false
 
 logging:
   level:
     org.hibernate.orm.jdbc.bind: trace
+  config: classpath:logback-spring.xml
+
+payment:
+  kakao:
+    secret:
+      key: ${PAYMENT_KAKAO_SECRET_KEY}
+    cid: ${PAYMENT_KAKAO_CID}
+
+kakao:
+  client_id: ${KAKAO_REST_API_KEY}
+  redirect_uri: ${KAKAO_REDIRECT_URL}
+
+naver:
+  client_id: ${NAVER_REST_API_KEY}
+  redirect_uri : ${NAVER_REDIRECT_URL}
+  client_secret: ${NAVER_CLIENT_SECRET_KEY}
+
+slack:
+  token: ${SLACK_TOKEN}
+
+admin:
+  credentials: ${ADMIN_CREDENTIALS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"

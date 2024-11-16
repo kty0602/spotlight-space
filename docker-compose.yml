@@ -1,13 +1,13 @@
+version: '3.8'
+
 services:
   spotlight-server:
-    image: "${ECR_URL}/spotlight-server:latest"
+    image: "${ECR_URL}:latest"
     container_name: spotlight-server
     ports:
       - "8080:8080"
     env_file:
       - /home/ubuntu/spotlight-server/.env
-    depends_on:
-      - redis
     environment:
       DB_LINK: ${DB_LINK}
       DB_PORT: ${DB_PORT}
@@ -30,14 +30,6 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
-
-  redis:
-    image: ${REDIS_HOST}:latest
-    container_name: redis-container
-    ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
-    volumes:
-      - redis-data:/data
-
-volumes:
-  redis-data:
+      ELASTIC_URL: ${ELASTIC_URL}
+      LOGSTASH_HOST: ${LOGSTASH_HOST}
+      LOGSTASH_PORT: ${LOGSTASH_PORT}

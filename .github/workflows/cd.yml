@@ -73,6 +73,11 @@ jobs:
           echo "REDIS_PORT=${{ secrets.REDIS_PORT}}" >> .env
           echo "SERVER_NAME=${{ secrets.SERVER_NAME}}" >> .env
           echo "SLACK_TOKEN=${{ secrets.SLACK_TOKEN }}" >> .env
+          echo "ELASTIC_URL=${{ secrets.ELASTIC_URL }}" >> .env
+          echo "ADMIN_CREDENTIALS=${{ secrets.ADMIN_CREDENTIALS }}" >> .env
+          echo "LOGSTASH_HOST=${{ secrets.LOGSTASH_HOST }}" >> .env
+          echo "LOGSTASH_PORT=${{ secrets.LOGSTASH_PORT }}" >> .env
+          echo "SPRING_PROFILES_ACTIVE=prod" >> .env
 
       - name: .env 파일 S3에 업로드
         run: aws s3 cp .env s3://${{ secrets.S3_SERVER }}/.env --region ap-northeast-2
