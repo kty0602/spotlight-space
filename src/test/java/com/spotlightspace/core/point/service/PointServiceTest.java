@@ -41,7 +41,7 @@ public class PointServiceTest {
     void createNewPoint() {
         // given
         User user = testUser();
-        CreatePointRequestDto requestDto = CreatePointRequestDto.of(10000);
+        CreatePointRequestDto requestDto = CreatePointRequestDto.from(10000);
         int amount = (int) (requestDto.getPrice() * 0.005);
 
         Point point = Point.of(amount, user);
@@ -69,7 +69,7 @@ public class PointServiceTest {
 
         existingPoint.addPoint(addedPoint);
 
-        CreatePointRequestDto requestDto = CreatePointRequestDto.of(addedPoint);
+        CreatePointRequestDto requestDto = CreatePointRequestDto.from(addedPoint);
 
         given(pointRepository.findByUser(user)).willReturn(Optional.of(existingPoint));
         given(pointRepository.save(existingPoint)).willReturn(existingPoint);

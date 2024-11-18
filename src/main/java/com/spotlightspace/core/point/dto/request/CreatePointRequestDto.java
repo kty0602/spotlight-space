@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreatePointRequestDto {
     private int price;
 
@@ -13,7 +14,7 @@ public class CreatePointRequestDto {
         this.price = price;
     }
 
-    public static CreatePointRequestDto of(int price) {
+    public static CreatePointRequestDto from(int price) {
         return new CreatePointRequestDto(price);
     }
 }
