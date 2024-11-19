@@ -48,8 +48,7 @@ public class AttachmentService {
     // 이미(이벤트, 유저, 리뷰) 생성 후 나중에 추가 첨부파일 생성할 때 접근
     @Transactional
     public List<GetAttachmentResponseDto> addNewAttachmentList(
-            List<MultipartFile> files, Long tableId, TableRole tableRole, AuthUser authUser)
-            throws IOException {
+            List<MultipartFile> files, Long tableId, TableRole tableRole, AuthUser authUser) throws IOException {
         // 해당 사용자가 맞는지 확인
         if (tableRole.equals(TableRole.USER)) {
             User user = userRepository.findByIdOrElseThrow(tableId);
@@ -73,21 +72,7 @@ public class AttachmentService {
         List<GetAttachmentResponseDto> responseDtos = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String randomName = UUID.randomUUID().toString().substring(0, 8);
-            String fileName = randomName + file.getOriginalFilename();
-            String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
-
-            // 업로드할 파일의 메타데이터를 저장하는 객체 생성
-            ObjectMetadata metadata = new ObjectMetadata();
-            // 파일 콘텐츠 타입을 설정
-            metadata.setContentType(file.getContentType());
-            // 파일 크기 설정 -> S3에 전달할 때 파일 크기를 알 수 있게 함
-            metadata.setContentLength(file.getSize());
-            metadata.setContentDisposition("inline");
-
-            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-
-            Attachment attachment = attachmentRepository.save(Attachment.of(fileUrl, tableRole, tableId));
+            Attachment attachment = uploadAttachment(file, tableId, tableRole);
             responseDtos.add(GetAttachmentResponseDto.from(attachment));
         }
         return responseDtos;
@@ -103,19 +88,7 @@ public class AttachmentService {
         attachmentRepository.findByIdOrElseThrow(attachementId);
         // 기존 파일 삭제 작업 처리
         deleteAttachment(attachementId, tableId, tableRole, authUser);
-        // 새로운 파일 S3에 저장 후 Attachment 객체 생성
-        String randomName = UUID.randomUUID().toString().substring(0, 8);
-        String fileName = randomName + file.getOriginalFilename();
-        String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
-
-        // 업로드할 파일의 메타데이터를 저장하는 객체 생성
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(file.getContentType());
-        metadata.setContentLength(file.getSize());
-        metadata.setContentDisposition("inline");
-
-        amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-        Attachment newAttachment = attachmentRepository.save(Attachment.of(fileUrl, tableRole, tableId));
+        Attachment newAttachment = uploadAttachment(file, tableId, tableRole);
         return GetAttachmentResponseDto.from(newAttachment);
     }
 
@@ -200,6 +173,25 @@ public class AttachmentService {
                 .collect(Collectors.toList());
     }
 
+    // file만 따로 생성할 때 여기 로직 타게되어있음
+    private Attachment uploadAttachment(MultipartFile file, long tableId, TableRole tableRole) throws IOException {
+        String randomName = UUID.randomUUID().toString().substring(0, 8);
+        String fileName = randomName + file.getOriginalFilename();
+        String fileUrl = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
+
+        // 업로드할 파일의 메타데이터 설정
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(file.getContentType());
+        metadata.setContentLength(file.getSize());
+        metadata.setContentDisposition("inline");
+
+        // S3에 파일 업로드
+        amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+
+        return attachmentRepository.save(Attachment.of(fileUrl, tableRole, tableId));
+    }
+
+    // 이벤트, 리뷰, 유저 생성할 때 같이 file 데이터도 생성 시 여기 로직 타게되어있음
     private void saveAttachment(MultipartFile file, Long tableId, TableRole tableRole) throws IOException {
         String randomName = UUID.randomUUID().toString().substring(0, 8);
         String fileName = randomName + file.getOriginalFilename();

@@ -8,7 +8,6 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 @EnableElasticsearchRepositories(basePackages = "com.spotlightspace.core.event.repository")
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
-@EnableElasticsearchAuditing
 @SpringBootApplication
 public class SpotlightSpaceApplication {
 
