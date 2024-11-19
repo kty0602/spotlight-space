@@ -22,6 +22,7 @@ public class EventTicketStock {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "event_ticket_stock_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
