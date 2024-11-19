@@ -7,7 +7,6 @@ import static com.spotlightspace.core.payment.constant.PaymentConstant.FAIL_URL;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_APPROVE_URL;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_CANCEL_URL;
 import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_READY_URL;
-import static com.spotlightspace.core.payment.constant.PaymentConstant.PAYMENT_STATUS_URL;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +15,6 @@ import com.spotlightspace.core.payment.dto.response.kakaopay.KakaopayApprovePaym
 import com.spotlightspace.core.payment.dto.response.kakaopay.KakaopayCancelPaymentResponseDto;
 import com.spotlightspace.core.payment.dto.response.kakaopay.KakaopayPaymentErrorResponseDto;
 import com.spotlightspace.core.payment.dto.response.kakaopay.KakaopayPaymentResponseDto;
-import com.spotlightspace.core.payment.dto.response.kakaopay.KakaopayPaymentStatusResponseDto;
 import com.spotlightspace.core.payment.dto.response.kakaopay.KakaopayReadyPaymentResponseDto;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,23 +140,6 @@ public class KakaopayApi {
         }
 
         return responseDto;
-    }
-
-    public KakaopayPaymentStatusResponseDto getPaymentStatus(String cid, String tid) {
-        Map<String, String> parameters = getParametersForGetPaymentStatus(cid, tid);
-        KakaopayPaymentStatusResponseDto responseDto = restTemplate.postForObject(
-                PAYMENT_STATUS_URL,
-                new HttpEntity<>(parameters, getHeaders()),
-                KakaopayPaymentStatusResponseDto.class);
-
-        return responseDto;
-    }
-
-    private Map<String, String> getParametersForGetPaymentStatus(String cid, String tid) {
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("cid", cid);
-        parameters.put("tid", tid);
-        return parameters;
     }
 
     private Map<String, String> getParametersForReadyPayment(
