@@ -31,7 +31,7 @@ public class PaymentEvent extends Timestamped {
     private long paymentId;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 200)
+    @Column(length = 200, nullable = false)
     private PaymentEventType type;
 
     private PaymentEvent(long paymentId, PaymentEventType type) {
