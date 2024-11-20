@@ -1,5 +1,6 @@
 package com.spotlightspace.core.ticket.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.RESERVED_TICKET_CANCELLATION_REQUIRED;
 import static com.spotlightspace.common.exception.ErrorCode.TICKET_PRICE_CANNOT_BE_NEGATIVE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -60,7 +61,7 @@ class TicketServiceTest {
             // given
             User user = createUser();
             User artist = createArtist();
-            Event event = createEvent(artist);
+            Event event = createEvent(artist, LocalDateTime.now(), LocalDateTime.now());
 
             // when
             ticketService.createTicket(user, event, 10_000);
@@ -81,23 +82,66 @@ class TicketServiceTest {
             // given
             User user = createUser();
             User artist = createArtist();
-            Event event = createEvent(artist);
+            Event event = createEvent(artist, LocalDateTime.now(), LocalDateTime.now());
 
             // when & then
             assertThatThrownBy(() -> ticketService.createTicket(user, event, -10_000))
                     .isInstanceOf(ApplicationException.class)
                     .hasMessage(TICKET_PRICE_CANNOT_BE_NEGATIVE.getMessage());
         }
-
     }
 
-    Event createEvent(User artist) {
+    @Nested
+    @DisplayName("특정 사용자의 티켓 삭제 시")
+    class DeleteUserTickets {
+
+        @Test
+        @DisplayName("특정 사용자의 티켓이 삭제된다.")
+        void deleteUserTickets() {
+            // given
+            User user = createUser();
+            User artist = createArtist();
+            Event event = createEvent(artist, LocalDateTime.now().minusDays(3), LocalDateTime.now().minusDays(3));
+
+            Ticket ticket1 = Ticket.create(user, event, 10_000);
+            Ticket ticket2 = Ticket.create(user, event, 10_000);
+            ticketRepository.saveAll(List.of(ticket1, ticket2));
+
+            // when
+            ticketService.deleteUserTickets(user.getId());
+
+            // then
+            List<Ticket> tickets = ticketRepository.findAll();
+            assertThat(tickets).isEmpty();
+        }
+
+        @Test
+        @DisplayName("사용하지 않은 티켓은 삭제할 수 없다.")
+        void deleteUnUsedTicket() {
+            // given
+            User user = createUser();
+            User artist = createArtist();
+            Event event = createEvent(artist, LocalDateTime.now().plusDays(3), LocalDateTime.now().plusDays(3));
+
+            Ticket ticket1 = Ticket.create(user, event, 10_000);
+            Ticket ticket2 = Ticket.create(user, event, 10_000);
+            ticketRepository.saveAll(List.of(ticket1, ticket2));
+
+            // when
+            assertThatThrownBy(() -> ticketService.deleteUserTickets(user.getId()))
+                    .isInstanceOf(ApplicationException.class)
+                    .hasMessage(RESERVED_TICKET_CANCELLATION_REQUIRED.getMessage());
+        }
+        
+    }
+
+    Event createEvent(User artist, LocalDateTime startAt, LocalDateTime endAt) {
         CreateEventRequestDto createEventRequestDto = CreateEventRequestDto.of(
                 "title",
                 "content",
                 "서울",
-                LocalDateTime.now(),
-                LocalDateTime.now(),
+                startAt,
+                endAt,
                 10,
                 10_000,
                 EventCategory.ART,
@@ -118,7 +162,7 @@ class TicketServiceTest {
                 "010-1234-1234",
                 "한국"
         );
-        return userRepository.save(User.of("encryptPassword", requestDto));
+        return userRepository.save(User.create("encryptPassword", requestDto));
     }
 
     User createArtist() {
@@ -132,6 +176,6 @@ class TicketServiceTest {
                 "010-4321-1234",
                 "한국"
         );
-        return userRepository.save(User.of("encryptPassword", requestDto));
+        return userRepository.save(User.create("encryptPassword", requestDto));
     }
 }
