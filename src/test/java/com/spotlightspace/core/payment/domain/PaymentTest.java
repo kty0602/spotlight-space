@@ -171,7 +171,7 @@ class PaymentTest {
                 "010-1234-1234",
                 "한국"
         );
-        return User.of("encryptPassword", requestDto);
+        return User.create("encryptPassword", requestDto);
     }
 
     private Event createEvent(User user) {

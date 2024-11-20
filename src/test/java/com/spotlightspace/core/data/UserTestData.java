@@ -40,12 +40,12 @@ public class UserTestData {
 
     public static User testUser() {
         SignUpUserRequestDto userRequestDto = testSignupUserRequestDto();
-        return User.of("password", userRequestDto);
+        return User.create("password", userRequestDto);
     }
 
     public static User testArtist() {
         SignUpUserRequestDto userRequestDto = testSignupArtistRequestDto();
-        return User.of("password", userRequestDto);
+        return User.create("password", userRequestDto);
     }
 
     public static SignInUserRequestDto testSigninUserRequestDto() {
