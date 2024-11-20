@@ -145,4 +145,7 @@ gradle-app.setting
 ### ENV ###
 .env
 
+### QClass ###
+src/main/generated
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,java,gradle
