@@ -1,5 +1,6 @@
 package com.spotlightspace.core.ticket.domain;
 
+import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.user.domain.User;
 import jakarta.persistence.Column;
@@ -19,11 +20,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "tickets")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Ticket {
+public class Ticket extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ticket_id")
+    @Column(name = "ticket_id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,8 +35,10 @@ public class Ticket {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    @Column(nullable = false)
     private int price;
 
+    @Column(nullable = false)
     private boolean isCanceled;
 
     private Ticket(User user, Event event, int price, boolean isCanceled) {

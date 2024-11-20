@@ -14,10 +14,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class Timestamped {
 
+    @Column(nullable = false)
     @CreatedDate
-    @Column(updatable = false)
     protected LocalDateTime createdAt;
 
+    @Column(nullable = false)
     @LastModifiedDate
     protected LocalDateTime updatedAt;
 }

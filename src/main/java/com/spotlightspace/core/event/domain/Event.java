@@ -23,42 +23,43 @@ public class Event extends Timestamped {
     @Column(name = "event_id")
     private Long id;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String title;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String content;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String location;
 
     // 시작 일시
-    @Column(length = 50, name = "start_at")
+    @Column(length = 50, name = "start_at", nullable = false)
     private LocalDateTime startAt;
 
     // 종료 일시
-    @Column(length = 50, name = "end_at")
+    @Column(length = 50, name = "end_at", nullable = false)
     private LocalDateTime endAt;
 
-    @Column(length = 100, name = "max_people")
+    @Column(length = 100, name = "max_people", nullable = false)
     private int maxPeople;
 
-    @Column(length = 200)
+    @Column(length = 200, nullable = false)
     private int price;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EventCategory category;
 
-    @Column
+    @Column(nullable = false)
     private LocalDateTime recruitmentStartAt;
 
-    @Column
+    @Column(nullable = false)
     private LocalDateTime recruitmentFinishAt;
 
-    @Column
+    @Column(nullable = false)
     private boolean isDeleted = false;
 
-    @Column
+    @Column(nullable = false)
     private boolean isCalculated = false;
 
     @ManyToOne(fetch = FetchType.LAZY)

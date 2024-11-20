@@ -1,5 +1,6 @@
 package com.spotlightspace.core.likes.domain;
 
+import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.review.domain.Review;
 import com.spotlightspace.core.user.domain.User;
 import jakarta.persistence.*;
@@ -9,11 +10,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "likes")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Likes {
+public class Likes extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "like_id")
+    @Column(name = "like_id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

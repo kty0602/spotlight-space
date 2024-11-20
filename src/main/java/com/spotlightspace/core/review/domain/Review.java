@@ -30,14 +30,16 @@ public class Review extends Timestamped {
     @JoinColumn(nullable = false)
     private User user;
 
+    @Column(nullable = false)
     private String contents;
 
+    @Column(nullable = false)
     private Integer rating;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Column(name = "likes")
+    @Column(name = "likes", nullable = false)
     private int likeCount;
 
     @OneToMany(cascade = CascadeType.PERSIST)

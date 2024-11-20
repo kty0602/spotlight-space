@@ -31,6 +31,7 @@ public class Point {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @Column(nullable = false)
     private int amount;
 
     public boolean cannotDeduct(int pointAmount) {

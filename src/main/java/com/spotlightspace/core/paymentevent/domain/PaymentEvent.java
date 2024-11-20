@@ -25,9 +25,10 @@ public class PaymentEvent extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "payment_event_id")
+    @Column(name = "payment_event_id", nullable = false)
     private Long id;
 
+    @Column(nullable = false)
     private long paymentId;
 
     @Enumerated(EnumType.STRING)

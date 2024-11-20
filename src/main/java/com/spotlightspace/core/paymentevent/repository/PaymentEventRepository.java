@@ -9,6 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface PaymentEventRepository extends JpaRepository<PaymentEvent, Long> {
 
-    @Query("select pe from PaymentEvent pe join fetch Payment p on p.id = pe.paymentId where pe.type = :type and p.createAt < :createdAt")
+    @Query("select pe from PaymentEvent pe join fetch Payment p on p.id = pe.paymentId where pe.type = :type and p.createdAt < :createdAt")
     List<PaymentEvent> findAllByTypeAndCreatedAtBefore(PaymentEventType type, LocalDateTime createdAt);
 }

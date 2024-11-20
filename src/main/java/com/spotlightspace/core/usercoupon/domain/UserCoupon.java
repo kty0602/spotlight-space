@@ -1,8 +1,17 @@
 package com.spotlightspace.core.usercoupon.domain;
 
+import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.coupon.domain.Coupon;
 import com.spotlightspace.core.user.domain.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +37,7 @@ public class UserCoupon {
     @JoinColumn(name = "coupon_id", nullable = false)
     private Coupon coupon;
 
+    @Column(nullable = false)
     private boolean isUsed = false;
 
     public static UserCoupon of(User user, Coupon coupon) {
