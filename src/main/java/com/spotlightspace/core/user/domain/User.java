@@ -88,7 +88,7 @@ public class User extends Timestamped {
         this.location = location;
     }
 
-    public static User of(String encryptPassword, SignUpUserRequestDto signupUserRequestDto) {
+    public static User create(String encryptPassword, SignUpUserRequestDto signupUserRequestDto) {
         return new User(
                 signupUserRequestDto.getEmail(),
                 signupUserRequestDto.getNickname(),
