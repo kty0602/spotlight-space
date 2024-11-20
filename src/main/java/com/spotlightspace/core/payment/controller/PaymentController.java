@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PaymentController {
 
+    public static final int FIFTEEN_MINUTES = 60 * 15;
     private final PaymentServiceFacade paymentServiceFacade;
     private final String cid;
 
@@ -62,6 +63,7 @@ public class PaymentController {
                 requestDto.getPointAmount()
         );
         session.setAttribute("tid", responseDto.getTid());
+        session.setMaxInactiveInterval(FIFTEEN_MINUTES);
 
         return ResponseEntity.ok(responseDto);
     }

@@ -239,7 +239,7 @@ public class AuthController {
         String cookieValue = URLEncoder.encode(accessToken, "utf-8").replaceAll("\\+", "%20");
         Cookie cookie = new Cookie("AccessToken", cookieValue);
         cookie.setPath("/");
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) TOKEN_ACCESS_TIME);
         response.addCookie(cookie);
@@ -252,7 +252,7 @@ public class AuthController {
         String cookieValue = URLEncoder.encode(accessToken, "utf-8").replaceAll("\\+", "%20");
         Cookie cookie = new Cookie("RefreshToken", cookieValue);
         cookie.setPath("/");
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setHttpOnly(true);
         cookie.setMaxAge((int) TOKEN_REFRESH_TIME);
         response.addCookie(cookie);
