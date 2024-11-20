@@ -42,7 +42,7 @@ public class Coupon {
     private String code;
 
     @Column(nullable = false)
-    private Boolean isDeleted = true;
+    private boolean isDeleted = false;
 
     public static Coupon of(int discountAmount, LocalDate expiredAt, Integer count, String code) {
         return new Coupon(null, discountAmount, expiredAt, count, code, false);
