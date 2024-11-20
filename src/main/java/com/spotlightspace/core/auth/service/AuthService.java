@@ -55,7 +55,7 @@ public class AuthService {
         }
 
         String encryptPassword = passwordEncoder.encode(signupUserRequestDto.getPassword());
-        User user = User.of(encryptPassword, signupUserRequestDto);
+        User user = User.create(encryptPassword, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
         pointService.createPoint(price, savedUser);
@@ -134,7 +134,7 @@ public class AuthService {
         String birth = LocalDate.now().toString();
         SignUpUserRequestDto signupUserRequestDto = new SignUpUserRequestDto(email, password, nickname, "ROLE_USER",
                 birth, true, id.toString(), "한국");
-        User user = User.of(password, signupUserRequestDto);
+        User user = User.create(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
         pointService.createPoint(price, savedUser);
@@ -154,7 +154,7 @@ public class AuthService {
         SignUpUserRequestDto signupUserRequestDto = new SignUpUserRequestDto(email, password, nickname, "ROLE_USER",
                 birth, true, mobile, "한국");
 
-        User user = User.of(password, signupUserRequestDto);
+        User user = User.create(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
         pointService.createPoint(price, savedUser);
