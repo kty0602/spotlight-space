@@ -4,8 +4,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
-import com.spotlightspace.core.user.dto.response.GetCalculateListResponseDto;
-import com.spotlightspace.core.user.dto.response.GetCalculateResponseDto;
+import com.spotlightspace.core.user.dto.response.GetSettlementListResponseDto;
+import com.spotlightspace.core.user.dto.response.GetSettlementResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.dto.response.UpdateUserResponseDto;
@@ -153,14 +153,14 @@ public class UserController {
      * @param authUser 현재 로그인중인 유저의 정보를 받습니다.
      * @return
      */
-    @GetMapping("/user/{userId}/all-calculation")
-    public ResponseEntity<GetCalculateResponseDto> getAllCalculate(
+    @GetMapping("/user/{userId}/all-settlement")
+    public ResponseEntity<GetSettlementResponseDto> getAllSettlement(
             @PathVariable Long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.getAllCalculate(userId, authUser.getUserId()));
+                .body(userService.getAllSettlement(userId, authUser.getUserId()));
     }
 
     /**
@@ -170,14 +170,14 @@ public class UserController {
      * @param authUser 현재 로그인중인 유저입니다
      * @return 회원의 정산금 리스트를 반환합니다.
      */
-    @GetMapping("/user/{userId}/calculation")
-    public ResponseEntity<List<GetCalculateListResponseDto>> getCalculateList(
+    @GetMapping("/user/{userId}/settlement")
+    public ResponseEntity<List<GetSettlementListResponseDto>> getSettlementList(
             @PathVariable Long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.getCalculateList(userId, authUser.getUserId()));
+                .body(userService.getSettlementList(userId, authUser.getUserId()));
     }
 
     private String invalidateRefreshTokenAndGetAccessToken(

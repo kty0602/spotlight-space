@@ -1,10 +1,10 @@
 package com.spotlightspace.core.ticket.repository;
 
-import com.spotlightspace.core.user.dto.response.GetCalculateListResponseDto;
+import com.spotlightspace.core.user.dto.response.GetSettlementListResponseDto;
 import java.util.List;
 
 public interface TicketQueryRepository {
 
-    List<GetCalculateListResponseDto> findTotalAmountGroupedByEvent(Long userId);
+    List<GetSettlementListResponseDto> findTotalAmountGroupedByEvent(Long userId);
 
 }

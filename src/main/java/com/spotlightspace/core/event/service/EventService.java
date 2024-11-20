@@ -235,9 +235,9 @@ public class EventService {
         eventRepository.deleteByUserId(userId);
     }
 
-    public void existCalculation(Long userId) {
-        if (eventRepository.existCalculation(userId) > 0) {
-            throw new ApplicationException(RESERVED_CALCULATION_REQUIRED);
+    public void existSettlement(Long userId) {
+        if (eventRepository.existSettlement(userId) > 0) {
+            throw new ApplicationException(RESERVED_SETTLEMENT_REQUIRED);
         }
     }
 }

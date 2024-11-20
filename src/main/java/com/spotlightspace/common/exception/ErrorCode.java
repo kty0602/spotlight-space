@@ -21,7 +21,7 @@ public enum ErrorCode {
     EMAIL_DUPLICATED(CONFLICT, "이미 존재하는 이메일입니다."),
     RESERVED_TICKET_CANCELLATION_REQUIRED(CONFLICT, "예약된 티켓을 취소하고 다시 시도해주세요."),
     RESERVED_EVENT_CANCELLATION_REQUIRED(CONFLICT, "진행중인 이벤트를 취소하고 다시 시도해주세요."),
-    RESERVED_CALCULATION_REQUIRED(CONFLICT, "완료되지 않은 정산이 있습니다."),
+    RESERVED_SETTLEMENT_REQUIRED(CONFLICT, "완료되지 않은 정산이 있습니다."),
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
     ADMIN_PASSWORD_MISMATCH(FORBIDDEN, "어드민 암호가 일치하지 않습니다."),
 

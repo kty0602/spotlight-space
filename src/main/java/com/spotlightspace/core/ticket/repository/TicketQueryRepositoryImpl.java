@@ -4,7 +4,7 @@ import static com.spotlightspace.core.event.domain.QEvent.event;
 import static com.spotlightspace.core.ticket.domain.QTicket.ticket;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.spotlightspace.core.user.dto.response.GetCalculateListResponseDto;
+import com.spotlightspace.core.user.dto.response.GetSettlementListResponseDto;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ public class TicketQueryRepositoryImpl implements TicketQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<GetCalculateListResponseDto> findTotalAmountGroupedByEvent(Long userId) {
+    public List<GetSettlementListResponseDto> findTotalAmountGroupedByEvent(Long userId) {
         return jpaQueryFactory
                 .select(event.title, ticket.price.sum())
                 .from(ticket)
@@ -25,7 +25,7 @@ public class TicketQueryRepositoryImpl implements TicketQueryRepository {
                 .groupBy(event.id)
                 .fetch()
                 .stream()
-                .map(tuple -> GetCalculateListResponseDto.of(
+                .map(tuple -> GetSettlementListResponseDto.of(
                         tuple.get(event.title),
                         tuple.get(ticket.price.sum()).intValue()))
                 .collect(Collectors.toList());
