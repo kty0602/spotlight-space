@@ -59,7 +59,7 @@ public class UserController {
         UpdateUserResponseDto updateUserResponseDto = userService.updateUser(userId, authUser, updateUserRequestDto,
                 file);
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(updateUserResponseDto);
     }
 
