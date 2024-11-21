@@ -141,6 +141,7 @@ public class UserService {
         return GetSettlementResponseDto.from(totalAmount);
     }
 
+    @Transactional(readOnly = true)
     public List<GetSettlementListResponseDto> getSettlementList(Long userId, Long currentUserId) {
         userRepository.findByIdOrElseThrow(userId);
 
