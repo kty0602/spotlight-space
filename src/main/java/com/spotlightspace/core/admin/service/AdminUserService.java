@@ -1,6 +1,7 @@
 package com.spotlightspace.core.admin.service;
 
 import static com.spotlightspace.common.exception.ErrorCode.USER_NOT_FOUND;
+import static com.spotlightspace.common.util.SortFieldValidator.validateSortField;
 
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.requestdto.SearchAdminUserRequestDto;
@@ -24,17 +25,10 @@ public class AdminUserService {
 
     private final AdminQueryRepository adminRepository;
 
-    @Transactional(readOnly = true)
-    public Page<AdminUserResponseDto> getAdminUsers(
-            int page,
-            int size,
-            SearchAdminUserRequestDto searchAdminUserRequestDto,
-            String field,
-            String order
-    ) {
+    public Page<AdminUserResponseDto> getAdminUsers(int page, int size, SearchAdminUserRequestDto searchAdminUserRequestDto, String field, String order) {
+        validateSortField(field);
 
         Sort sort = Sort.by(field);
-
         if ("desc".equalsIgnoreCase(order)) {
             sort = sort.descending();
         } else {

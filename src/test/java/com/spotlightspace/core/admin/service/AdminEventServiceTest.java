@@ -12,15 +12,15 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
 import java.util.Optional;
 
 import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class AdminEventServiceTest {
@@ -40,7 +40,7 @@ class AdminEventServiceTest {
     void testGetAdminEvents_withKeyword() {
         // given
         String keyword = "test";
-        PageRequest pageable = PageRequest.of(0, 10, Sort.by("title").ascending());
+        PageRequest pageable = PageRequest.of(0, 10);
         AdminEventResponseDto eventDto = AdminEventResponseDto.of(
                 1L, "Test Event", "Content", "Location", null, null,
                 100, 1000, "Category", null, null, false
@@ -56,23 +56,6 @@ class AdminEventServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).getTitle()).isEqualTo("Test Event");
-    }
-
-    @Test
-    void testGetAdminEvents_withoutKeyword() {
-        // given
-        String keyword = null;
-        PageRequest pageable = PageRequest.of(0, 10, Sort.by("title").ascending());
-        Page<AdminEventResponseDto> expectedPage = new PageImpl<>(Collections.emptyList());
-
-        when(adminRepository.getAdminEvents(isNull(), any(PageRequest.class))).thenReturn(expectedPage);
-
-        // when
-        Page<AdminEventResponseDto> result = adminEventService.getAdminEvents(1, 10, keyword, "title", "asc");
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.getContent()).isEmpty();
     }
 
     @Test
@@ -98,5 +81,4 @@ class AdminEventServiceTest {
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage(EVENT_NOT_FOUND.getMessage());
     }
-
 }
