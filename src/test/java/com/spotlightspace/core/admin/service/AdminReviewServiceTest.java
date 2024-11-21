@@ -1,4 +1,4 @@
-/*package com.spotlightspace.core.admin.service;
+package com.spotlightspace.core.admin.service;
 
 
 import com.spotlightspace.common.exception.ApplicationException;
@@ -103,4 +103,3 @@ class AdminReviewServiceTest {
 
 }
 
- */

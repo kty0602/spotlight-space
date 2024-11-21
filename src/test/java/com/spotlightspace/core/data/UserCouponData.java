@@ -1,6 +1,7 @@
 package com.spotlightspace.core.data;
 
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
+
 import java.time.LocalDate;
 
 public class UserCouponData {

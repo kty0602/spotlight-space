@@ -15,7 +15,7 @@ public class UserCouponIssueResponseDto {
     private Long couponId;
     private boolean isUsed;
 
-    public static UserCouponIssueResponseDto of(UserCoupon userCoupon) {
+    public static UserCouponIssueResponseDto from(UserCoupon userCoupon) {
         return new UserCouponIssueResponseDto(
                 userCoupon.getId(),
                 userCoupon.getUser().getId(),

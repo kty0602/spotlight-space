@@ -1,6 +1,5 @@
 package com.spotlightspace.core.usercoupon.service;
 
-import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.coupon.domain.Coupon;
 import com.spotlightspace.core.coupon.repository.CouponRepository;
@@ -9,14 +8,11 @@ import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.repository.UserRepository;
 import com.spotlightspace.core.usercoupon.domain.UserCoupon;
+import com.spotlightspace.core.usercoupon.dto.request.UserCouponIssueRequestDto;
 import com.spotlightspace.core.usercoupon.dto.response.UserCouponIssueResponseDto;
 import com.spotlightspace.core.usercoupon.repository.UserCouponRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,20 +31,15 @@ public class UserCouponService {
     private final CouponRepository couponRepository;
     private final UserRepository userRepository;
     private final RedissonLockService redissonLockService;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private static final String COUPON_LOCK_KEY = "lock:coupon:";
-    private static final String COUPON_QUEUE_KEY = "queue:coupon:";
 
     /**
      * 기본 쿠폰 발급 로직
      */
     @Transactional
-    public UserCouponIssueResponseDto issueCouponBasic(@AuthenticationPrincipal AuthUser authUser, Long couponId) {
-        User user = userRepository.findByIdOrElseThrow(authUser.getUserId());
-        Coupon coupon = couponRepository.findByIdOrElseThrow(couponId);
+    public UserCouponIssueResponseDto issueCouponBasic(UserCouponIssueRequestDto requestDto) {
+        User user = userRepository.findByIdOrElseThrow(requestDto.getUserId());
+        Coupon coupon = couponRepository.findByIdOrElseThrow(requestDto.getCouponId());
 
         validateCoupon(coupon);
         validateUserHasCoupon(user, coupon);
@@ -57,19 +48,17 @@ public class UserCouponService {
         UserCoupon userCoupon = UserCoupon.of(user, coupon);
         UserCoupon savedUserCoupon = userCouponRepository.save(userCoupon);
 
-        return UserCouponIssueResponseDto.of(savedUserCoupon);
+        return UserCouponIssueResponseDto.from(savedUserCoupon);
     }
 
     /**
      * 비관적 락 + Redis 대기열 + Redis 분산 락을 사용한 쿠폰 발급 로직
      */
     @Transactional
-    public UserCouponIssueResponseDto issueCouponWithPessimisticLockAndQueue(@AuthenticationPrincipal AuthUser authUser, Long couponId) {
-        String lockKey = COUPON_LOCK_KEY + couponId; // Redis 분산 락 키
-        String queueKey = COUPON_QUEUE_KEY + couponId; // Redis 대기열 키
-
+    public UserCouponIssueResponseDto issueCouponWithPessimisticLockAndQueue(UserCouponIssueRequestDto requestDto) {
+        String lockKey = COUPON_LOCK_KEY + requestDto.getCouponId();
         RLock redisLock = redissonLockService.lock(lockKey);
-        boolean isQueued = false;
+        boolean isQueued;
 
         try {
             // Redis 대기열 대기
@@ -80,12 +69,9 @@ public class UserCouponService {
             }
 
             // 비관적 락으로 DB 접근 제어
-            User user = userRepository.findByIdOrElseThrow(authUser.getUserId());
-            Coupon coupon = entityManager.find(Coupon.class, couponId, LockModeType.PESSIMISTIC_WRITE);
-
-            if (coupon == null) {
-                throw new ApplicationException(COUPON_NOT_FOUND);
-            }
+            User user = userRepository.findByIdOrElseThrow(requestDto.getUserId());
+            Coupon coupon = couponRepository.findByIdWithPessimisticLock(requestDto.getCouponId())
+                    .orElseThrow(() -> new ApplicationException(COUPON_NOT_FOUND));
 
             validateCoupon(coupon);
             validateUserHasCoupon(user, coupon);
@@ -94,9 +80,9 @@ public class UserCouponService {
             UserCoupon userCoupon = UserCoupon.of(user, coupon);
             UserCoupon savedUserCoupon = userCouponRepository.save(userCoupon);
 
-            return UserCouponIssueResponseDto.of(savedUserCoupon);
+            return UserCouponIssueResponseDto.from(savedUserCoupon);
 
-        } catch (ApplicationException | InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new ApplicationException(LOCK_NOT_ACQUIRED);
         } finally {
             // Redis 락 해제
@@ -110,14 +96,14 @@ public class UserCouponService {
      * 쿠폰 유효성 검사
      */
     private void validateCoupon(Coupon coupon) {
+        if (coupon == null || coupon.isDeleted()) {
+            throw new ApplicationException(COUPON_NOT_FOUND);
+        }
         if (coupon.isExpired()) {
             throw new ApplicationException(COUPON_EXPIRED);
         }
         if (coupon.getCount() <= 0) {
             throw new ApplicationException(COUPON_COUNT_EXHAUSTED);
-        }
-        if (coupon.isDeleted()) {
-            throw new ApplicationException(COUPON_NOT_FOUND);
         }
     }
 
