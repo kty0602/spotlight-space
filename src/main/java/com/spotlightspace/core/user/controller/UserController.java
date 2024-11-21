@@ -94,7 +94,7 @@ public class UserController {
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
     ) {
-        String accessToken = invalidateRefreshTokenAndGetAccessToken(httpServletResponse, httpServletRequest);
+        String accessToken = invalidateTokensAndGetAccessToken(httpServletResponse, httpServletRequest);
 
         userService.deleteUser(userId, authUser, accessToken);
         Map<String, String> response = new HashMap<>();
@@ -136,7 +136,7 @@ public class UserController {
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
     ) {
-        String accessToken = invalidateRefreshTokenAndGetAccessToken(httpServletResponse, httpServletRequest);
+        String accessToken = invalidateTokensAndGetAccessToken(httpServletResponse, httpServletRequest);
 
         userService.logout(authUser.getUserId(), accessToken);
         Map<String, String> response = new HashMap<>();
@@ -180,15 +180,21 @@ public class UserController {
                 .body(userService.getSettlementList(userId, authUser.getUserId()));
     }
 
-    private String invalidateRefreshTokenAndGetAccessToken(
+    private String invalidateTokensAndGetAccessToken(
             HttpServletResponse httpServletResponse,
             HttpServletRequest httpServletRequest
     ) {
         Cookie refreshTokenCookie = new Cookie("RefreshToken", null);
-        refreshTokenCookie.setMaxAge(0); // 쿠키 만료
-        refreshTokenCookie.setPath("/"); // 쿠키 경로 설정
+        refreshTokenCookie.setMaxAge(0);
+        refreshTokenCookie.setPath("/");
         httpServletResponse.addCookie(refreshTokenCookie);
+
+        Cookie accessTokenCookie = new Cookie("AccessToken", null);
+        accessTokenCookie.setMaxAge(0);
+        accessTokenCookie.setPath("/");
+        httpServletResponse.addCookie(accessTokenCookie);
 
         return httpServletRequest.getHeader(AUTHORIZATION);
     }
+
 }
