@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreatePointResponseDto {
+
     private Long id;
     private int amount;
     private String nickname;

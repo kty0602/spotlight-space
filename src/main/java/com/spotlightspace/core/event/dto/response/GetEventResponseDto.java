@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class GetEventResponseDto {
+
     private Long id;
     private String title;
     private String content;

@@ -80,7 +80,7 @@ public class Event extends Timestamped {
         this.user = user;
     }
 
-    public static Event of(CreateEventRequestDto createEventRequestDto, User user) {
+    public static Event create(CreateEventRequestDto createEventRequestDto, User user) {
         return new Event(createEventRequestDto, user);
     }
 
@@ -126,10 +126,6 @@ public class Event extends Timestamped {
 
     public void deleteEvent() {
         this.isDeleted = true;
-    }
-
-    public boolean isParticipantLimitExceed(int participantCount) {
-        return maxPeople < participantCount;
     }
 
     public boolean isNotRecruitmentPeriod() {

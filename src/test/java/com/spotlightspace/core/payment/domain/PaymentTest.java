@@ -187,6 +187,6 @@ class PaymentTest {
                 LocalDateTime.of(2024,10,10, 10, 10),
                 LocalDateTime.of(2024, 10, 12, 10, 10)
         );
-        return Event.of(createEventRequestDto, user);
+        return Event.create(createEventRequestDto, user);
     }
 }

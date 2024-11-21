@@ -55,7 +55,7 @@ class PaymentEventRepositoryTest {
     void findAllByTypeAndCreatedAtBefore() {
         // given
         User user = UserTestData.testUser();
-        Event event = Event.of(getCreateEventRequestDto(), user);
+        Event event = Event.create(getCreateEventRequestDto(), user);
         Point point = Point.of(0, user);
         Payment payment = Payment.create("cid", event, user, 10_000, 10_000, null, point, 0);
         userRepository.save(user);

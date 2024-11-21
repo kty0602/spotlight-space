@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class UpdateEventRequestDto {
+
     private String title;
     private String content;
     private String location;

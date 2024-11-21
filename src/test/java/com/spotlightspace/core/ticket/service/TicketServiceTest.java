@@ -104,7 +104,7 @@ class TicketServiceTest {
                 LocalDateTime.of(2024,10,10, 10, 10),
                 LocalDateTime.of(2024, 10, 12, 10, 10)
         );
-        return eventRepository.save(Event.of(createEventRequestDto, artist));
+        return eventRepository.save(Event.create(createEventRequestDto, artist));
     }
 
     User createUser() {

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UpdateEventResponseDto {
+
     private Long id;
     private String title;
     private String content;
@@ -20,6 +21,7 @@ public class UpdateEventResponseDto {
     private EventCategory category;
     private LocalDateTime recruitmentStartAt;
     private LocalDateTime recruitmentFinishAt;
+
     private UpdateEventResponseDto(Event event) {
         this.id = event.getId();
         this.title = event.getTitle();
