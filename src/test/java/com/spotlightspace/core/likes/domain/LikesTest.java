@@ -23,7 +23,7 @@ class LikesTest {
         Review review = Review.of(requestDto, event, user);
 
         // when
-        Likes likes = Likes.of(user, review);
+        Like likes = Like.of(user, review);
 
         // then
         assertThat(likes.getCreatedAt()).isNull();

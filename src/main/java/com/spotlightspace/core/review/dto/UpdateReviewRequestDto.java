@@ -1,6 +1,5 @@
 package com.spotlightspace.core.review.dto;
 
-import com.spotlightspace.core.user.dto.request.UpdatePasswordUserRequestDto;
 import lombok.Getter;
 
 @Getter

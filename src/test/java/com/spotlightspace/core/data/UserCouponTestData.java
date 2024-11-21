@@ -19,7 +19,7 @@ public class UserCouponTestData {
     }
 
     public static User testUserWithId() {
-        User user = User.of(
+        User user = User.create(
                 "password",
                 UserTestData.testSignupUserRequestDto()
         );

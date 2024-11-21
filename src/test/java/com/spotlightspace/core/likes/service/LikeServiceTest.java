@@ -7,7 +7,7 @@ import com.spotlightspace.core.data.UserTestData;
 import com.spotlightspace.core.event.domain.Event;
 import com.spotlightspace.core.event.dto.request.CreateEventRequestDto;
 import com.spotlightspace.core.event.repository.EventRepository;
-import com.spotlightspace.core.likes.domain.Likes;
+import com.spotlightspace.core.likes.domain.Like;
 import com.spotlightspace.core.likes.repository.LikesRepository;
 import com.spotlightspace.core.review.domain.Review;
 import com.spotlightspace.core.review.dto.ReviewRequestDto;
@@ -52,7 +52,7 @@ class LikeServiceTest {
     void likeReview() {
         // given
         User user = userRepository.save(UserTestData.testUser());
-        Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+        Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
         ReviewRequestDto requestDto = ReviewRequestDto.of(3, "contents", 1L);
         Review review = reviewRepository.save(Review.of(requestDto, event, user));
 
@@ -60,7 +60,7 @@ class LikeServiceTest {
         likeService.likeReview(user.getId(), review.getId());
 
         // then
-        List<Likes> likes = likesRepository.findAll();
+        List<Like> likes = likesRepository.findAll();
         assertThat(likes).hasSize(1);
     }
 
@@ -69,7 +69,7 @@ class LikeServiceTest {
     void cancelLike() {
         // given
         User user = userRepository.save(UserTestData.testUser());
-        Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+        Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
         ReviewRequestDto requestDto = ReviewRequestDto.of(3, "contents", 1L);
         Review review = reviewRepository.save(Review.of(requestDto, event, user));
         likeService.likeReview(user.getId(), review.getId());
@@ -87,7 +87,7 @@ class LikeServiceTest {
     void getLikeUsersByReviewId() {
         // given
         User user = userRepository.save(UserTestData.testUser());
-        Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+        Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
         ReviewRequestDto requestDto = ReviewRequestDto.of(3, "contents", 1L);
         Review review = reviewRepository.save(Review.of(requestDto, event, user));
         likeService.likeReview(user.getId(), review.getId());
