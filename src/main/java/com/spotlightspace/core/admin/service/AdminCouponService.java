@@ -8,6 +8,7 @@ import com.spotlightspace.core.admin.repository.AdminQueryRepository;
 import com.spotlightspace.core.coupon.CouponCodeGenerator;
 import com.spotlightspace.core.coupon.domain.Coupon;
 import com.spotlightspace.core.coupon.repository.CouponRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.spotlightspace.common.exception.ErrorCode.COUPON_NOT_FOUND;
+import static com.spotlightspace.common.util.SortFieldValidator.validateSortField;
 
 
 @Service
@@ -40,8 +42,9 @@ public class AdminCouponService {
         );
     }
 
-    @Transactional(readOnly = true)
     public Page<AdminCouponResponseDto> getAdminCoupons(int page, int size, String keyword, String sortField, String sortOrder) {
+        validateSortField(sortField);
+
         Sort sort = Sort.by(sortField);
         if ("desc".equalsIgnoreCase(sortOrder)) {
             sort = sort.descending();
@@ -53,9 +56,8 @@ public class AdminCouponService {
         return adminRepository.getAdminCoupons(keyword, pageable);
     }
 
-    public void updateCoupon(Long couponId, AdminCouponUpdateRequestDto requestDto) {
-        Coupon coupon = couponRepository.findById(couponId)
-                .orElseThrow(() -> new ApplicationException(COUPON_NOT_FOUND));
+    public void updateCoupon(long couponId, @Valid AdminCouponUpdateRequestDto requestDto) { // Long -> long 수정
+        Coupon coupon = couponRepository.findByIdOrElseThrow(couponId);
         coupon.update(requestDto.getDiscountAmount(), requestDto.getExpiredAt());
     }
 

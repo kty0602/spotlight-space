@@ -1,5 +1,6 @@
 package com.spotlightspace.core.admin.controller;
 
+import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.admin.dto.requestdto.AdminCouponCreateRequestDto;
 import com.spotlightspace.core.admin.dto.requestdto.AdminCouponUpdateRequestDto;
 import com.spotlightspace.core.admin.dto.responsedto.AdminCouponResponseDto;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.spotlightspace.common.exception.ErrorCode.NO_RESULTS_FOUND;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,6 +51,9 @@ public class AdminCouponController {
             @RequestParam(defaultValue = "asc") String sortOrder
     ) {
         Page<AdminCouponResponseDto> coupons = adminCouponService.getAdminCoupons(page, size, keyword, sortField, sortOrder);
+        if (coupons.isEmpty()) {
+            throw new ApplicationException(NO_RESULTS_FOUND);
+        }
         return ResponseEntity.ok(coupons);
     }
 
@@ -59,7 +65,7 @@ public class AdminCouponController {
      * @return No content 응답
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateCoupon(@PathVariable Long id, @Valid @RequestBody AdminCouponUpdateRequestDto requestDto) {
+    public ResponseEntity<Void> updateCoupon(@PathVariable long id, @Valid @RequestBody AdminCouponUpdateRequestDto requestDto) {
         adminCouponService.updateCoupon(id, requestDto);
         return ResponseEntity.noContent().build();
     }
