@@ -13,6 +13,12 @@ import static com.spotlightspace.common.exception.ErrorCode.COUPON_NOT_FOUND;
 
 public interface CouponRepository extends JpaRepository<Coupon, Long>, CouponQueryRepository {
     Optional<Coupon> findCouponById(Long id);
+    default Coupon findByIdOrElseThrow(Long couponId) {
+        return findById(couponId)
+                .orElseThrow(() -> new ApplicationException(COUPON_NOT_FOUND));
+    }
+
+    Optional<Coupon> findByIdAndIsDeletedFalse(Long couponId);
 
     default Coupon findByIdOrElseThrow(Long couponId) {
         return findById(couponId)

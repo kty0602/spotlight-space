@@ -4,13 +4,16 @@ import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.core.usercoupon.dto.request.UserCouponIssueRequestDto;
 import com.spotlightspace.core.usercoupon.dto.response.UserCouponIssueResponseDto;
 import com.spotlightspace.core.usercoupon.service.UserCouponService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequiredArgsConstructor
