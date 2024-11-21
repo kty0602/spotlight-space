@@ -51,7 +51,7 @@ public class UserController {
      */
     @PatchMapping("/user/{userId}")
     public ResponseEntity<UpdateUserResponseDto> updateUser(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestPart UpdateUserRequestDto updateUserRequestDto,
             @RequestPart(required = false) MultipartFile file
@@ -72,7 +72,7 @@ public class UserController {
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<GetUserResponseDto> getUser(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity
@@ -89,7 +89,7 @@ public class UserController {
      */
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<Map<String, String>> deleteUser(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser,
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
@@ -113,7 +113,7 @@ public class UserController {
      */
     @GetMapping("/user/{userId}/coupons")
     public ResponseEntity<List<GetCouponResponseDto>> getCoupons(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         List<GetCouponResponseDto> couponList = userService.getCoupons(userId, authUser.getUserId());
@@ -155,7 +155,7 @@ public class UserController {
      */
     @GetMapping("/user/{userId}/all-settlement")
     public ResponseEntity<GetSettlementResponseDto> getAllSettlement(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity
@@ -172,7 +172,7 @@ public class UserController {
      */
     @GetMapping("/user/{userId}/settlement")
     public ResponseEntity<List<GetSettlementListResponseDto>> getSettlementList(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity

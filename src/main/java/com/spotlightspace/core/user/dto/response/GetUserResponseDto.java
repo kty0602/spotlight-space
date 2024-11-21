@@ -19,7 +19,7 @@ public class GetUserResponseDto {
     private String phoneNumber;
     private String profileImage;
 
-    public static GetUserResponseDto from(User user, String url) {
+    public static GetUserResponseDto of(User user, String url) {
         return new GetUserResponseDto(
                 user.getId(),
                 user.getEmail(),
