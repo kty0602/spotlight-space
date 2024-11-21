@@ -17,15 +17,11 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
 
     List<UserCoupon> findAllByUserId(long userId);
 
-    boolean existsByUserIdAndCouponId(Long userId, Long couponId);
-
     @Query("select u from UserCoupon u "
             + "join fetch u.coupon c "
             + "where c.id = :couponId and u.user.id = :userId"
     )
     Optional<UserCoupon> findByIdAndUserId(@Param("couponId") long couponId, @Param("userId") long userId);
-
-    Optional<UserCoupon> findByCouponIdAndUserId(long couponId, long userId);
 
     default UserCoupon findByCouponIdAndUserIdOrElseThrow(long couponId, long userId) {
         return findByIdAndUserId(couponId, userId).orElseThrow(() -> new ApplicationException(COUPON_NOT_FOUND));

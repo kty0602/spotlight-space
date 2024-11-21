@@ -80,9 +80,10 @@ public class PaymentController {
             HttpSession session,
             @RequestParam("pg_token") String pgToken
     ) {
+        Object tid = session.getAttribute("tid");
         KakaopayPaymentResponseDto responseDto = paymentServiceFacade.approvePayment(
                 pgToken,
-                String.valueOf(session.getAttribute("tid"))
+                String.valueOf(tid)
         );
 
         return ResponseEntity.ok(responseDto);
