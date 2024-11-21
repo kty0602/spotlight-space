@@ -30,7 +30,7 @@ class TicketTest {
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
-        Event event = Event.of(createEventRequestDto, user);
+        Event event = Event.create(createEventRequestDto, user);
 
         // when
         Ticket ticket = Ticket.create(user, event, 10_000);
@@ -55,7 +55,7 @@ class TicketTest {
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
-        Event event = Event.of(createEventRequestDto, user);
+        Event event = Event.create(createEventRequestDto, user);
         Ticket ticket = Ticket.create(user, event, 10_000);
 
         // when

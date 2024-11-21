@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.redisson.api.RLock;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -67,7 +68,8 @@ public class EventRedissionLockTest {
         User user = testArtist();
         CreateEventRequestDto requestDto = createDefaultEventRequestDto();
         List<MultipartFile> files = List.of(mock(MultipartFile.class));
-        Event event = Event.of(requestDto, user);
+        Event event = Event.create(requestDto, user);
+        ReflectionTestUtils.setField(event, "id", 1L);
 
         given(userRepository.findByIdOrElseThrow(authUser.getUserId())).willReturn(user);
         given(eventRepository.save(any(Event.class))).willReturn(event);

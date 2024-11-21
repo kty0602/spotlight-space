@@ -1,4 +1,4 @@
-name: ci pipelines
+name: ci pipeline1
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.16
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
         ports:
           - 9200:9200
         options: --env discovery.type=single-node
@@ -37,14 +37,30 @@ jobs:
       - name: Clean generated sources
         run: rm -rf src/main/generated
 
+      # Add Elasticsearch settings file
+      - name: Create Elasticsearch settings file
+        run: |
+          mkdir -p src/main/resources/static/elastic
+          echo '{
+            "index": {
+              "number_of_shards": 1,
+              "number_of_replicas": 0
+            },
+            "analysis": {
+              "analyzer": {
+                "default": {
+                  "type": "standard"
+                }
+              }
+            }
+          }' > src/main/resources/static/elastic/elastic-settings.json
+
       - name: Build project
         run: ./gradlew build -x test
 
       - name: Run test
         env:
           SPRING_PROFILES_ACTIVE: test
-          LOGSTASH_HOST_TEST: logstash
-          LOGSTASH_PORT_TEST: 5001
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           SPRING_MAIL_USERNAME: ${{ secrets.SPRING_MAIL_USERNAME }}
           SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
@@ -62,10 +78,8 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SPRING_MAIL_HOST: ${{ secrets.SPRING_MAIL_HOST }}
           SPRING_MAIL_PORT: ${{ secrets.SPRING_MAIL_PORT }}
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          ELASTIC_URL: localhost:9200
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          ELASTIC_URL: ${{ secrets.ELASTIC_URL }}
           ADMIN_CREDENTIALS: ${{ secrets.ADMIN_CREDENTIALS }}
-          LOGSTASH_HOST: ${{ secrets.LOGSTASH_HOST }}
-          LOGSTASH_PORT: ${{ secrets.LOGSTASH_PORT }}
         run: ./gradlew test -Dspring.profiles.active=test

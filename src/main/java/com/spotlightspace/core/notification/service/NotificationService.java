@@ -41,8 +41,8 @@ public class NotificationService {
 
         try {
             emitter.send(SseEmitter.event().name("connect").data("Connected to notifications"));
-        } catch (Exception e) {
-            throw new RuntimeException("SSE 구독 연결 중 오류 발생", e);
+        } catch (Exception exception) {
+            throw new RuntimeException("SSE 구독 연결 중 오류 발생", exception);
         }
 
         // 상황별 emitter 삭제 처리

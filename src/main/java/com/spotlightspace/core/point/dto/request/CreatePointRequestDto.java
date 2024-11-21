@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreatePointRequestDto {
+
     private int price;
 
     private CreatePointRequestDto(int price) {

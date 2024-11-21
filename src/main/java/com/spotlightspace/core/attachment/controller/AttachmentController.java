@@ -32,21 +32,20 @@ public class AttachmentController {
      * @param tableId   만들어진 (이벤트, 유저, 리뷰)의 해당 현재 id값
      * @param requestDto (tableRole : "EVENT", "USER", "REVIEW")
      * @param files      (들어갈 첨부파일)
-
      * @return
      * @throws IOException
      */
     @PostMapping("/{tableId}/attachment")
-    public ResponseEntity<List<GetAttachmentResponseDto>> addAttachment(
+    public ResponseEntity<List<GetAttachmentResponseDto>> createAttachment(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable("tableId") Long tableId,
+            @PathVariable("tableId") long tableId,
             @RequestPart AttachmentRequestDto requestDto,
             @RequestPart List<MultipartFile> files
     ) throws IOException {
 
         TableRole tableRole = requestDto.getTableRole();
         List<GetAttachmentResponseDto> responseDtos =
-                attachmentService.addNewAttachmentList(files, tableId, tableRole, authUser);
+                attachmentService.createNewAttachmentList(files, tableId, tableRole, authUser);
         return new ResponseEntity<>(responseDtos, HttpStatus.CREATED);
     }
 
@@ -60,12 +59,11 @@ public class AttachmentController {
      * @return
      * @throws IOException
      */
-
     @PatchMapping("/{tableId}/attachment/{attachmentId}")
     public ResponseEntity<GetAttachmentResponseDto> updateAttachment(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable("tableId") Long tableId,
-            @PathVariable("attachmentId") Long attachmentId,
+            @PathVariable("tableId") long tableId,
+            @PathVariable("attachmentId") long attachmentId,
             @RequestPart AttachmentRequestDto requestDto,
             @RequestPart MultipartFile file
     ) throws IOException {
@@ -88,8 +86,8 @@ public class AttachmentController {
     public ResponseEntity<Map<String, String>> deleteAttachment(
 
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable("tableId") Long tableId,
-            @PathVariable("attachmentId") Long attachmentId,
+            @PathVariable("tableId") long tableId,
+            @PathVariable("attachmentId") long attachmentId,
             @RequestBody AttachmentRequestDto requestDto
     ) {
 

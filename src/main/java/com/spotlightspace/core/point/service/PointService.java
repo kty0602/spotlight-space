@@ -53,12 +53,12 @@ public class PointService {
     }
 
 
-    private User checkUserData(Long userId) {
+    private User checkUserData(long userId) {
 
         return userRepository.findByIdOrElseThrow(userId);
     }
 
-    public void deleteUserPoint(Long userId) {
+    public void deleteUserPoint(long userId) {
         pointRepository.deleteByUserId(userId);
     }
 }

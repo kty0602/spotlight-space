@@ -71,7 +71,9 @@ public enum ErrorCode {
 
     JSON_PROCESSING_EXCEPTION(BAD_REQUEST, "Json 처리 중 오류가 발생했습니다."),
 
-    LOCK_NOT_ACQUIRED(FORBIDDEN, "해당 요청은 락을 획득할 수 없습니다.");
+    LOCK_NOT_ACQUIRED(FORBIDDEN, "해당 요청은 락을 획득할 수 없습니다."),
+
+    WRONG_TABLEROLE(BAD_REQUEST, "잘못된 테이블 역할 입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

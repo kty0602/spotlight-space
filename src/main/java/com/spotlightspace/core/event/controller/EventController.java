@@ -65,7 +65,7 @@ public class EventController {
     public ResponseEntity<UpdateEventResponseDto> updateEvent(
             @AuthenticationPrincipal AuthUser authUser,
             @RequestBody UpdateEventRequestDto requestDto,
-            @PathVariable("eventId") Long eventId
+            @PathVariable("eventId") long eventId
     ) {
 
         UpdateEventResponseDto updateEventResponseDto = eventService.updateEvent(requestDto, authUser, eventId);
@@ -79,7 +79,7 @@ public class EventController {
      */
     @GetMapping("/{eventId}")
     public ResponseEntity<GetEventResponseDto> getEvent(
-            @PathVariable("eventId") Long eventId
+            @PathVariable("eventId") long eventId
     ) {
         GetEventResponseDto responseDto = eventService.getEvent(eventId);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -170,7 +170,7 @@ public class EventController {
     @DeleteMapping("/{eventId}")
     public ResponseEntity<Map<String, String>> deleteEvent(
             @AuthenticationPrincipal AuthUser authUser,
-            @PathVariable("eventId") Long eventId
+            @PathVariable("eventId") long eventId
     ) {
 
         eventService.deleteEvent(eventId, authUser);
@@ -187,7 +187,7 @@ public class EventController {
      */
     @GetMapping("/{eventId}/attachments")
     public ResponseEntity<List<GetAttachmentResponseDto>> getAttachment(
-            @PathVariable("eventId") Long eventId
+            @PathVariable("eventId") long eventId
     ) {
 
         List<GetAttachmentResponseDto> attachmentList = attachmentService.getAttachmentList(eventId, TableRole.EVENT);
