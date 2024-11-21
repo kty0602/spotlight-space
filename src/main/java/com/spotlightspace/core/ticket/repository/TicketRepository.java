@@ -20,7 +20,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketQue
     int countTicketByEvent(@Param("eventId") Long eventId);
 
     @Query("SELECT SUM(t.price) FROM Ticket t JOIN t.event e WHERE e.user.id = :userId AND e.isCalculated = false AND t.isCanceled = false")
-    int findTotalAmountByUserId(@Param("userId") Long userId);
+    Integer findTotalAmountByUserId(@Param("userId") Long userId);
 
     Optional<Ticket> findFirstByUserAndEvent(User user, Event event);
 
@@ -35,7 +35,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, TicketQue
     @Query("SELECT COUNT(t) FROM Ticket t WHERE t.event.recruitmentStartAt < CURRENT_TIMESTAMP "
             + "AND t.event.endAt > CURRENT_TIMESTAMP AND t.user.id = :userId AND t.isCanceled = false "
             + "AND t.event.isDeleted = false")
-    int existTicket(Long userId);
+    Integer existTicket(Long userId);
 
     void deleteByUserId(Long userId);
 

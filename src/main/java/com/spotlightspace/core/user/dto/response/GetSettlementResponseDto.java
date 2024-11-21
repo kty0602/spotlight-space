@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GetSettlementResponseDto {
 
-    private int totalAmount;
+    private Integer totalAmount;
 
-    public static GetSettlementResponseDto from(int totalAmount) {
+    public static GetSettlementResponseDto from(Integer totalAmount) {
         return new GetSettlementResponseDto(totalAmount);
     }
 }
