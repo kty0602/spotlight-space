@@ -59,9 +59,11 @@ public class Review extends Timestamped {
 
     public void likeReview(User user) {
         this.likeUsers.add(user);
+        likeCount++;
     }
 
-    public void dislikeReview(User user) { this.likeUsers.remove(user); }
+    public void dislikeReview(User user) { this.likeUsers.remove(user);
+        likeCount--;}
 
     public void changeRating(Integer rating) {
         this.rating = rating;

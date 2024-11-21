@@ -96,32 +96,32 @@ public class ReviewController {
     /**
      *
      * @param reviewId
-     * @param userId
+     * @param authUser
      * @return
      */
     //좋아요
-    @PostMapping("/reviews/likes")
+    @PostMapping("/reviews/likes/{reviewId}")
     public ResponseEntity<LikesResponseDto> likeReview(
             @PathVariable Long reviewId,
-            @RequestParam Long userId
+            @AuthenticationPrincipal AuthUser authUser
     ) {
-        LikesResponseDto addLike = likeService.likeReview(userId, reviewId);
+        LikesResponseDto addLike = likeService.likeReview(authUser.getUserId(), reviewId);
         return new ResponseEntity<>(addLike, HttpStatus.OK);
     }
 
     /**
      *
      * @param reviewId
-     * @param userId
+     * @param authUser
      * @return
      */
     //좋아요 취소
-    @PatchMapping("/reviews/likes")
+    @PatchMapping("/reviews/likes/{reviewId}")
     public ResponseEntity<LikesResponseDto> cancelLike(
             @PathVariable Long reviewId,
-            @RequestParam Long userId
+            @AuthenticationPrincipal AuthUser authUser
     ) {
-        LikesResponseDto message = likeService.cancelLike(userId, reviewId);
+        LikesResponseDto message = likeService.cancelLike(authUser.getUserId(), reviewId);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 

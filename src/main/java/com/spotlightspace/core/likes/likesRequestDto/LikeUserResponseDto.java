@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikeUserResponseDto {
+
     private String nickname;
 
-    public static LikeUserResponseDto of(User user) {
+    public static LikeUserResponseDto from(User user) {
         return new LikeUserResponseDto(user.getNickname());
     }
 }

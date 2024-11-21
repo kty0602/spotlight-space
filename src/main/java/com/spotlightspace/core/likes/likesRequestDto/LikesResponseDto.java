@@ -1,6 +1,7 @@
 package com.spotlightspace.core.likes.likesRequestDto;
 
 public class LikesResponseDto {
+
     private int likeCount;
     private boolean isLiked;
 
@@ -8,7 +9,6 @@ public class LikesResponseDto {
         this.likeCount = likeCount;
         this.isLiked = isLiked;
     }
-
 
     public static LikesResponseDto of(int likeCount, boolean isLiked) {
         return new LikesResponseDto(likeCount, isLiked);
