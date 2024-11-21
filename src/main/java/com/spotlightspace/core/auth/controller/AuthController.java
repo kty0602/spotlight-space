@@ -2,9 +2,11 @@ package com.spotlightspace.core.auth.controller;
 
 import static com.spotlightspace.common.constant.JwtConstant.TOKEN_ACCESS_TIME;
 import static com.spotlightspace.common.constant.JwtConstant.TOKEN_REFRESH_TIME;
+import static com.spotlightspace.common.exception.ErrorCode.REFRESH_TOKEN_NOT_FOUND;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.spotlightspace.common.exception.ApplicationException;
 import com.spotlightspace.core.auth.dto.request.SignInUserRequestDto;
 import com.spotlightspace.core.auth.dto.request.SignUpUserRequestDto;
 import com.spotlightspace.core.auth.dto.response.SaveTokenResponseDto;
@@ -142,6 +144,10 @@ public class AuthController {
                     break;
                 }
             }
+        }
+
+        if (refreshToken == null) {
+            throw new ApplicationException(REFRESH_TOKEN_NOT_FOUND);
         }
 
         String accessToken = authService.getAccessToken(refreshToken);
