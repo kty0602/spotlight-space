@@ -56,8 +56,9 @@ public class AdminCouponService {
         return adminRepository.getAdminCoupons(keyword, pageable);
     }
 
-    public void updateCoupon(long couponId, @Valid AdminCouponUpdateRequestDto requestDto) { // Long -> long 수정
-        Coupon coupon = couponRepository.findByIdOrElseThrow(couponId);
+    public void updateCoupon(long couponId, @Valid AdminCouponUpdateRequestDto requestDto) {
+        Coupon coupon = couponRepository.findById(couponId)
+                .orElseThrow(() -> new ApplicationException(COUPON_NOT_FOUND));
         coupon.update(requestDto.getDiscountAmount(), requestDto.getExpiredAt());
     }
 
