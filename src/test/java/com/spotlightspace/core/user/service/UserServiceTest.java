@@ -82,10 +82,11 @@ class UserServiceTest {
         public void updateUser_defaultInfo_success_nofile() throws IOException {
             //given
             UpdateUserRequestDto updateRequestDto = testUpdateUserRequestDto();
-            long userId = 1;
+            Long userId = 1L;
 
             User user = testUser();
             AuthUser authUser = testAuthUser();
+            ReflectionTestUtils.setField(user,"id",userId);
 
             given(userRepository.findByIdOrElseThrow(anyLong())).willReturn(user);
 
