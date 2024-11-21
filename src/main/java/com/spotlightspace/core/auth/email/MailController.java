@@ -22,9 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MailController {
 
     private final MailService mailService;
-    private final StringRedisTemplate redisTemplate;
-    //redis의 ttl을 설정하는 변수입니다.
-    private static final long TTL = 5 * 60;
 
     /**
      * 이메일 인증을 진행합니다. redis를 사용하여 5분 ttl을 두었습니다.

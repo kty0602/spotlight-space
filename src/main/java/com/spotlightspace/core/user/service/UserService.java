@@ -67,7 +67,7 @@ public class UserService {
         }
 
         if (file != null) {
-            Long attachmentId = attachmentService.getAttachmentList(user.getId(), TableRole.USER).get(0).getId();
+            long attachmentId = attachmentService.getAttachmentList(user.getId(), TableRole.USER).get(0).getId();
             attachmentService.updateAttachment(attachmentId, file, userId, TableRole.USER, authUser);
         }
 
@@ -87,7 +87,7 @@ public class UserService {
         }
 
         String url = attachmentService.getImageUrl(userId, TableRole.USER);
-        return GetUserResponseDto.from(user, url);
+        return GetUserResponseDto.of(user, url);
     }
 
     public void deleteUser(Long userId, AuthUser authuser, String accessToken) {
@@ -137,7 +137,7 @@ public class UserService {
             throw new ApplicationException(FORBIDDEN_USER);
         }
 
-        int totalAmount = ticketRepository.findTotalAmountByUserId(userId);
+        Integer totalAmount = ticketRepository.findTotalAmountByUserId(userId);
         return GetSettlementResponseDto.from(totalAmount);
     }
 
@@ -156,7 +156,7 @@ public class UserService {
     //재발급 방지를 위해 redis의 리프레시 토큰 삭제
     // 액세스 토큰 레디스에올리기
     // 쿠키 무효화
-    public void logout(Long userId, String accessToken) {
+    public void logout(long userId, String accessToken) {
         addBlackList(userId, accessToken);
     }
 
@@ -165,7 +165,7 @@ public class UserService {
         return userRepository.findByEmailOrElseThrow(email);
     }
 
-    public void addBlackList(Long userId, String accessToken) {
+    public void addBlackList(long userId, String accessToken) {
         String key = "user:blacklist:id:" + userId;
         //redis에 해당하는 리프레시 토큰 삭제
         redisTemplate.delete("user:refresh:id:" + userId);

@@ -38,13 +38,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final int PRICE = 0;
+
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AttachmentService attachmentService;
     private final PointService pointService;
     private final RedisTemplate<String, String> redisTemplate;
-    private static final int price = 0;
 
     public SignUpUserResponseDto signUp(SignUpUserRequestDto signupUserRequestDto, MultipartFile file)
             throws IOException {
@@ -58,7 +59,7 @@ public class AuthService {
         User user = User.create(encryptPassword, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
-        pointService.createPoint(price, savedUser);
+        pointService.createPoint(PRICE, savedUser);
 
         if (file != null) {
             attachmentService.addAttachment(file, savedUser.getId(), TableRole.USER);
@@ -128,16 +129,18 @@ public class AuthService {
         return userRepository.existsByEmail(email);
     }
 
-    public void signUpKakaoUser(Long id, String nickname, String email, String image) {
+    public void signUpKakaoUser(long id, String nickname, String email, String image) {
         String password = UUID.randomUUID().toString();
         password = passwordEncoder.encode(password);
         String birth = LocalDate.now().toString();
+
         SignUpUserRequestDto signupUserRequestDto = new SignUpUserRequestDto(email, password, nickname, "ROLE_USER",
-                birth, true, id.toString(), "한국");
+                birth, true, password, "한국");
+
         User user = User.create(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
-        pointService.createPoint(price, savedUser);
+        pointService.createPoint(PRICE, savedUser);
 
         if (image != null) {
             attachmentService.addAttachmentWithUrl(image, savedUser.getId(), TableRole.USER);
@@ -157,7 +160,7 @@ public class AuthService {
         User user = User.create(password, signupUserRequestDto);
 
         User savedUser = userRepository.save(user);
-        pointService.createPoint(price, savedUser);
+        pointService.createPoint(PRICE, savedUser);
 
         if (mobile != null) {
             attachmentService.addAttachmentWithUrl(mobile, savedUser.getId(), TableRole.USER);
