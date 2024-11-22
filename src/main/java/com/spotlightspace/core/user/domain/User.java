@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -41,32 +40,32 @@ public class User extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    @NotNull
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @NotNull
+    @Column(nullable = false)
     private String nickname;
 
-    @NotNull
+    @Column(nullable = false)
     private LocalDate birth;
 
-    @Column(unique = true)
-    @NotNull
+    @Column(unique = true, nullable = false)
     private String phoneNumber;
 
-    @Column
-    @NotNull
+    @Column(nullable = false)
     private String password;
 
-    @NotNull
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @NotNull
+    @Column(nullable = false)
     private String location;
 
+    @Column(nullable = false)
     private boolean isDeleted = false;
+
+    @Column(nullable = false)
     private boolean isSocialLogin;
 
     private User(
@@ -89,7 +88,7 @@ public class User extends Timestamped {
         this.location = location;
     }
 
-    public static User of(String encryptPassword, SignUpUserRequestDto signupUserRequestDto) {
+    public static User create(String encryptPassword, SignUpUserRequestDto signupUserRequestDto) {
         return new User(
                 signupUserRequestDto.getEmail(),
                 signupUserRequestDto.getNickname(),

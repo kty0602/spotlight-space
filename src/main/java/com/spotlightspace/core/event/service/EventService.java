@@ -75,7 +75,7 @@ public class EventService {
             // 유저 권한 확인
             validateUserRole(user.getRole());
             // 프로필 이미지가 있다면 저장 로직
-            Event event = eventRepository.save(Event.of(requestDto, user));
+            Event event = eventRepository.save(Event.create(requestDto, user));
             if (files != null && !files.isEmpty()) {
                 attachmentService.addAttachmentList(files, event.getId(), TableRole.EVENT);
             }
@@ -83,7 +83,7 @@ public class EventService {
             eventTicketStockRepository.save(EventTicketStock.create(event));
 
             // 엘라스틱 이벤트 저장
-            EventElastic eventElastic = EventElastic.of(requestDto, event.getId());
+            EventElastic eventElastic = EventElastic.create(requestDto, event.getId());
             eventElasticRepository.save(eventElastic);
 
             return CreateEventResponseDto.from(event);
@@ -101,7 +101,7 @@ public class EventService {
     }
 
     @Transactional
-    public UpdateEventResponseDto updateEvent(UpdateEventRequestDto requestDto, AuthUser authUser, Long id) {
+    public UpdateEventResponseDto updateEvent(UpdateEventRequestDto requestDto, AuthUser authUser, long id) {
         // 이벤트 존재 유무 검사
         Event event = checkEventExist(id);
         // 이벤트를 작성한 아티스트인가 검사
@@ -130,7 +130,7 @@ public class EventService {
         }
         if (requestDto.getEndAt() != null) {
             event.changeEndAt(requestDto.getEndAt());
-            event.changeEndAt(requestDto.getEndAt());
+            eventElastic.changeEndAt(requestDto.getEndAt());
         }
         if (requestDto.getMaxPeople() != null) {
             // 변경하려는 maxPeople값이 이미 결제한 사람 언더일 때 exception 처리 해야함
@@ -162,7 +162,7 @@ public class EventService {
     }
 
     @Transactional
-    public void deleteEvent(Long id, AuthUser authUser) {
+    public void deleteEvent(long id, AuthUser authUser) {
         // 이벤트 존재 유무 검사
         Event event = checkEventExist(id);
         // 이벤트를 작성한 아티스트인가 검사
@@ -213,7 +213,7 @@ public class EventService {
     }
 
     // 이벤트 존재 확인 (소프트 딜리트 검증 추가 완료)
-    private Event checkEventExist(Long id) {
+    private Event checkEventExist(long id) {
         return eventRepository.findByIdOrElseThrow(id);
     }
 
@@ -225,19 +225,19 @@ public class EventService {
     }
 
     // 엘라스틱 이벤트 존재 확인
-    private EventElastic checkElasticExist(Long id) {return eventElasticRepository.findByIdOrElseThrow(id);}
+    private EventElastic checkElasticExist(long id) {return eventElasticRepository.findByIdOrElseThrow(id);}
 
     @Transactional
-    public void deleteUserEvent(Long userId) {
+    public void deleteUserEvent(long userId) {
         if (eventRepository.existEvent(userId) > 0) {
             throw new ApplicationException(RESERVED_EVENT_CANCELLATION_REQUIRED);
         }
         eventRepository.deleteByUserId(userId);
     }
 
-    public void existCalculation(Long userId) {
-        if (eventRepository.existCalculation(userId) > 0) {
-            throw new ApplicationException(RESERVED_CALCULATION_REQUIRED);
+    public void existSettlement(long userId) {
+        if (eventRepository.existSettlement(userId) > 0) {
+            throw new ApplicationException(RESERVED_SETTLEMENT_REQUIRED);
         }
     }
 }

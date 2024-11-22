@@ -9,12 +9,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 import java.time.LocalDateTime;
 
-@Document(indexName = "events")
 @Getter
+@Document(indexName = "events")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setting(settingPath = "/static/elastic/elastic-settings.json")
 public class EventElastic {
     @Id
     @Field(name = "event_id")
@@ -76,7 +78,7 @@ public class EventElastic {
         this.recruitmentFinishAt = createEventRequestDto.getRecruitmentFinishAt();
     }
 
-    public static EventElastic of(CreateEventRequestDto createEventRequestDto, Long id) {
+    public static EventElastic create(CreateEventRequestDto createEventRequestDto, Long id) {
         return new EventElastic(createEventRequestDto, id);
     }
 

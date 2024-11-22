@@ -50,8 +50,10 @@ public class Payment extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
+    @Column(nullable = false)
     private int originalAmount;
 
+    @Column(nullable = false)
     private int discountedAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -59,12 +61,14 @@ public class Payment extends Timestamped {
     private UserCoupon userCoupon;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "point_id")
+    @JoinColumn(name = "point_id", nullable = false)
     private Point point;
 
+    @Column(nullable = false)
     private int usedPointAmount;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentStatus status;
 
     private Payment(

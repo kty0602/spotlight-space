@@ -1,5 +1,9 @@
 package com.spotlightspace.core.review.service;
 
+import static com.spotlightspace.common.exception.ErrorCode.FORBIDDEN_USER;
+import static com.spotlightspace.common.exception.ErrorCode.REVIEW_NOT_FOUND;
+import static com.spotlightspace.common.exception.ErrorCode.TICKET_NOT_FOUND;
+
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.ApplicationException;
@@ -18,28 +22,32 @@ import com.spotlightspace.core.ticket.domain.Ticket;
 import com.spotlightspace.core.ticket.repository.TicketRepository;
 import com.spotlightspace.core.user.domain.User;
 import com.spotlightspace.core.user.repository.UserRepository;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
-
-import static com.spotlightspace.common.exception.ErrorCode.*;
 
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ReviewService {
+
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final TicketRepository ticketRepository;
     private final AttachmentService attachmentService;
     private final LikeService likeService;
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private static final int MAX_PARTICIPANTS = 5; // 선착 인원
+    private static final String EVENT_PREFIX = "event:";
 
     //리뷰 생성
     public ReviewResponseDto createReview(ReviewRequestDto reviewRequestDto, Long eventId,
@@ -56,6 +64,7 @@ public class ReviewService {
         Review review = reviewRepository.save(Review.of(reviewRequestDto, event, user));
         attachmentService.addAttachment(file, review.getId(), TableRole.REVIEW);
         String attachment = attachmentService.getImageUrl(review.getId(), TableRole.REVIEW);
+
         return ReviewResponseDto.of(review, attachment);
     }
 
@@ -71,7 +80,7 @@ public class ReviewService {
 
                     List<LikeUserResponseDto> likeUserDtos = likeService.getLikeUsersByReviewId(review.getId())
                             .stream()
-                            .map(LikeUserResponseDto::of)
+                            .map(LikeUserResponseDto::from)
                             .toList();
                     int likeCount = likeUserDtos.size();
 
@@ -132,4 +141,35 @@ public class ReviewService {
     public void deleteUserReview(Long userId) {
         reviewRepository.deleteByUserId(userId);
     }
+
+//    //리뷰 이벤트 로직
+//    public String participateInReviewEvent(Long eventId, Long userId) {
+//        String lockKey = EVENT_PREFIX + eventId + ":lock";
+//
+//        // 락 획득
+//        Boolean isLocked = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCK", 10, TimeUnit.SECONDS);
+//
+//        if (Boolean.TRUE.equals(isLocked)) {
+//            try {
+//                // 현재 참여 인원 확인
+//                Integer currentCount = (Integer) redisTemplate.opsForHash().get(EVENT_PREFIX + eventId, "participantCount");
+//                currentCount = currentCount != null ? currentCount : 0;
+//
+//                if (currentCount >= MAX_PARTICIPANTS) {
+//                    return "선착순 혜택이 종료 되었습니다. 다음에 이벤트에 시도해주세요";
+//                }
+//
+//                // 참여 처리
+//                redisTemplate.opsForHash().put(EVENT_PREFIX + eventId, "participant:" + userId, true);
+//                redisTemplate.opsForHash().increment(EVENT_PREFIX + eventId, "participantCount", +1);
+//
+//                return "이벤트에 성공적으로 참여하였습니다.";
+//            } finally {
+//                // 락 해제
+//                redisTemplate.delete(lockKey);
+//            }
+//        } else {
+//            return "다른 요청이 처리 중입니다. 잠시 후 다시 시도해주세요.";
+//        }
+//    }
 }

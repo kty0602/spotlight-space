@@ -36,5 +36,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, EventQueryR
 
     @Query("SELECT COUNT(e) FROM Event e "
             + "WHERE e.user.id = :userId AND e.isDeleted = false And e.isCalculated = false")
-    int existCalculation(Long userId);
+    int existSettlement(Long userId);
 }

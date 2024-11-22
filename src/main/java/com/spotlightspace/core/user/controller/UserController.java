@@ -4,8 +4,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.core.user.dto.request.UpdateUserRequestDto;
-import com.spotlightspace.core.user.dto.response.GetCalculateListResponseDto;
-import com.spotlightspace.core.user.dto.response.GetCalculateResponseDto;
+import com.spotlightspace.core.user.dto.response.GetSettlementListResponseDto;
+import com.spotlightspace.core.user.dto.response.GetSettlementResponseDto;
 import com.spotlightspace.core.user.dto.response.GetCouponResponseDto;
 import com.spotlightspace.core.user.dto.response.GetUserResponseDto;
 import com.spotlightspace.core.user.dto.response.UpdateUserResponseDto;
@@ -51,7 +51,7 @@ public class UserController {
      */
     @PatchMapping("/user/{userId}")
     public ResponseEntity<UpdateUserResponseDto> updateUser(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser,
             @Valid @RequestPart UpdateUserRequestDto updateUserRequestDto,
             @RequestPart(required = false) MultipartFile file
@@ -59,7 +59,7 @@ public class UserController {
         UpdateUserResponseDto updateUserResponseDto = userService.updateUser(userId, authUser, updateUserRequestDto,
                 file);
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(updateUserResponseDto);
     }
 
@@ -72,7 +72,7 @@ public class UserController {
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<GetUserResponseDto> getUser(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity
@@ -89,12 +89,12 @@ public class UserController {
      */
     @DeleteMapping("/user/{userId}")
     public ResponseEntity<Map<String, String>> deleteUser(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser,
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
     ) {
-        String accessToken = invalidateRefreshTokenAndGetAccessToken(httpServletResponse, httpServletRequest);
+        String accessToken = invalidateTokensAndGetAccessToken(httpServletResponse, httpServletRequest);
 
         userService.deleteUser(userId, authUser, accessToken);
         Map<String, String> response = new HashMap<>();
@@ -113,7 +113,7 @@ public class UserController {
      */
     @GetMapping("/user/{userId}/coupons")
     public ResponseEntity<List<GetCouponResponseDto>> getCoupons(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         List<GetCouponResponseDto> couponList = userService.getCoupons(userId, authUser.getUserId());
@@ -136,7 +136,7 @@ public class UserController {
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse
     ) {
-        String accessToken = invalidateRefreshTokenAndGetAccessToken(httpServletResponse, httpServletRequest);
+        String accessToken = invalidateTokensAndGetAccessToken(httpServletResponse, httpServletRequest);
 
         userService.logout(authUser.getUserId(), accessToken);
         Map<String, String> response = new HashMap<>();
@@ -153,14 +153,14 @@ public class UserController {
      * @param authUser 현재 로그인중인 유저의 정보를 받습니다.
      * @return
      */
-    @GetMapping("/user/{userId}/all-calculation")
-    public ResponseEntity<GetCalculateResponseDto> getAllCalculate(
-            @PathVariable Long userId,
+    @GetMapping("/user/{userId}/all-settlement")
+    public ResponseEntity<GetSettlementResponseDto> getAllSettlement(
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.getAllCalculate(userId, authUser.getUserId()));
+                .body(userService.getAllSettlement(userId, authUser.getUserId()));
     }
 
     /**
@@ -170,25 +170,31 @@ public class UserController {
      * @param authUser 현재 로그인중인 유저입니다
      * @return 회원의 정산금 리스트를 반환합니다.
      */
-    @GetMapping("/user/{userId}/calculation")
-    public ResponseEntity<List<GetCalculateListResponseDto>> getCalculateList(
-            @PathVariable Long userId,
+    @GetMapping("/user/{userId}/settlement")
+    public ResponseEntity<List<GetSettlementListResponseDto>> getSettlementList(
+            @PathVariable long userId,
             @AuthenticationPrincipal AuthUser authUser
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.getCalculateList(userId, authUser.getUserId()));
+                .body(userService.getSettlementList(userId, authUser.getUserId()));
     }
 
-    private String invalidateRefreshTokenAndGetAccessToken(
+    private String invalidateTokensAndGetAccessToken(
             HttpServletResponse httpServletResponse,
             HttpServletRequest httpServletRequest
     ) {
         Cookie refreshTokenCookie = new Cookie("RefreshToken", null);
-        refreshTokenCookie.setMaxAge(0); // 쿠키 만료
-        refreshTokenCookie.setPath("/"); // 쿠키 경로 설정
+        refreshTokenCookie.setMaxAge(0);
+        refreshTokenCookie.setPath("/");
         httpServletResponse.addCookie(refreshTokenCookie);
+
+        Cookie accessTokenCookie = new Cookie("AccessToken", null);
+        accessTokenCookie.setMaxAge(0);
+        accessTokenCookie.setPath("/");
+        httpServletResponse.addCookie(accessTokenCookie);
 
         return httpServletRequest.getHeader(AUTHORIZATION);
     }
+
 }

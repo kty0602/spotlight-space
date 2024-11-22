@@ -1,5 +1,6 @@
 package com.spotlightspace.core.eventticketstock.domain;
 
+import com.spotlightspace.common.entity.Timestamped;
 import com.spotlightspace.core.event.domain.Event;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,16 +19,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "event_ticket_stocks")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EventTicketStock {
+public class EventTicketStock extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "event_ticket_stock_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    @Column(nullable = false)
     private int stock;
 
     private EventTicketStock(Event event, int stock) {

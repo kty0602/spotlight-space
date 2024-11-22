@@ -29,14 +29,14 @@ public class Attachment {
     @Column(nullable = false)
     private Long targetId;
 
-    private Attachment(String url, TableRole tableRole, Long id) {
+    private Attachment(String url, TableRole tableRole, long targetId) {
         this.url = url;
         this.tableRole = tableRole;
-        this.targetId = id;
+        this.targetId = targetId;
     }
 
-    public static Attachment of(String url, TableRole tableRole, Long id) {
-        return new Attachment(url, tableRole, id);
+    public static Attachment create(String url, TableRole tableRole, long targetId) {
+        return new Attachment(url, tableRole, targetId);
     }
 
 }

@@ -1,12 +1,9 @@
 package com.spotlightspace.common.exception;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Getter
 public enum ErrorCode {
@@ -21,7 +18,7 @@ public enum ErrorCode {
     EMAIL_DUPLICATED(CONFLICT, "이미 존재하는 이메일입니다."),
     RESERVED_TICKET_CANCELLATION_REQUIRED(CONFLICT, "예약된 티켓을 취소하고 다시 시도해주세요."),
     RESERVED_EVENT_CANCELLATION_REQUIRED(CONFLICT, "진행중인 이벤트를 취소하고 다시 시도해주세요."),
-    RESERVED_CALCULATION_REQUIRED(CONFLICT, "완료되지 않은 정산이 있습니다."),
+    RESERVED_SETTLEMENT_REQUIRED(CONFLICT, "완료되지 않은 정산이 있습니다."),
     ADMIN_NOT_FOUND(NOT_FOUND, "존재하지 않는 관리자입니다."),
     ADMIN_PASSWORD_MISMATCH(FORBIDDEN, "어드민 암호가 일치하지 않습니다."),
 
@@ -74,7 +71,9 @@ public enum ErrorCode {
 
     JSON_PROCESSING_EXCEPTION(BAD_REQUEST, "Json 처리 중 오류가 발생했습니다."),
 
-    LOCK_NOT_ACQUIRED(FORBIDDEN, "해당 요청은 락을 획득할 수 없습니다.");
+    LOCK_NOT_ACQUIRED(FORBIDDEN, "해당 요청은 락을 획득할 수 없습니다."),
+
+    WRONG_TABLEROLE(BAD_REQUEST, "잘못된 테이블 역할 입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

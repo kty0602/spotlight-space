@@ -110,7 +110,7 @@ class PaymentServiceTest {
         User user = userRepository.save(UserTestData.testUser());
         pointRepository.save(Point.of(0, user));
         CreateEventRequestDto createEventRequestDto = getCreateEventRequestDtoWithMaxPeople(10);
-        Event event = eventRepository.save(Event.of(createEventRequestDto, user));
+        Event event = eventRepository.save(Event.create(createEventRequestDto, user));
         EventTicketStock eventTicketStock = eventTicketStockRepository.save(EventTicketStock.create(event));
 
         given(kakaopayApi.readyPayment(anyString(), anyLong(), anyLong(), anyString(), anyLong(), anyInt()))
@@ -152,7 +152,7 @@ class PaymentServiceTest {
             // given
             User user = UserTestData.testUser();
             Point point = Point.of(10_000, user);
-            Event event = Event.of(getCreateEventRequestDto(), user);
+            Event event = Event.create(getCreateEventRequestDto(), user);
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             userRepository.save(user);
             pointRepository.save(point);
@@ -178,7 +178,7 @@ class PaymentServiceTest {
         void createPaymentWithNotEnoughPointAmount() {
             User user = UserTestData.testUser();
             Point point = Point.of(0, user);
-            Event event = Event.of(getCreateEventRequestDto(), user);
+            Event event = Event.create(getCreateEventRequestDto(), user);
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             userRepository.save(user);
             pointRepository.save(point);
@@ -204,7 +204,7 @@ class PaymentServiceTest {
             userRepository.save(user);
 
             CreateEventRequestDto requestDto = getCreateEventRequestDto();
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             Point point = pointRepository.save(Point.of(0, user));
 
             Payment payment = paymentRepository.save(getPendingPayment(event, user, requestDto.getPrice(), point));
@@ -226,7 +226,7 @@ class PaymentServiceTest {
             userRepository.save(user);
 
             CreateEventRequestDto requestDto = getCreateEventRequestDto();
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             Point point = pointRepository.save(Point.of(0, user));
 
             Payment payment = paymentRepository.save(getPendingPayment(event, user, requestDto.getPrice(), point));
@@ -247,7 +247,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -276,7 +276,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -302,7 +302,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -329,7 +329,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -353,7 +353,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -389,7 +389,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -413,7 +413,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -440,7 +440,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDtoWithFinishedRecruitment(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDtoWithFinishedRecruitment(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -463,7 +463,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -489,7 +489,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStock.decreaseStock();
             eventTicketStockRepository.save(eventTicketStock);
@@ -517,7 +517,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
             ticketRepository.save(Ticket.create(user, event, event.getPrice()));
@@ -547,7 +547,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -576,7 +576,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -603,7 +603,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -628,7 +628,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStock.decreaseStock(2);
             eventTicketStockRepository.save(eventTicketStock);
@@ -663,7 +663,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStockRepository.save(eventTicketStock);
 
@@ -691,7 +691,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStock.decreaseStock();
             eventTicketStockRepository.save(eventTicketStock);
@@ -724,7 +724,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStock.decreaseStock();
             eventTicketStockRepository.save(eventTicketStock);
@@ -751,7 +751,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStock.decreaseStock();
             eventTicketStockRepository.save(eventTicketStock);
@@ -778,7 +778,7 @@ class PaymentServiceTest {
             User user = UserTestData.testUser();
             userRepository.save(user);
 
-            Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+            Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
             EventTicketStock eventTicketStock = EventTicketStock.create(event);
             eventTicketStock.decreaseStock();
             eventTicketStockRepository.save(eventTicketStock);

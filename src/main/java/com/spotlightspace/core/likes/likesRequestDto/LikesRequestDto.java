@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Getter
 public class LikesRequestDto {
 
-    private Review reviewId;
+    private Review review;
 
-    private User userId;
+    private User user;
 
-    private LikesRequestDto(Review reviewId, User userId) {
-        this.reviewId = reviewId;
-        this.userId = userId;
+    private LikesRequestDto(Review review, User user) {
+        this.review = review;
+        this.user = user;
     }
 
-    public static LikesRequestDto of(Review reviewId, User userId) {
-        return new LikesRequestDto(reviewId, userId);
+    public static LikesRequestDto of(Review review, User user) {
+        return new LikesRequestDto(review, user);
     }
 }

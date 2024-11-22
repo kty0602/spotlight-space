@@ -19,6 +19,7 @@ public class Review extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,14 +30,16 @@ public class Review extends Timestamped {
     @JoinColumn(nullable = false)
     private User user;
 
+    @Column(nullable = false)
     private String contents;
 
+    @Column(nullable = false)
     private Integer rating;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Column(name = "likes")
+    @Column(name = "likes", nullable = false)
     private int likeCount;
 
     @OneToMany(cascade = CascadeType.PERSIST)
@@ -56,9 +59,11 @@ public class Review extends Timestamped {
 
     public void likeReview(User user) {
         this.likeUsers.add(user);
+        likeCount++;
     }
 
-    public void dislikeReview(User user) { this.likeUsers.remove(user); }
+    public void dislikeReview(User user) { this.likeUsers.remove(user);
+        likeCount--;}
 
     public void changeRating(Integer rating) {
         this.rating = rating;

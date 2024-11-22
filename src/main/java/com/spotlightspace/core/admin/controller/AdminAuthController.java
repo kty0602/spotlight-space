@@ -54,7 +54,7 @@ public class AdminAuthController {
             String accessToken
     ) throws UnsupportedEncodingException {
         String cookieValue = URLEncoder.encode(accessToken, "utf-8").replaceAll("\\+", "%20");
-        Cookie cookie = new Cookie("AccessToken", cookieValue);
+        Cookie cookie = new Cookie("Authorization", cookieValue);
         cookie.setPath("/");
         cookie.setSecure(true);
         cookie.setHttpOnly(true);

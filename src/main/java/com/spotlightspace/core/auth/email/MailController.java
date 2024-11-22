@@ -2,7 +2,9 @@ package com.spotlightspace.core.auth.email;
 
 import com.spotlightspace.core.auth.email.dto.MatchMailRequestDto;
 import com.spotlightspace.core.auth.email.dto.SendMailRequestDto;
+import jakarta.mail.MessagingException;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -20,9 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MailController {
 
     private final MailService mailService;
-    private final StringRedisTemplate redisTemplate;
-    //redis의 ttl을 설정하는 변수입니다.
-    private static final long TTL = 5 * 60;
 
     /**
      * 이메일 인증을 진행합니다. redis를 사용하여 5분 ttl을 두었습니다.
@@ -31,10 +30,21 @@ public class MailController {
      * @return 보낼 메일에 진짜로 회원가입 문자가 날라가요! 조심해주세요~
      */
     @PostMapping("/mailSend")
-    public ResponseEntity<HashMap<String, Object>> mailSend(@RequestBody SendMailRequestDto mailRequest) {
-        HashMap<String, Object> responseMap = mailService.sendMailAndStoreCode(mailRequest.getMail());
-        return ResponseEntity.ok(responseMap);
+    public ResponseEntity<HashMap<String, Object>> mailSend(@RequestBody SendMailRequestDto mailRequest)
+            throws MessagingException {
+        //유저 체크 로직
+        mailService.emailUserCehck(mailRequest.getMail());
+
+        // 비동기 작업 시작
+        mailService.sendMail(mailRequest.getMail());
+
+        HashMap<String, Object> immediateResponse = new HashMap<>();
+        immediateResponse.put("success", Boolean.TRUE);
+        immediateResponse.put("message", "이메일을 확인해 주세요.");
+
+        return ResponseEntity.ok(immediateResponse);
     }
+
 
     /**
      * 메일에 보내준 번호를 체크합니다, 레디스에 저장된 값을 꺼내옵니다, redis에 저장될 키는

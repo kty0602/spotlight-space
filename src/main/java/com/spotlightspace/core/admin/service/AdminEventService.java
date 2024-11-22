@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.spotlightspace.common.exception.ErrorCode.EVENT_NOT_FOUND;
+import static com.spotlightspace.common.util.SortFieldValidator.validateSortField;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +22,9 @@ public class AdminEventService {
 
     private final AdminQueryRepository adminRepository;
 
-    @Transactional(readOnly = true)
     public Page<AdminEventResponseDto> getAdminEvents(int page, int size, String keyword, String sortField, String sortOrder) {
+        validateSortField(sortField);
+
         Sort sort = Sort.by(sortField);
         if ("desc".equalsIgnoreCase(sortOrder)) {
             sort = sort.descending();
@@ -31,10 +33,9 @@ public class AdminEventService {
         }
 
         Pageable pageable = PageRequest.of(Math.max(page - 1, 0), size, sort);
-
-        // AdminRepository의 QueryDSL 메서드를 통해 검색 수행 (검색어 추가)
         return adminRepository.getAdminEvents(keyword, pageable);
     }
+
     @Transactional
     public void deleteEvent(Long id) {
         Event event = adminRepository.findEventById(id)

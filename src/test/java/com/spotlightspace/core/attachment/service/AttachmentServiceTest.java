@@ -100,11 +100,11 @@ public class AttachmentServiceTest {
 
             doAnswer(invocation -> null).when(amazonS3Client)
                     .putObject(eq(bucket), anyString(), any(InputStream.class), any(ObjectMetadata.class));
-            Attachment attachment = Attachment.of(url, tableRole, tableId);
+            Attachment attachment = Attachment.create(url, tableRole, tableId);
             given(attachmentRepository.save(any(Attachment.class))).willReturn(attachment);
 
             // when
-            List<GetAttachmentResponseDto> responseDtos = attachmentService.addNewAttachmentList(files, tableId, tableRole, authUser);
+            List<GetAttachmentResponseDto> responseDtos = attachmentService.createNewAttachmentList(files, tableId, tableRole, authUser);
 
             // then
             assertNotNull(responseDtos);
@@ -138,11 +138,11 @@ public class AttachmentServiceTest {
 
             doAnswer(invocation -> null).when(amazonS3Client)
                     .putObject(eq(bucket), anyString(), any(InputStream.class), any(ObjectMetadata.class));
-            Attachment attachment = Attachment.of(url, tableRole, tableId);
+            Attachment attachment = Attachment.create(url, tableRole, tableId);
             given(attachmentRepository.save(any(Attachment.class))).willReturn(attachment);
 
             // when
-            List<GetAttachmentResponseDto> responseDtos = attachmentService.addNewAttachmentList(files, tableId, tableRole, authUser);
+            List<GetAttachmentResponseDto> responseDtos = attachmentService.createNewAttachmentList(files, tableId, tableRole, authUser);
 
             // then
             assertNotNull(responseDtos);
@@ -166,7 +166,7 @@ public class AttachmentServiceTest {
 
             // when
             ApplicationException exception = assertThrows(ApplicationException.class, () -> {
-                attachmentService.addNewAttachmentList(files, tableId, tableRole, authUser);
+                attachmentService.createNewAttachmentList(files, tableId, tableRole, authUser);
             });
 
             // then
@@ -189,7 +189,7 @@ public class AttachmentServiceTest {
 
             // when
             ApplicationException exception = assertThrows(ApplicationException.class, () -> {
-                attachmentService.addNewAttachmentList(files, tableId, tableRole, authUser);
+                attachmentService.createNewAttachmentList(files, tableId, tableRole, authUser);
             });
 
             // then
@@ -210,7 +210,7 @@ public class AttachmentServiceTest {
             TableRole tableRole = TableRole.USER;
             AuthUser authUser = testAuthUser();
 
-            Attachment attachment = Attachment.of("existing-url", tableRole, tableId);
+            Attachment attachment = Attachment.create("existing-url", tableRole, tableId);
             ReflectionTestUtils.setField(attachment, "id", 1L);
             given(attachmentRepository.findByIdOrElseThrow(attachment.getId())).willReturn(attachment);
 
@@ -229,7 +229,7 @@ public class AttachmentServiceTest {
             doAnswer(invocation -> null).when(amazonS3Client)
                     .putObject(eq(bucket), anyString(), any(InputStream.class), any(ObjectMetadata.class));
 
-            Attachment newAttachment = Attachment.of(url, tableRole, tableId);
+            Attachment newAttachment = Attachment.create(url, tableRole, tableId);
             given(attachmentRepository.save(any(Attachment.class))).willReturn(newAttachment);
 
             // when
@@ -280,8 +280,8 @@ public class AttachmentServiceTest {
                     .putObject(eq(bucket), anyString(), any(InputStream.class), any(ObjectMetadata.class));
 
             given(attachmentRepository.save(any(Attachment.class)))
-                    .willReturn(Attachment.of(url1, tableRole, tableId))
-                    .willReturn(Attachment.of(url2, tableRole, tableId));
+                    .willReturn(Attachment.create(url1, tableRole, tableId))
+                    .willReturn(Attachment.create(url2, tableRole, tableId));
 
             // when
             attachmentService.addAttachmentList(files, tableId, tableRole);
@@ -315,7 +315,7 @@ public class AttachmentServiceTest {
                     .putObject(eq(bucket), anyString(), any(InputStream.class), any(ObjectMetadata.class));
 
 
-            given(attachmentRepository.save(any(Attachment.class))).willReturn(Attachment.of(url, tableRole, tableId));
+            given(attachmentRepository.save(any(Attachment.class))).willReturn(Attachment.create(url, tableRole, tableId));
 
             // when
             attachmentService.addAttachment(file, tableId, tableRole);
@@ -343,7 +343,7 @@ public class AttachmentServiceTest {
             String fileName = randomName + "test4.jpg";
             String url = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
-            Attachment attachment = Attachment.of(url, tableRole, tableId);
+            Attachment attachment = Attachment.create(url, tableRole, tableId);
 
             given(attachmentRepository.findByTargetIdAndTableRole(tableId, tableRole)).willReturn(Optional.of(attachment));
 
@@ -391,8 +391,8 @@ public class AttachmentServiceTest {
             String fileName2 = randomName2 + "test6.jpg";
             String url2 = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName2;
 
-            Attachment attachment1 = Attachment.of(url1, tableRole, tableId);
-            Attachment attachment2 = Attachment.of(url2, tableRole, tableId);
+            Attachment attachment1 = Attachment.create(url1, tableRole, tableId);
+            Attachment attachment2 = Attachment.create(url2, tableRole, tableId);
 
             List<Attachment> attachments = List.of(attachment1, attachment2);
             given(attachmentRepository.findAllByTargetIdAndTableRole(tableId, tableRole)).willReturn(attachments);
@@ -447,7 +447,7 @@ public class AttachmentServiceTest {
             String fileName = randomName + "test.jpg";
             String url = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
-            Attachment attachment = Attachment.of(url, tableRole, tableId);
+            Attachment attachment = Attachment.create(url, tableRole, tableId);
 
             given(attachmentRepository.findByIdOrElseThrow(attachmentId)).willReturn(attachment);
             given(userRepository.findByIdOrElseThrow(user.getId())).willReturn(user);
@@ -475,7 +475,7 @@ public class AttachmentServiceTest {
             String fileName = randomName + "test.jpg";
             String url = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
-            Attachment attachment = Attachment.of(url, tableRole, attachmentId);
+            Attachment attachment = Attachment.create(url, tableRole, attachmentId);
 
             given(attachmentRepository.findByIdOrElseThrow(attachmentId)).willReturn(attachment);
             given(userRepository.findByIdOrElseThrow(user.getId())).willThrow(new ApplicationException(USER_NOT_FOUND));
@@ -505,7 +505,7 @@ public class AttachmentServiceTest {
             String fileName = randomName + "test.jpg";
             String url = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
-            Attachment attachment = Attachment.of(url, tableRole, attachmentId);
+            Attachment attachment = Attachment.create(url, tableRole, attachmentId);
 
             given(attachmentRepository.findByIdOrElseThrow(attachmentId)).willReturn(attachment);
             given(eventRepository.findByIdAndUserIdOrElseThrow(event.getId(), authUser.getUserId())).willReturn(event);
@@ -534,7 +534,7 @@ public class AttachmentServiceTest {
             String fileName = randomName + "test.jpg";
             String url = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
 
-            Attachment attachment = Attachment.of(url, tableRole, attachmentId);
+            Attachment attachment = Attachment.create(url, tableRole, attachmentId);
 
             given(attachmentRepository.findByIdOrElseThrow(attachmentId)).willReturn(attachment);
             given(eventRepository.findByIdAndUserIdOrElseThrow(event.getId(), authUser.getUserId()))
@@ -563,7 +563,7 @@ public class AttachmentServiceTest {
             Long targetId = 1L;
             TableRole tableRole = TableRole.USER;
 
-            Attachment attachment = Attachment.of(url, tableRole, targetId);
+            Attachment attachment = Attachment.create(url, tableRole, targetId);
 
             given(attachmentRepository.save(any(Attachment.class))).willReturn(attachment);
 
@@ -585,7 +585,7 @@ public class AttachmentServiceTest {
             ReflectionTestUtils.setField(user, "id", targetId);
             TableRole tableRole = TableRole.USER;
 
-            Attachment attachment = Attachment.of(url, tableRole, targetId);
+            Attachment attachment = Attachment.create(url, tableRole, targetId);
 
             given(attachmentRepository.findByTableRoleAndTargetId(tableRole, user.getId())).willReturn(attachment);
 

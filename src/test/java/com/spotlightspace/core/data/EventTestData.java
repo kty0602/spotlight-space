@@ -65,7 +65,7 @@ public class EventTestData {
         CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto();
         User user = testArtist();
         ReflectionTestUtils.setField(user, "id", 1L);
-        Event event = Event.of(eventRequestDto, user);
+        Event event = Event.create(eventRequestDto, user);
         ReflectionTestUtils.setField(event, "id", 1L);
         return event;
     }
@@ -74,7 +74,7 @@ public class EventTestData {
         CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto2();
         User user = testArtist();
         ReflectionTestUtils.setField(user, "id", 1L);
-        Event event = Event.of(eventRequestDto, user);
+        Event event = Event.create(eventRequestDto, user);
         ReflectionTestUtils.setField(event, "id", 2L);
         return event;
     }
@@ -82,7 +82,7 @@ public class EventTestData {
     public static EventElastic testEventElastic1() {
         Event event = testEvent();
         CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto();
-        EventElastic eventElastic = EventElastic.of(eventRequestDto, event.getId());
+        EventElastic eventElastic = EventElastic.create(eventRequestDto, event.getId());
         ReflectionTestUtils.setField(eventElastic, "id", 1L);
         return eventElastic;
     }
@@ -90,7 +90,7 @@ public class EventTestData {
     public static EventElastic testEventElastic2() {
         Event event = testEvent2();
         CreateEventRequestDto eventRequestDto = createDefaultEventRequestDto();
-        EventElastic eventElastic = EventElastic.of(eventRequestDto, event.getId());
+        EventElastic eventElastic = EventElastic.create(eventRequestDto, event.getId());
         ReflectionTestUtils.setField(eventElastic, "id", 2L);
         return eventElastic;
     }

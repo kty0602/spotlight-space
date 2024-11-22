@@ -12,4 +12,5 @@ public class ApplicationException extends RuntimeException {
     public int getStatusCode() {
         return errorCode.getHttpStatus().value();
     }
+
 }

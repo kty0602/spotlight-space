@@ -272,7 +272,7 @@ class PaymentServiceFacadeTest {
     }
 
     Event getEvent(CreateEventRequestDto createEventRequestDto) {
-        Event event = Event.of(createEventRequestDto, getUser());
+        Event event = Event.create(createEventRequestDto, getUser());
         ReflectionTestUtils.setField(event, "id", 1L);
         return event;
     }

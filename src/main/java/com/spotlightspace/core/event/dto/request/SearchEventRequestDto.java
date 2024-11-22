@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class SearchEventRequestDto {
+
     private String title;
     private Integer maxPeople;
     private String location;

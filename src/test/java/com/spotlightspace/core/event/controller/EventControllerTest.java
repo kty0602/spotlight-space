@@ -1,6 +1,7 @@
 package com.spotlightspace.core.event.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spotlightspace.common.annotation.AuthUser;
 import com.spotlightspace.common.entity.TableRole;
 import com.spotlightspace.common.exception.GlobalExceptionHandler;
 import com.spotlightspace.core.attachment.domain.Attachment;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -43,8 +45,7 @@ import java.util.List;
 import static com.spotlightspace.core.data.EventTestData.createDefaultEventRequestDto;
 import static com.spotlightspace.core.data.EventTestData.updateDefaultEventRequestDto;
 import static com.spotlightspace.core.data.UserTestData.testArtist;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -84,7 +85,7 @@ public class EventControllerTest {
         // given
         User user = testArtist();
         CreateEventRequestDto requestDto = createDefaultEventRequestDto();
-        Event event = Event.of(requestDto,user);
+        Event event = Event.create(requestDto,user);
 
         when(eventService.createEvent(any(), any(), any())).thenReturn(CreateEventResponseDto.from(event));
 
@@ -122,9 +123,10 @@ public class EventControllerTest {
         User user = testArtist();
         CreateEventRequestDto createEventRequestDto = createDefaultEventRequestDto();
         UpdateEventRequestDto updateEventRequestDto = updateDefaultEventRequestDto();
-        Event event = Event.of(createEventRequestDto, user);
+        Event event = Event.create(createEventRequestDto, user);
+        ReflectionTestUtils.setField(event, "id", 1L);
 
-        when(eventService.updateEvent(any(), any(), any()))
+        when(eventService.updateEvent(any(UpdateEventRequestDto.class), any(AuthUser.class), anyLong()))
                 .thenReturn(UpdateEventResponseDto.from(event));
 
         // when & then
@@ -144,7 +146,7 @@ public class EventControllerTest {
         Long eventId = 1L;
         User user = testArtist();
         CreateEventRequestDto requestDto = createDefaultEventRequestDto();
-        Event event = Event.of(requestDto, user);
+        Event event = Event.create(requestDto, user);
 
         when(eventService.getEvent(any())).thenReturn(GetEventResponseDto.from(event));
 
@@ -161,7 +163,7 @@ public class EventControllerTest {
         // given
         User user = testArtist();
         CreateEventRequestDto createEventRequestDto = createDefaultEventRequestDto();
-        Event event = Event.of(createEventRequestDto, user);
+        Event event = Event.create(createEventRequestDto, user);
 
         int page = 1;
         int size = 10;
@@ -204,7 +206,7 @@ public class EventControllerTest {
         // given
         Long eventId = 1L;
         CreateEventRequestDto createEventRequestDto = createDefaultEventRequestDto();
-        EventElastic eventElastic = EventElastic.of(createEventRequestDto, eventId);
+        EventElastic eventElastic = EventElastic.create(createEventRequestDto, eventId);
 
         int page = 1;
         int size = 10;
@@ -249,7 +251,7 @@ public class EventControllerTest {
         Long eventId = 1L;
         User user = testArtist();
         CreateEventRequestDto requestDto = createDefaultEventRequestDto();
-        Event event = Event.of(requestDto, user);
+        Event event = Event.create(requestDto, user);
 
         when(eventService.getEvent(any())).thenReturn(GetEventResponseDto.from(event));
 
@@ -265,8 +267,8 @@ public class EventControllerTest {
 
         // given
         Long eventId = 1L;
-        Attachment attachment1 = Attachment.of("https://example.com/file1.png", TableRole.EVENT, eventId);
-        Attachment attachment2 = Attachment.of("https://example.com/file2.jpg", TableRole.EVENT, eventId);
+        Attachment attachment1 = Attachment.create("https://example.com/file1.png", TableRole.EVENT, eventId);
+        Attachment attachment2 = Attachment.create("https://example.com/file2.jpg", TableRole.EVENT, eventId);
 
         GetAttachmentResponseDto attachmentResponse1 = GetAttachmentResponseDto.from(attachment1);
         GetAttachmentResponseDto attachmentResponse2 = GetAttachmentResponseDto.from(attachment2);

@@ -57,8 +57,7 @@ public class AdminUserController {
     ) {
         SearchAdminUserRequestDto searchAdminUserRequestDto = SearchAdminUserRequestDto.of(nickname, email, phoneNumber,
                 role, location, birth, isSocialLogin, isDeleted);
-        Page<AdminUserResponseDto> users = adminUserService.getAdminUsers(page, size, searchAdminUserRequestDto,
-                sortField, sortOrder);
+        Page<AdminUserResponseDto> users = adminUserService.getAdminUsers(page, size, searchAdminUserRequestDto, sortField, sortOrder);
         if (users.isEmpty()) {
             throw new ApplicationException(NO_RESULTS_FOUND);
         }

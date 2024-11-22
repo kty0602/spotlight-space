@@ -144,7 +144,7 @@ public class NaverService {
 
         JsonNode responseNode = jsonNode.get("response");
         log.info("네이버 사용자 전체 정보: {}", responseNode.toString());
-        Long id = responseNode.get("id").asLong();
+        long id = responseNode.get("id").asLong();
         String nickname = responseNode.get("nickname").asText();
         String email = responseNode.get("email").asText();
         String mobile = responseNode.get("mobile").asText();

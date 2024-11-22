@@ -53,7 +53,7 @@ class PaymentRepositoryTest {
         userRepository.save(user);
 
         CreateEventRequestDto requestDto = getCreateEventRequestDto();
-        Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+        Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
         Point point = pointRepository.save(Point.of(0, user));
 
         Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice(), point);
@@ -77,7 +77,7 @@ class PaymentRepositoryTest {
         userRepository.save(user);
 
         CreateEventRequestDto requestDto = getCreateEventRequestDto();
-        Event event = eventRepository.save(Event.of(getCreateEventRequestDto(), user));
+        Event event = eventRepository.save(Event.create(getCreateEventRequestDto(), user));
         Point point = pointRepository.save(Point.of(0, user));
 
         Payment approvedPayment = getApprovedPayment(event, user, requestDto.getPrice(), point);

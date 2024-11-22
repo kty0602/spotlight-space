@@ -17,17 +17,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-    @Query("select p " +
-            "from Payment p " +
-            "join fetch p.event e " +
-            "join fetch e.user " +
-            "where p.status = :status and :startInclusive <= e.endAt and e.endAt < :endExclusive and e.isDeleted = false")
-    List<Payment> findPaymentsForCalculation(
-            @Param("status") PaymentStatus status,
-            @Param("startInclusive") LocalDateTime startInclusive,
-            @Param("endExclusive") LocalDateTime endExclusive
-    );
-
     @Query("select p from Payment p where p.event = :event and p.status = :status")
     List<Payment> findPaymentsByEventAndStatus(@Param("event") Event event, @Param("status") PaymentStatus status);
 
